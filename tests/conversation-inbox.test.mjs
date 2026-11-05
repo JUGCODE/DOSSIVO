@@ -1,0 +1,233 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {readdirSync,readFileSync} from 'node:fs';
+import {COMMUNICATION_DECLARATION_VERSION} from '../lib/communication-policy.js';
+import {PrivateTaskStore} from '../lib/private-task-store.js';
+import {BuyerAccessStore} from '../lib/buyer-access-store.js';
+import {ConversationStore} from '../lib/conversation-store.js';
+
+function dbFor(sqlite){const db={beforeBatch:null,beforeRun:null,prepare(sql){const make=values=>({sql,values,bind:(...v)=>make(v),first:async()=>sqlite.prepare(sql).get(...values)??null,all:async()=>({results:sqlite.prepare(sql).all(...values)}),run:async()=>{if(db.beforeRun){const hook=db.beforeRun;db.beforeRun=null;await hook();}return sqlite.prepare(sql).run(...values);}});return make([]);},async batch(statements){if(db.beforeBatch){const hook=db.beforeBatch;db.beforeBatch=null;await hook();}sqlite.exec('BEGIN');try{const r=statements.map(s=>sqlite.prepare(s.sql).run(...s.values));sqlite.exec('COMMIT');return r;}catch(e){sqlite.exec('ROLLBACK');throw e;}}};return db;}
+function setup(t){const sqlite=new DatabaseSync(':memory:');t.after(()=>sqlite.close());for(const name of readdirSync(new URL('../drizzle/',import.meta.url)).filter(x=>x.endsWith('.sql')).sort())sqlite.exec(readFileSync(new URL('../drizzle/'+name,import.meta.url),'utf8'));// Positive baseline: these synthetic actors explicitly chose the international test service.
+for(const actor of ['buyer-a', 'buyer-b', 'supplier'])sqlite.prepare('INSERT INTO dossivo_communication_regions(actor_id,service_region,declaration_version,confirmed_at) VALUES(?,?,?,?)').run(actor,'INTERNATIONAL',COMMUNICATION_DECLARATION_VERSION,'2026-11-05T12:00:00.000Z');let now='2026-11-05T12:00:00.000Z';const clock=()=>now,db=dbFor(sqlite);return {sqlite,db,clock,setNow:v=>now=v,task:new PrivateTaskStore(db,{clock}),access:new BuyerAccessStore(db,{clock}),chat:new ConversationStore(db,{clock})};}
+let nonce=0;
+async function cmd(f,s,action,data={}){return (await f.task.command('supplier',{task_id:s.task_id,expected_version:s.version,idempotency_key:'task-'+(++nonce),action,data})).state;}
+async function fixture(t,{mode='CONTINUOUS_SUMMARY',buyer='buyer-a',follow=false}={}){const f=setup(t);let s=(await f.task.command('supplier',{action:'create',idempotency_key:'create-'+(++nonce),data:{synthetic_only:true,purpose:'SECRET_ORDER_PURPOSE',organization:'Synthetic supplier',facility:'Synthetic facility',period:'2026-10'}})).state;s=await cmd(f,s,'add_material',{sample:'normal'});s=await cmd(f,s,'assess');s=await cmd(f,s,'freeze_card');const data={task_id:s.task_id,card_id:s.cards.at(-1).id,hours:48,fields:[],categories:['electricity'],access_mode:mode,version_policy:follow?'FOLLOW_PUBLISHED':'FIXED'};const g=await f.access.createGrant('supplier',data,'grant-'+(++nonce));await f.access.redeem(buyer,g.code,'redeem-'+(++nonce));return {...f,s,g,buyer,data};}
+async function send(f,actor,body,extra={},key='message-'+(++nonce)){return f.chat.send(actor,{grant_id:f.g.grant.id,kind:'NOTE',body,synthetic_only:true,...extra},key);}
+const rows=inbox=>inbox.conversations;
+
+test('inbox: only own bilateral conversations, own messages excluded from unread, material revoke/expiry do not erase history',async t=>{
+ const f=await fixture(t,{mode:'TEMPORARY'});await send(f,'supplier','FIRST_PRIVATE_BODY');
+ const second=await f.access.createGrant('supplier',f.data,'second-grant');await f.access.redeem('buyer-b',second.code,'second-redeem');await f.chat.send('supplier',{grant_id:second.grant.id,kind:'NOTE',body:'OTHER_BUYER_PRIVATE_BODY',synthetic_only:true},'second-message');
+ let a=await f.chat.inbox('buyer-a');assert.equal(rows(a).length,1);assert.equal(rows(a)[0].grant_id,f.g.grant.id);assert.equal(rows(a)[0].unread_count,1);assert.equal(a.unread_total,1);
+ assert.equal((await f.chat.inbox('supplier')).unread_total,0);assert.deepEqual(rows(await f.chat.inbox('stranger')),[]);
+ for(const secret of ['FIRST_PRIVATE_BODY','OTHER_BUYER_PRIVATE_BODY','SECRET_ORDER_PURPOSE','buyer-b','code_hash','snapshot_json'])assert.ok(!JSON.stringify(a).includes(secret),secret);
+ f.setNow('2026-11-10T12:00:00.000Z');assert.equal(rows(await f.chat.inbox('buyer-a')).length,1);await f.access.revoke('supplier',f.g.grant.id,'revoked');assert.equal(rows(await f.chat.inbox('buyer-a')).length,1);assert.equal((await f.chat.thread('buyer-a',f.g.grant.id)).messages.length,1);
+ await assert.rejects(f.access.buyerRead('buyer-a',f.g.grant.id),{code:'ACCESS_UNAVAILABLE'});
+});
+
+test('unread: stable sequence for equal timestamps and monotonically advancing read cursor',async t=>{
+ const f=await fixture(t);await send(f,'supplier','one');await send(f,'supplier','two');await send(f,'buyer-a','own message');
+ const thread=await f.chat.thread('buyer-a',f.g.grant.id);assert.deepEqual(thread.messages.map(m=>m.body),['one','two','own message']);assert.equal(thread.messages[0].created_at,thread.messages[1].created_at);assert.ok(thread.messages[0].sequence<thread.messages[1].sequence);assert.equal(thread.last_sequence,thread.messages.at(-1).sequence);
+ assert.equal((await f.chat.inbox('buyer-a')).unread_total,2);
+ let mark=await f.chat.markRead('buyer-a',{grant_id:f.g.grant.id,through_message_id:thread.messages[1].id});assert.equal(mark.read_through_sequence,thread.messages[1].sequence);assert.equal((await f.chat.inbox('buyer-a')).unread_total,0);
+ mark=await f.chat.markRead('buyer-a',{grant_id:f.g.grant.id,through_message_id:thread.messages[0].id});assert.equal(mark.read_through_sequence,thread.messages[1].sequence);
+ assert.equal((await f.chat.inbox('supplier')).unread_total,1);
+ await assert.rejects(f.chat.markRead('buyer-b',{grant_id:f.g.grant.id,through_message_id:thread.messages[0].id}),{code:'CONVERSATION_UNAVAILABLE'});
+ await assert.rejects(f.chat.markRead('buyer-a',{grant_id:f.g.grant.id,through_message_id:'foreign-message'}));
+});
+
+test('unread: message arriving during mark-read remains unread rather than being consumed by a timestamp watermark',async t=>{
+ const f=await fixture(t);const initial=await send(f,'supplier','seen');const seen=initial.messages.at(-1);
+ f.db.beforeBatch=async()=>{await send(f,'supplier','arrived while marking read');};
+ await f.chat.markRead('buyer-a',{grant_id:f.g.grant.id,through_message_id:seen.id});assert.equal((await f.chat.inbox('buyer-a')).unread_total,1);
+ const thread=await f.chat.thread('buyer-a',f.g.grant.id);assert.equal(thread.messages.at(-1).body,'arrived while marking read');
+});
+
+test('thread pagination: newest page and older page have no duplication even with identical timestamps',async t=>{
+ const f=await fixture(t);for(let i=0;i<103;i++)await send(f,'supplier','message '+i);
+ const latest=await f.chat.thread('buyer-a',f.g.grant.id);assert.equal(latest.messages.length,100);assert.equal(latest.messages[0].body,'message 3');assert.equal(latest.messages.at(-1).body,'message 102');assert.equal(latest.has_earlier,true);
+ const older=await f.chat.thread('buyer-a',f.g.grant.id,latest.messages[0].sequence);assert.deepEqual(older.messages.map(m=>m.body),['message 0','message 1','message 2']);assert.equal(older.has_earlier,false);
+ assert.equal(new Set([...older.messages,...latest.messages].map(m=>m.id)).size,103);
+});
+
+test('card reference: stored as fixed identity only, opening rechecks grant and never treats owner preview as buyer evidence usage',async t=>{
+ const f=await fixture(t,{follow:true});const eventsBefore=f.sqlite.prepare("SELECT COUNT(*) n FROM dossivo_access_events WHERE kind='VIEWED'").get().n;
+ const sent=await send(f,'supplier','Reference to initial fixed card',{evidence_sequence:0});const m=sent.messages.at(-1);assert.deepEqual(m.reference,{sequence:0,card_id:f.s.cards.at(-1).id});
+ assert.equal(f.sqlite.prepare("SELECT COUNT(*) n FROM dossivo_access_events WHERE kind='VIEWED'").get().n,eventsBefore);
+ const thread=await f.chat.thread('buyer-a',f.g.grant.id);assert.ok(!JSON.stringify(thread).includes('snapshot'));assert.ok(!JSON.stringify(thread).includes('SECRET_ORDER_PURPOSE'));
+ const owner=await f.chat.reference('supplier',f.g.grant.id,m.id);assert.equal(owner.snapshot.source_card_id,f.s.cards.at(-1).id);assert.deepEqual(owner.snapshot.parameters,[]);assert.equal(f.sqlite.prepare("SELECT COUNT(*) n FROM dossivo_access_events WHERE kind='VIEWED'").get().n,eventsBefore);
+ const buyer=await f.chat.reference('buyer-a',f.g.grant.id,m.id);assert.equal(buyer.snapshot.source_card_id,f.s.cards.at(-1).id);assert.equal(f.sqlite.prepare("SELECT COUNT(*) n FROM dossivo_access_events WHERE kind='VIEWED'").get().n,eventsBefore+1);
+ await assert.rejects(f.chat.reference('buyer-b',f.g.grant.id,m.id),{code:'CONVERSATION_UNAVAILABLE'});
+ await f.access.revoke('supplier',f.g.grant.id,'revoke-reference');assert.equal((await f.chat.thread('buyer-a',f.g.grant.id)).messages.length,1);
+ for(const actor of ['supplier','buyer-a'])await assert.rejects(f.chat.reference(actor,f.g.grant.id,m.id));
+ await assert.rejects(send(f,'supplier','Cannot add revoked reference',{evidence_sequence:0}));
+});
+
+test('card reference: unpublished and foreign sequences fail; later publications never change the original reference',async t=>{
+ const f=await fixture(t,{follow:true});const originalCard=f.s.cards.at(-1).id;const sent=await send(f,'supplier','Fixed reference',{evidence_sequence:0});const m=sent.messages.at(-1);
+ let s=await cmd(f,f.s,'assess');s=await cmd(f,s,'freeze_card');await assert.rejects(send(f,'supplier','Unpublished sequence',{evidence_sequence:1}));
+ const preview=await f.access.previewPublication('supplier',{grant_id:f.g.grant.id,card_id:s.cards.at(-1).id});await f.access.publishSummary('supplier',preview,'publish-reference-test');
+ assert.equal((await f.chat.reference('buyer-a',f.g.grant.id,m.id)).snapshot.source_card_id,originalCard);
+ const latest=await send(f,'supplier','Published later card',{evidence_sequence:1});assert.equal(latest.messages.at(-1).reference.card_id,s.cards.at(-1).id);
+ await assert.rejects(f.chat.reference('buyer-a',f.g.grant.id,'foreign-message'));
+ for(const sequence of [-1,1.5,99])await assert.rejects(send(f,'supplier','Invalid reference',{evidence_sequence:sequence}));
+});
+
+test('card reference: revoke between validation and message commit rolls back the new reference and unread change',async t=>{
+ const f=await fixture(t);await send(f,'supplier','Existing text');const before=(await f.chat.thread('buyer-a',f.g.grant.id)).messages.length;
+ f.db.beforeBatch=async()=>{await f.access.revoke('supplier',f.g.grant.id,'reference-race');};
+ await assert.rejects(send(f,'supplier','Racing reference',{evidence_sequence:0}));assert.equal((await f.chat.thread('buyer-a',f.g.grant.id)).messages.length,before);assert.equal((await f.chat.inbox('buyer-a')).unread_total,1);
+});
+
+test('reference idempotency: same key cannot change fixed version and concurrent conflicting messages return a conflict',async t=>{
+ const f=await fixture(t,{follow:true});const data={grant_id:f.g.grant.id,kind:'NOTE',body:'Same text',synthetic_only:true,evidence_sequence:0};
+ const first=await f.chat.send('supplier',data,'reference-key');await f.chat.send('supplier',data,'reference-key');assert.equal((await f.chat.thread('buyer-a',f.g.grant.id)).messages.length,1);
+ await assert.rejects(f.chat.send('supplier',{...data,evidence_sequence:1},'reference-key'),{code:'IDEMPOTENCY_CONFLICT'});
+ f.db.beforeBatch=async()=>{await f.chat.send('supplier',{...data,body:'Winning concurrent message'},'race-key');};
+ await assert.rejects(f.chat.send('supplier',{...data,body:'Losing concurrent message'},'race-key'),{code:'IDEMPOTENCY_CONFLICT'});
+ const all=await f.chat.thread('buyer-a',f.g.grant.id);assert.equal(all.messages.length,2);assert.equal(all.messages[0].id,first.messages[0].id);assert.equal(all.messages.at(-1).body,'Winning concurrent message');
+});
+
+test('upgrade: existing same-time messages retain their order and continue with a unique monotonic sequence',t=>{
+ const sqlite=new DatabaseSync(':memory:');t.after(()=>sqlite.close());const files=readdirSync(new URL('../drizzle/',import.meta.url)).filter(x=>x.endsWith('.sql')).sort();
+ for(const file of files.filter(x=>x<'0010'))sqlite.exec(readFileSync(new URL('../drizzle/'+file,import.meta.url),'utf8'));
+ sqlite.prepare("INSERT INTO dossivo_conversations(id,grant_id,owner_id,buyer_id,status,created_at) VALUES('legacy','grant','owner','buyer','ACTIVE','2026-11-05')").run();
+ for(const id of ['c','a','b'])sqlite.prepare("INSERT INTO dossivo_conversation_messages(id,conversation_id,actor_id,kind,body,created_at,idempotency_key,command_hash) VALUES(?,'legacy','owner','NOTE',?,'2026-11-05',?,?)").run(id,'body-'+id,id,id);
+ sqlite.exec(readFileSync(new URL('../drizzle/0010_right_puck.sql',import.meta.url),'utf8'));
+ assert.deepEqual(sqlite.prepare('SELECT id,sequence FROM dossivo_conversation_messages ORDER BY sequence').all().map(r=>[r.id,r.sequence]),[['a',1],['b',2],['c',3]]);
+ assert.equal(sqlite.prepare("SELECT last_sequence FROM dossivo_conversations WHERE id='legacy'").get().last_sequence,3);
+ assert.equal(sqlite.prepare('SELECT count(*) n FROM dossivo_conversation_reads').get().n,0);
+ assert.throws(()=>sqlite.prepare("UPDATE dossivo_conversation_messages SET sequence=1 WHERE id='c'").run(),/UNIQUE/);
+});
+test('reference integrity: corrupted fixed card identity rejected for both parties and task changes warn supplier',async t=>{
+ const f=await fixture(t,{follow:true});const sent=await send(f,'supplier','Fixed card',{evidence_sequence:0}),message=sent.messages.at(-1);
+ await cmd(f,f.s,'add_material',{sample:'normal'});
+ assert.equal((await f.chat.reference('supplier',f.g.grant.id,message.id)).current_status.review_status,'UPDATE_REVIEW_REQUIRED');
+ f.sqlite.prepare("UPDATE dossivo_conversation_messages SET evidence_card_id='corrupt' WHERE id=?").run(message.id);
+ for(const actor of ['supplier','buyer-a'])await assert.rejects(f.chat.reference(actor,f.g.grant.id,message.id),{code:'INTEGRITY_FAILED'});
+});
+
+const structuredSend=(f,actor,structured,extra={},key='structured-'+(++nonce))=>f.chat.send(actor,{grant_id:f.g.grant.id,structured,synthetic_only:true,...extra},key);
+test('structured request persists fixed fields and server text; response and authorised card retain audit identity',async t=>{
+ const f=await fixture(t);const request=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'social_insurance',period:'2026-10'})).messages.at(-1);
+ assert.deepEqual(request.structured,{type:'REQUEST',topic:'social_insurance',period:'2026-10'});assert.match(request.body,/社保/);
+ const prep=(await structuredSend(f,'supplier',{type:'RESPONSE',status:'PREPARING'},{reply_to:request.id})).messages.at(-1);assert.equal(prep.reply_to,request.id);
+ const card=(await structuredSend(f,'supplier',{type:'RESPONSE',status:'CARD_SHARED'},{reply_to:request.id,evidence_sequence:0})).messages.at(-1);assert.equal(card.reference.card_id,f.s.cards.at(-1).id);
+ const before=f.sqlite.prepare("SELECT count(*) n FROM dossivo_access_events WHERE kind='VIEWED'").get().n;
+ await f.chat.thread('buyer-a',f.g.grant.id);assert.equal(f.sqlite.prepare("SELECT count(*) n FROM dossivo_access_events WHERE kind='VIEWED'").get().n,before);
+ await f.chat.reference('buyer-a',f.g.grant.id,card.id);assert.equal(f.sqlite.prepare("SELECT count(*) n FROM dossivo_access_events WHERE kind='VIEWED'").get().n,before+1);
+});
+test('structured requests reject arbitrary fields, invalid periods, forged body and unsupported decisions',async t=>{
+ const f=await fixture(t);
+ for(const value of [{type:'REQUEST',topic:'electricity',period:'2026-13'},{type:'REQUEST',topic:'salary_exact',period:'2026-10'},{type:'REQUEST',topic:'electricity',period:'2026-10',amount:99},{type:'RESPONSE',status:'COMPLIANT'}])await assert.rejects(structuredSend(f,'buyer-a',value),{code:'INVALID_INPUT'});
+ await assert.rejects(structuredSend(f,'buyer-a',{type:'REQUEST',topic:'electricity',period:'2026-10'},{body:'forged'}),{code:'INVALID_INPUT'});
+ assert.equal((await f.chat.thread('buyer-a',f.g.grant.id)).messages.length,0);
+});
+test('structured responses reject self, foreign participant and ordinary text targets',async t=>{
+ const f=await fixture(t);const request=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'audit',period:'2026-10'})).messages.at(-1);
+ await assert.rejects(structuredSend(f,'buyer-a',{type:'RESPONSE',status:'PREPARING'},{reply_to:request.id}),{code:'INVALID_INPUT'});
+ await assert.rejects(structuredSend(f,'buyer-b',{type:'RESPONSE',status:'PREPARING'},{reply_to:request.id}),{code:'CONVERSATION_UNAVAILABLE'});
+ const plain=(await send(f,'buyer-a','ordinary')).messages.at(-1);
+ await assert.rejects(structuredSend(f,'supplier',{type:'RESPONSE',status:'PREPARING'},{reply_to:plain.id}),{code:'INVALID_INPUT'});
+ await assert.rejects(structuredSend(f,'supplier',{type:'REQUEST',topic:'audit',period:'2026-10'}),{code:'INVALID_ACTION'});
+});
+test('structured send replay is idempotent; changed decision conflicts',async t=>{
+ const f=await fixture(t);const req={type:'REQUEST',topic:'electricity',period:'2026-10'};
+ await structuredSend(f,'buyer-a',req,{},'fixed-key');await structuredSend(f,'buyer-a',req,{},'fixed-key');assert.equal((await f.chat.thread('buyer-a',f.g.grant.id)).messages.length,1);
+ await assert.rejects(structuredSend(f,'buyer-a',{...req,period:'2026-09'},{},'fixed-key'),{code:'IDEMPOTENCY_CONFLICT'});
+});
+test('structured card response requires valid grant and rechecks revoke at transaction; history survives',async t=>{
+ const f=await fixture(t);const request=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'evidence_card',period:'2026-10'})).messages.at(-1);
+ await assert.rejects(structuredSend(f,'supplier',{type:'RESPONSE',status:'CARD_SHARED'},{reply_to:request.id}),{code:'INVALID_INPUT'});
+ f.db.beforeBatch=async()=>{await f.access.revoke('supplier',f.g.grant.id,'structured-revoke-race');};
+ await assert.rejects(structuredSend(f,'supplier',{type:'RESPONSE',status:'CARD_SHARED'},{reply_to:request.id,evidence_sequence:0}));
+ assert.equal((await f.chat.thread('buyer-a',f.g.grant.id)).messages.length,1);
+ await structuredSend(f,'supplier',{type:'RESPONSE',status:'UNAVAILABLE'},{reply_to:request.id});assert.equal((await f.chat.thread('buyer-a',f.g.grant.id)).messages.length,2);
+});
+test('structured requests still require synthetic confirmation',async t=>{
+ const f=await fixture(t);await assert.rejects(structuredSend(f,'buyer-a',{type:'REQUEST',topic:'workforce',period:'2026-10'},{synthetic_only:false}),{code:'REAL_DATA_DISABLED'});
+});
+test('structured direct contacts can request and respond without gaining card access; block stops sends',async t=>{
+ const f=setup(t);f.g={grant:{id:'dm_structured'}};
+ f.sqlite.prepare('INSERT INTO dossivo_contacts(id,pair_key,owner_id,peer_id,created_at) VALUES(?,?,?,?,?)').run('dm_structured','pair','supplier','buyer-a',f.clock());
+ const request=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'electricity',period:'2026-10'})).messages.at(-1);
+ await structuredSend(f,'supplier',{type:'RESPONSE',status:'PREPARING'},{reply_to:request.id});
+ await assert.rejects(structuredSend(f,'supplier',{type:'RESPONSE',status:'CARD_SHARED'},{reply_to:request.id,evidence_sequence:0}),{code:'CONVERSATION_READ_ONLY'});
+ assert.equal((await f.chat.thread('supplier','dm_structured')).reference_versions.length,0);
+ f.sqlite.prepare('UPDATE dossivo_contacts SET owner_blocked=1 WHERE id=?').run('dm_structured');
+ await assert.rejects(structuredSend(f,'buyer-a',{type:'REQUEST',topic:'audit',period:'2026-10'}),{code:'CONVERSATION_READ_ONLY'});
+ assert.equal((await f.chat.thread('supplier','dm_structured')).messages.length,2);
+});
+test('request tracker derives latest structured response by sequence and ignores plain text',async t=>{
+ const f=await fixture(t);const q=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'electricity',period:'2026-10'})).messages.at(-1);
+ assert.equal((await f.chat.requests('buyer-a',f.g.grant.id)).requests[0].status,'AWAITING_RESPONSE');
+ await structuredSend(f,'supplier',{type:'RESPONSE',status:'PREPARING'},{reply_to:q.id});
+ await structuredSend(f,'supplier',{type:'RESPONSE',status:'UNAVAILABLE'},{reply_to:q.id});
+ await send(f,'supplier','ordinary reply',{kind:'REPLY',reply_to:q.id});
+ const result=await f.chat.requests('buyer-a',f.g.grant.id);assert.equal(result.requests[0].status,'UNAVAILABLE');assert.equal(result.requests[0].mine,true);assert.equal(result.requests[0].response.sequence,3);
+ assert.equal((await f.chat.requests('supplier',f.g.grant.id)).requests[0].mine,false);
+});
+test('request tracker authorises members, preserves revoked history, and never reads evidence implicitly',async t=>{
+ const f=await fixture(t);const q=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'audit',period:'2026-10'})).messages.at(-1);
+ await structuredSend(f,'supplier',{type:'RESPONSE',status:'CARD_SHARED'},{reply_to:q.id,evidence_sequence:0});
+ const before=f.sqlite.prepare('SELECT count(*) n FROM dossivo_access_events').get().n;
+ const page=await f.chat.requests('buyer-a',f.g.grant.id);assert.equal(page.requests[0].response.reference.card_id,f.s.cards.at(-1).id);
+ assert.equal(f.sqlite.prepare('SELECT count(*) n FROM dossivo_access_events').get().n,before);
+ assert.ok(!JSON.stringify(page).includes('snapshot'));assert.ok(!JSON.stringify(page).includes('supplier'));
+ await assert.rejects(f.chat.requests('buyer-b',f.g.grant.id),{code:'CONVERSATION_UNAVAILABLE'});
+ await f.access.revoke('supplier',f.g.grant.id,'tracker-revoke');assert.equal((await f.chat.requests('buyer-a',f.g.grant.id)).requests[0].status,'CARD_SHARED');
+ await assert.rejects(f.chat.reference('buyer-a',f.g.grant.id,page.requests[0].response.id));
+});
+test('request tracker paginates independently of newest 100 messages without omission',async t=>{
+ const f=await fixture(t);for(let i=0;i<52;i++)await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'electricity',period:'2026-10'});
+ for(let i=0;i<101;i++)await send(f,'supplier','later conversation');
+ assert.ok((await f.chat.thread('buyer-a',f.g.grant.id)).messages.every(m=>!m.structured));
+ const a=await f.chat.requests('buyer-a',f.g.grant.id),b=await f.chat.requests('buyer-a',f.g.grant.id,a.next_before);
+ assert.equal(a.requests.length,50);assert.equal(b.requests.length,2);assert.equal(b.next_before,null);assert.equal(new Set([...a.requests,...b.requests].map(q=>q.id)).size,52);
+ await assert.rejects(f.chat.requests('buyer-a',f.g.grant.id,-1));
+});
+function linkPair(f){f.sqlite.prepare('INSERT INTO dossivo_contacts(id,pair_key,owner_id,peer_id,created_at) VALUES(?,?,?,?,?)').run('dm_linked','linked-pair','supplier','buyer-a',f.clock());}
+test('related grants expose only redeemed pair scopes, not unredeemed or another buyer grants',async t=>{
+ const f=await fixture(t);linkPair(f);await f.access.createGrant('supplier',f.data,'unredeemed-linked');
+ const other=await f.access.createGrant('supplier',f.data,'other-linked');await f.access.redeem('buyer-b',other.code,'other-linked-redeem');
+ const a=await f.chat.relatedGrants('buyer-a','dm_linked');assert.equal(a.grants.length,1);assert.equal(a.grants[0].grant_id,f.g.grant.id);assert.equal(a.grants[0].buyer,true);assert.equal(a.grants[0].evidence_active,true);
+ const owner=await f.chat.relatedGrants('supplier','dm_linked');assert.equal(owner.grants[0].buyer,false);
+ for(const secret of ['snapshot_json','parameters','code_hash','SECRET_ORDER_PURPOSE','buyer-b'])assert.ok(!JSON.stringify(a).includes(secret));
+ await assert.rejects(f.chat.relatedGrants('buyer-b','dm_linked'),{code:'CONVERSATION_UNAVAILABLE'});
+ await assert.rejects(f.chat.relatedGrants('buyer-a',f.g.grant.id),{code:'CONVERSATION_UNAVAILABLE'});
+});
+test('related grants do not create conversations, mark read or record evidence views, and expose revoked state',async t=>{
+ const f=await fixture(t);linkPair(f);const events=f.sqlite.prepare('SELECT count(*) n FROM dossivo_access_events').get().n;
+ await f.chat.relatedGrants('buyer-a','dm_linked');assert.equal(f.sqlite.prepare('SELECT count(*) n FROM dossivo_conversations').get().n,0);assert.equal(f.sqlite.prepare('SELECT count(*) n FROM dossivo_conversation_reads').get().n,0);assert.equal(f.sqlite.prepare('SELECT count(*) n FROM dossivo_access_events').get().n,events);
+ await f.access.revoke('supplier',f.g.grant.id,'linked-revoke');assert.equal((await f.chat.relatedGrants('buyer-a','dm_linked')).grants[0].evidence_active,false);
+ await assert.rejects(f.access.buyerRead('buyer-a',f.g.grant.id));
+});
+test('related grants pagination covers all redeemed pair grants without duplicate entries',async t=>{
+ const f=await fixture(t);linkPair(f);for(let i=0;i<50;i++){f.setNow(new Date(Date.UTC(2026,10,5,12,(i+1)*16)).toISOString());const g=await f.access.createGrant('supplier',f.data,'linked-page-'+i);await f.access.redeem('buyer-a',g.code,'linked-red-'+i);}
+ const a=await f.chat.relatedGrants('buyer-a','dm_linked'),b=await f.chat.relatedGrants('buyer-a','dm_linked',a.next_before);assert.equal(a.grants.length,50);assert.equal(b.grants.length,1);assert.equal(b.next_before,null);assert.equal(new Set([...a.grants,...b.grants].map(g=>g.grant_id)).size,51);
+});
+
+import {WorkbenchRequests} from '../lib/workbench-requests.js';
+test('workbench incoming requests automatically map grant-owned task and reflect latest response without completing findings',async t=>{
+ const f=await fixture(t),work=new WorkbenchRequests(f.db,{clock:f.clock});const q=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'electricity',period:'2026-10'})).messages.at(-1);
+ let page=await work.queue('supplier');assert.equal(page.requests[0].task_id,f.s.task_id);assert.equal(page.requests[0].status,'AWAITING_RESPONSE');assert.equal((await work.queue('buyer-a')).requests.length,0);assert.equal((await work.queue('stranger')).requests.length,0);
+ await structuredSend(f,'supplier',{type:'RESPONSE',status:'PREPARING'},{reply_to:q.id});page=await work.queue('supplier');assert.equal(page.requests[0].status,'PREPARING');assert.equal((await f.task.read('supplier',f.s.task_id)).version,f.s.version);
+});
+test('workbench contact request binding is private, durable, idempotent and does not grant evidence',async t=>{
+ const f=await fixture(t);linkPair(f);const work=new WorkbenchRequests(f.db,{clock:f.clock});const q=(await f.chat.send('buyer-a',{grant_id:'dm_linked',structured:{type:'REQUEST',topic:'electricity',period:'2026-10'},synthetic_only:true},'queue-contact')).messages.at(-1);
+ assert.equal((await work.queue('supplier')).requests[0].task_id,null);
+ await work.bind('supplier',{request_id:q.id,task_id:f.s.task_id});await work.bind('supplier',{request_id:q.id,task_id:f.s.task_id});assert.equal(f.sqlite.prepare('SELECT count(*) n FROM dossivo_request_tasks').get().n,1);
+ assert.equal((await work.queue('supplier')).requests[0].task_id,f.s.task_id);assert.equal((await work.queue('buyer-a')).requests.length,0);assert.equal((await f.chat.thread('buyer-a','dm_linked')).reference_versions.length,0);
+ await assert.rejects(work.bind('buyer-a',{request_id:q.id,task_id:f.s.task_id}),{code:'REQUEST_UNAVAILABLE'});await assert.rejects(work.bind('stranger',{request_id:q.id,task_id:f.s.task_id}),{code:'REQUEST_UNAVAILABLE'});
+});
+test('workbench binding rejects scope mismatch and changing an existing association',async t=>{
+ const f=await fixture(t);linkPair(f);const work=new WorkbenchRequests(f.db,{clock:f.clock});const q=(await f.chat.send('buyer-a',{grant_id:'dm_linked',structured:{type:'REQUEST',topic:'audit',period:'2026-10'},synthetic_only:true},'queue-scope')).messages.at(-1);
+ const make=async(period,key)=>(await f.task.command('supplier',{action:'create',idempotency_key:key,data:{synthetic_only:true,purpose:'Synthetic request',organization:'Synthetic',facility:'Synthetic',period}})).state;
+ const mismatch=await make('2026-09','queue-mismatch');await assert.rejects(work.bind('supplier',{request_id:q.id,task_id:mismatch.task_id}),{code:'SCOPE_MISMATCH'});
+ await work.bind('supplier',{request_id:q.id,task_id:f.s.task_id});const other=await make('2026-10','queue-other');await assert.rejects(work.bind('supplier',{request_id:q.id,task_id:other.task_id}),{code:'REQUEST_ALREADY_LINKED'});
+});
+test('workbench incoming queue paginates all requests and excludes ordinary messages',async t=>{
+ const f=await fixture(t),work=new WorkbenchRequests(f.db,{clock:f.clock});for(let i=0;i<52;i++)await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'audit',period:'2026-10'});await send(f,'buyer-a','plain');
+ const a=await work.queue('supplier'),b=await work.queue('supplier',a.next_before);assert.equal(a.requests.length,50);assert.equal(b.requests.length,2);assert.equal(b.next_before,null);assert.equal(new Set([...a.requests,...b.requests].map(q=>q.id)).size,52);
+});

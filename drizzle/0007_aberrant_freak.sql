@@ -1,0 +1,2 @@
+ALTER TABLE `dossivo_basic_grants` ADD `access_mode` text DEFAULT 'TEMPORARY' NOT NULL;--> statement-breakpoint
+ALTER TABLE `dossivo_basic_grants` ADD `purpose` text DEFAULT 'COMPLIANCE_REVIEW' NOT NULL;

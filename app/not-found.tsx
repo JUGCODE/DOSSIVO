@@ -1,0 +1,1 @@
+export default function NotFound() { return <main style={{minHeight:"100vh",background:"#fff",color:"#172b25",display:"grid",placeContent:"center",padding:24}}><h1>404 · 页面未找到 / Page not found</h1><p>这个地址不存在。请返回首页继续。</p><a href="/">返回 DOSSIVO 首页 / Back to home →</a></main>; }

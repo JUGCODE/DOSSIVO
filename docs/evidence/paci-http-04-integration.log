@@ -1,0 +1,49 @@
+DS36-loss: actual remote commit + lost reply remains unconfirmed locally
+DS36-restart: recovered same operation from real HTTP + restarted SQLite core, no second POST
+DS38-scope: other actor cannot dispatch or read Alice task
+DS38-binding: changed tenant binding rejected before network
+DS38-receipt: modified returned card/version rejected, valid original receipt recovered
+DS36-local-failure: local D1-facade transaction failure recovers original remote registration
+D0-version: real 0.4 server rejects old protocol; no silent endpoint-family fallback
+DS39/40/56: registration never becomes original authentication, independent review or chain proof
+{
+  "environment": "Node loopback HTTP + two SQLite databases + actual PACI core",
+  "core_version": "0.4.2-alpha.1",
+  "passed": 8,
+  "failed": 0,
+  "post_count": 2,
+  "checks": [
+    {
+      "id": "DS36-loss",
+      "result": "actual remote commit + lost reply remains unconfirmed locally"
+    },
+    {
+      "id": "DS36-restart",
+      "result": "recovered same operation from real HTTP + restarted SQLite core, no second POST"
+    },
+    {
+      "id": "DS38-scope",
+      "result": "other actor cannot dispatch or read Alice task"
+    },
+    {
+      "id": "DS38-binding",
+      "result": "changed tenant binding rejected before network"
+    },
+    {
+      "id": "DS38-receipt",
+      "result": "modified returned card/version rejected, valid original receipt recovered"
+    },
+    {
+      "id": "DS36-local-failure",
+      "result": "local D1-facade transaction failure recovers original remote registration"
+    },
+    {
+      "id": "D0-version",
+      "result": "real 0.4 server rejects old protocol; no silent endpoint-family fallback"
+    },
+    {
+      "id": "DS39/40/56",
+      "result": "registration never becomes original authentication, independent review or chain proof"
+    }
+  ]
+}

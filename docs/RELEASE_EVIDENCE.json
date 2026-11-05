@@ -1,0 +1,292 @@
+{
+  "round": "continuation-0.2",
+  "date": "2026-11-05",
+  "source_baseline": "c5831b667a1da88a4024063d26e4639f23b4f5e1",
+  "source_site": "appgprj_6aadb2f67df081918266b82e3fc373fb",
+  "unit_tests": {
+    "pass": 88,
+    "fail": 0,
+    "todo": 0
+  },
+  "real_local_http": {
+    "checkpoints_pass": 8,
+    "fail": 0,
+    "core_version": "0.4.2-alpha.1",
+    "upstream_modified": false
+  },
+  "typecheck": "PASS",
+  "worker_build": "PASS",
+  "local_migrations": "0000–0005 applied",
+  "browser_public_preview": "PASS: Protocol rendered; private tasks require auth",
+  "browser_signed_in": "NOT_VERIFIED: normal authentication form reached; no credentials supplied",
+  "deployment_this_round": "SUCCEEDED",
+  "onchain": "NOT_DEPLOYED_OR_VERIFIED",
+  "real_sensitive_data": "BLOCKED",
+  "runtime_source_commit": "ded2beb207be95ad980fa5734f76c4ebea548044",
+  "site_version": 20,
+  "version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_794f676b38fc8191a3cbe1247d57c281",
+  "deployment_id": "appgdep_6aec418a0bac8191a02cb0e62a3c32f8",
+  "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+  "browser_public_production": "PASS: existing workflow, anonymous task login protection and Protocol page visible",
+  "documentation_source": "Post-deployment documentation commit in same source repository; runtime remains site v20 / ded2beb207be95ad980fa5734f76c4ebea548044",
+  "latest_release": {
+    "version": 41,
+    "runtime_commit": "880f960a41b7148a223a1b82d7cb088a2783233a",
+    "deployment_id": "appgdep_6aecf1bede2081918114b04186077e80",
+    "status": "succeeded",
+    "scope": "Workbench incoming request queue and private task binding; planned HR Agent UI entry",
+    "migration": "0014_gigantic_thor_girl.sql",
+    "tests": {
+      "pass": 192,
+      "fail": 0,
+      "new": 4,
+      "log": "docs/evidence/workbench-requests-tests.log"
+    },
+    "checks": [
+      "TypeScript",
+      "git diff --check",
+      "Worker build"
+    ],
+    "limitations": [
+      "Authenticated browser flow not verified",
+      "Agent upload API and PACI scan action recording not connected",
+      "Cross-conversation card response association pending"
+    ]
+  },
+  "release_history": [
+    {
+      "date": "2026-11-05",
+      "batch": 5,
+      "site_version": 32,
+      "runtime_commit": "21c31efe33fd806892b110386976dfeac0f85932",
+      "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_5741b4a62c00819190c6a368190f5928",
+      "deployment_id": "appgdep_6aeca20eaae48191a05623ced79a3c22",
+      "deployment_status": "succeeded",
+      "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site/conversations",
+      "change": "Persistent contact IDs, consent requests, independent direct messaging, trusted referrals, local QR, UsersRound icon",
+      "tests": {
+        "passed": 154,
+        "failed": 0,
+        "skipped": 0,
+        "todo": 0,
+        "log": "docs/evidence/contact-links-tests.log"
+      },
+      "typecheck": "passed",
+      "worker_build": "passed",
+      "browser_verified": [
+        "production direct messaging sign-in gate",
+        "production unknown contact ID unavailable page",
+        "production sidebar lucide-users-round icon"
+      ],
+      "browser_pending": [
+        "signed-in dual-account requests, acceptance, block and messages",
+        "actual login return and QR scan"
+      ],
+      "synthetic_only": true
+    },
+    {
+      "date": "2026-11-05",
+      "batch": 6,
+      "change": "International messaging beta with self-declared service-region gate; mainland China not enabled pending formalities; accessible sidebar tooltip",
+      "status": "deployed",
+      "site_version": 33,
+      "runtime_commit": "0f2b4bc4104abd37e45fcea966dccecdd05362af",
+      "tests": {
+        "passed": 169,
+        "failed": 0,
+        "skipped": 0,
+        "todo": 0,
+        "added_regional_tests": 15,
+        "log": "docs/evidence/communication-regional-tests.log"
+      },
+      "typecheck": "passed",
+      "worker_build": "passed",
+      "browser_public_production": "passed: anonymous regional status and normal login gate; sidebar keyboard-focus tooltip visible with correct text",
+      "browser_two_accounts": "not_verified: browser not signed in; no two-account UI acceptance",
+      "region_assurance": "self_declared_only; not geolocation or identity verification",
+      "china_application": "not_submitted",
+      "paid_sdk": "not_connected_or_purchased",
+      "real_sensitive_data": "blocked",
+      "paci_changes": "none",
+      "documentation": "docs/COMMUNICATION_REGIONAL_AVAILABILITY_0_1.md",
+      "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_a3cf920f30ec8191b86cdd08d74865ad",
+      "deployment_id": "appgdep_6aecae08ed64819183780dbbbc2428fa",
+      "deployment_status": "succeeded",
+      "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site/conversations",
+      "documentation_source": "Post-deployment receipt in same repository; runtime remains v33 / 0f2b4bc4104abd37e45fcea966dccecdd05362af"
+    },
+    {
+      "date": "2026-11-05",
+      "batch": 7,
+      "change": "Development default permits all regions, including existing CN and unknown accounts; Chinese never used as regional gate; formal-release switch retained",
+      "status": "deployed",
+      "site_version": 34,
+      "runtime_commit": "ad9c44e11a9f0e558789f0de934bc3f2d150ffe3",
+      "tests": {
+        "passed": 175,
+        "failed": 0,
+        "skipped": 0,
+        "todo": 0,
+        "region_policy_tests": 21,
+        "new_development_open_tests": 6,
+        "log": "docs/evidence/communication-dev-open-tests.log"
+      },
+      "typecheck": "passed",
+      "worker_build": "passed",
+      "browser_public_production": "passed: development-open note, normal sign-in with no region selection prerequisite, visible sidebar keyboard-focus tooltip confirms no regional/language restriction",
+      "browser_two_accounts": "not_verified: browser not signed in; service tests are not browser acceptance",
+      "communication_mode": "DEVELOPMENT_OPEN",
+      "region_enforcement": false,
+      "language_enforcement": "none",
+      "region_assurance": "self_declared_only; unknown not reassigned to international",
+      "paid_sdk": "not_connected_or_purchased",
+      "real_sensitive_data": "blocked",
+      "paci_changes": "none",
+      "documentation": "docs/COMMUNICATION_DEVELOPMENT_OPEN_0_1.md",
+      "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_18ff630b35b48191917c5ae5d7911e39",
+      "deployment_id": "appgdep_6aecb0b500508191adf3362a2c7951a5",
+      "deployment_status": "succeeded",
+      "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site/conversations",
+      "documentation_source": "Post-deployment receipt in same repository; runtime remains v34 / ad9c44e11a9f0e558789f0de934bc3f2d150ffe3"
+    },
+    {
+      "date": "2026-11-05",
+      "change": "Remove duplicate sidebar EU entry, preserve top entry, add prominent trilingual plans/pricing navigation that opens existing folded pricing section",
+      "status": "deployed",
+      "site_version": 35,
+      "runtime_commit": "81d34f5fd56183bc8997e41c3723374c0f84ded9",
+      "typecheck": "passed",
+      "worker_build": "passed",
+      "diff_check": "passed",
+      "service_tests_this_round": "not_run: navigation-only change; previous175 result is historical",
+      "browser_public_production": "passed: top EU entry count1, sidebarEU count0; collapsed sidebar pricing entry opens pricing + parent details and settles in viewport at96px",
+      "backend_changes": "none",
+      "paci_changes": "none",
+      "pricing_policy_changes": "none",
+      "communication_mode": "DEVELOPMENT_OPEN",
+      "region_enforcement": false,
+      "real_sensitive_data": "blocked",
+      "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_c839b17afd788191b77ec95ba5b2d081",
+      "deployment_id": "appgdep_6aecb291d42481919767e8f573ca4d9d",
+      "deployment_status": "succeeded",
+      "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+      "documentation_source": "Post-deployment receipt in same repository; runtime remains v35 / 81d34f5fd56183bc8997e41c3723374c0f84ded9"
+    },
+    {
+      "date": "2026-11-05",
+      "change": "Simplify header: combined sign-in/signup, Protocol moved into sidebar, appearance toggle pinned at sidebar bottom with task navigation scrolling",
+      "status": "deployed",
+      "site_version": 36,
+      "runtime_commit": "d70885743d07e57ebd76651774168843e3b92658",
+      "typecheck": "passed",
+      "worker_build": "passed",
+      "diff_check": "passed",
+      "service_tests_this_round": "not_run: navigation/layout-only change; prior175 result historical",
+      "browser_public_production": "passed: combined auth entry; no header Protocol/theme; sidebar Protocol opens and closes back; appearance footer16px above viewport bottom both widths; dark selection persists after reload/hydration, restored original light",
+      "backend_changes": "none",
+      "paci_changes": "none; navigation only",
+      "pricing_policy_changes": "none",
+      "communication_mode": "DEVELOPMENT_OPEN",
+      "region_enforcement": false,
+      "real_sensitive_data": "blocked",
+      "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_f12e3dbb2e7c81919228c72aabccbc11",
+      "deployment_id": "appgdep_6aecb44637d08191878d34ff71a86fd9",
+      "deployment_status": "succeeded",
+      "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+      "documentation_source": "Post-deployment receipt in same repository; runtime remains v36 / d70885743d07e57ebd76651774168843e3b92658"
+    },
+    {
+      "version": 37,
+      "runtime_commit": "013fc2c3d68eb1e4162b6de25454adfa60a00a14",
+      "deployment_id": "appgdep_6aece55f4c9081919b9096a8767883ed",
+      "status": "succeeded",
+      "scope": "Authenticated inbox automatically opens recent conversation; unified contact thread window",
+      "tests": {
+        "pass": 175,
+        "fail": 0,
+        "log": "docs/evidence/conversation-auto-open-tests.log"
+      },
+      "checks": [
+        "TypeScript",
+        "git diff --check",
+        "Worker build"
+      ],
+      "limitations": [
+        "Authenticated browser interaction not verified",
+        "Structured evidence requests remain pending"
+      ]
+    },
+    {
+      "version": 38,
+      "runtime_commit": "08d0c361686ea732ffdbf27fa574d798720915fd",
+      "deployment_id": "appgdep_6aece7fb289c8191859fe29e2ab10670",
+      "status": "succeeded",
+      "scope": "Fixed-field evidence requests and responses, existing authorised card references",
+      "migration": "0013_conscious_trish_tilby.sql",
+      "tests": {
+        "pass": 182,
+        "fail": 0,
+        "new": 7,
+        "log": "docs/evidence/structured-evidence-tests.log"
+      },
+      "checks": [
+        "TypeScript",
+        "git diff --check",
+        "Worker build",
+        "Live anonymous conversation entry and login gate"
+      ],
+      "limitations": [
+        "Authenticated two-account browser flow not verified",
+        "Contact-to-new-grant workflow not connected",
+        "Email notifications not implemented"
+      ]
+    },
+    {
+      "version": 39,
+      "runtime_commit": "c9651bf43b8ee118cc7bc44ec96cc31d7e7df278",
+      "deployment_id": "appgdep_6aecea5fc9088191914ea520733205f3",
+      "status": "succeeded",
+      "scope": "Per-conversation structured request tracker, independent pagination and latest response projection",
+      "tests": {
+        "pass": 185,
+        "fail": 0,
+        "new": 3,
+        "log": "docs/evidence/request-tracker-tests.log"
+      },
+      "checks": [
+        "TypeScript",
+        "git diff --check",
+        "Worker build"
+      ],
+      "limitations": [
+        "Authenticated two-account browser flow not verified",
+        "Contact-to-new-grant workflow not connected",
+        "Email notifications not implemented"
+      ]
+    },
+    {
+      "version": 40,
+      "runtime_commit": "d8d9b700875d6cdb083f9a627f052e080138b899",
+      "deployment_id": "appgdep_6aeceb9535988191acd13e7b917d5022",
+      "status": "succeeded",
+      "scope": "Contact conversation to existing redeemed pair grants navigation",
+      "tests": {
+        "pass": 188,
+        "fail": 0,
+        "new": 3,
+        "log": "docs/evidence/related-grants-tests.log"
+      },
+      "checks": [
+        "TypeScript",
+        "git diff --check",
+        "Worker build"
+      ],
+      "limitations": [
+        "Authenticated two-account browser flow not verified",
+        "In-chat new grant creation not implemented",
+        "Cross-thread request association not implemented",
+        "Email notifications not implemented"
+      ]
+    }
+  ]
+}

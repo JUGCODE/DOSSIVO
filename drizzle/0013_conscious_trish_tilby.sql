@@ -1,0 +1,1 @@
+ALTER TABLE `dossivo_conversation_messages` ADD `structured_json` text;
