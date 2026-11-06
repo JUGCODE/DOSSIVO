@@ -13,6 +13,7 @@ function fail(e:unknown){return Response.json({code:e instanceof BridgeError?e.c
 export async function GET(req:Request){try{
   const user=await getChatGPTUser();if(!user)throw new BridgeError('AUTH_REQUIRED','Sign in to open private tasks',401);
   const store=new PrivateTaskStore(env.DB),url=new URL(req.url),id=url.searchParams.get('task');
+  if(!id&&url.searchParams.has('period'))return Response.json(await store.matching(user.userId,url.searchParams.get('period'),url.searchParams.get('before')??''),{headers});
   if(!id)return Response.json({tasks:await store.list(user.userId)},{headers});
   const card=url.searchParams.get('card');if(card){const saved=await store.exportCard(user.userId,id,card);if(url.searchParams.get('format')==='html')return new Response(cardHtml(basicProjection(saved,{fields:BASIC_FIELD_CODES,categories:MATERIAL_CATALOG.map(c=>c.code)})),{headers:{...headers,'content-type':'text/html; charset=utf-8','content-disposition':'attachment; filename="DOSSIVO_Evidence_Card.html"','content-security-policy':"sandbox; default-src 'none'; style-src 'unsafe-inline'"}});return Response.json(saved,{headers});}
   const state=await store.read(user.userId,id);return Response.json({state,coverage:coverageFor(state),outbox:await store.outbox(user.userId,id)},{headers});

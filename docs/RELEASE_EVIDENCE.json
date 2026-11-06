@@ -30,28 +30,10 @@
   "browser_public_production": "PASS: existing workflow, anonymous task login protection and Protocol page visible",
   "documentation_source": "Post-deployment documentation commit in same source repository; runtime remains site v20 / ded2beb207be95ad980fa5734f76c4ebea548044",
   "latest_release": {
-    "version": 41,
-    "runtime_commit": "880f960a41b7148a223a1b82d7cb088a2783233a",
-    "deployment_id": "appgdep_6aecf1bede2081918114b04186077e80",
-    "status": "succeeded",
-    "scope": "Workbench incoming request queue and private task binding; planned HR Agent UI entry",
-    "migration": "0014_gigantic_thor_girl.sql",
-    "tests": {
-      "pass": 192,
-      "fail": 0,
-      "new": 4,
-      "log": "docs/evidence/workbench-requests-tests.log"
-    },
-    "checks": [
-      "TypeScript",
-      "git diff --check",
-      "Worker build"
-    ],
-    "limitations": [
-      "Authenticated browser flow not verified",
-      "Agent upload API and PACI scan action recording not connected",
-      "Cross-conversation card response association pending"
-    ]
+    "version": 51,
+    "runtime_commit": "a8e0edea3173fe3e14679965e89179ba97681162",
+    "deployment_id": "appgdep_6aedc02b3cc08191b2df68d30c5951db",
+    "status": "succeeded"
   },
   "release_history": [
     {
@@ -287,6 +269,53 @@
         "Cross-thread request association not implemented",
         "Email notifications not implemented"
       ]
+    }
+  ],
+  "current_validation": {
+    "tests_passed": 202,
+    "tests_failed": 0,
+    "log": "docs/evidence/complete-contact-flow-tests.log",
+    "browser_acceptance": "blocked_not_executed",
+    "runtime_changed": false
+  },
+  "previous_latest_release_receipts": [
+    {
+      "version": 41,
+      "runtime_commit": "880f960a41b7148a223a1b82d7cb088a2783233a",
+      "deployment_id": "appgdep_6aecf1bede2081918114b04186077e80",
+      "status": "succeeded",
+      "scope": "Workbench incoming request queue and private task binding; planned HR Agent UI entry",
+      "migration": "0014_gigantic_thor_girl.sql",
+      "tests": {
+        "pass": 192,
+        "fail": 0,
+        "new": 4,
+        "log": "docs/evidence/workbench-requests-tests.log"
+      },
+      "checks": [
+        "TypeScript",
+        "git diff --check",
+        "Worker build"
+      ],
+      "limitations": [
+        "Authenticated browser flow not verified",
+        "Agent upload API and PACI scan action recording not connected",
+        "Cross-conversation card response association pending"
+      ]
+    },
+    {
+      "version": 42,
+      "runtime_commit": "01da28e144b807e7fb9e5d91b0faad1de59316fd",
+      "deployment_id": "appgdep_6aed03345de481919b33dc1871df5a33",
+      "status": "succeeded",
+      "tests_passed": 193
+    },
+    {
+      "version": 43,
+      "runtime_commit": "25de8581df5f1cc834415e45fec0c63a702d355f",
+      "deployment_id": "appgdep_6aed0ee171408191b13ba05ea09bfb43",
+      "status": "succeeded",
+      "tests_passed": 194
     }
   ]
 }

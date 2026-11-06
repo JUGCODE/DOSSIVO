@@ -1,0 +1,9 @@
+'use client';
+import {useState,useRef,useEffect} from 'react';
+export function MatchingTaskPicker({period,value,onChange}:{period:string;value:string;onChange:(id:string)=>void}){
+ const active=useRef<AbortController|null>(null);
+ useEffect(()=>()=>{active.current?.abort();},[]);
+ const [rows,setRows]=useState<any[]>([]),[next,setNext]=useState<string|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[loaded,setLoaded]=useState(false);
+ async function load(more=false){active.current?.abort();const ctrl=new AbortController();active.current=ctrl;setBusy(true);setError('');if(!more){onChange('');setRows([]);setNext(null);setLoaded(false);}try{const r=await fetch('/api/private-tasks?period='+encodeURIComponent(period)+(more&&next?'&before='+encodeURIComponent(next):''),{cache:'no-store',signal:ctrl.signal});const d=await r.json() as {error?:string;tasks:any[];next_before:string|null};if(ctrl.signal.aborted)return;if(!r.ok)throw Error(d.error);setRows(old=>more?[...old,...d.tasks]:d.tasks);setNext(d.next_before);setLoaded(true);}catch(e){if(!ctrl.signal.aborted)setError((e as Error).message);}finally{if(!ctrl.signal.aborted)setBusy(false);}}
+ return <div><button disabled={busy} onClick={()=>void load()}>查找 / 刷新 {period} 的任务</button>{loaded&&<label>选择同月份任务<select disabled={busy} value={value} onChange={e=>onChange(e.target.value)}><option value="">请选择任务</option>{rows.map(t=><option key={t.id} value={t.id}>{t.title} · {t.period}</option>)}</select></label>}{loaded&&!rows.length&&<p>该月份暂无任务，请在下方新建后刷新。</p>}{next&&<button disabled={busy} onClick={()=>void load(true)}>加载更多同月份任务</button>}{busy&&<p role="status">查找中…</p>}{error&&<p role="alert">{error}</p>}</div>;
+}

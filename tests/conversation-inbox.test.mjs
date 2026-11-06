@@ -231,3 +231,121 @@ test('workbench incoming queue paginates all requests and excludes ordinary mess
  const f=await fixture(t),work=new WorkbenchRequests(f.db,{clock:f.clock});for(let i=0;i<52;i++)await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'audit',period:'2026-10'});await send(f,'buyer-a','plain');
  const a=await work.queue('supplier'),b=await work.queue('supplier',a.next_before);assert.equal(a.requests.length,50);assert.equal(b.requests.length,2);assert.equal(b.next_before,null);assert.equal(new Set([...a.requests,...b.requests].map(q=>q.id)).size,52);
 });
+test('workbench status filter uses latest response before pagination and rejects unknown states',async t=>{
+ const f=await fixture(t),work=new WorkbenchRequests(f.db,{clock:f.clock});
+ const q=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'audit',period:'2026-10'})).messages.at(-1);
+ await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'electricity',period:'2026-10'});
+ await structuredSend(f,'supplier',{type:'RESPONSE',status:'PREPARING'},{reply_to:q.id});
+ assert.equal((await work.queue('supplier',null,'AWAITING_RESPONSE')).requests.length,1);
+ assert.equal((await work.queue('supplier',null,'PREPARING')).requests[0].id,q.id);
+ await structuredSend(f,'supplier',{type:'RESPONSE',status:'UNAVAILABLE'},{reply_to:q.id});
+ assert.equal((await work.queue('supplier',null,'PREPARING')).requests.length,0);
+ assert.equal((await work.queue('supplier',null,'UNAVAILABLE')).requests[0].id,q.id);
+ await assert.rejects(work.queue('supplier',null,'COMPLIANT'),{code:'INVALID_INPUT'});
+});
+test('workbench counts cover all pages and filters, stay tenant isolated, and count latest response once',async t=>{
+ const f=await fixture(t),work=new WorkbenchRequests(f.db,{clock:f.clock});let first;
+ for(let i=0;i<51;i++){const q=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'audit',period:'2026-10'})).messages.at(-1);if(!first)first=q;}
+ await structuredSend(f,'supplier',{type:'RESPONSE',status:'PREPARING'},{reply_to:first.id});await structuredSend(f,'supplier',{type:'RESPONSE',status:'UNAVAILABLE'},{reply_to:first.id});
+ const a=await work.queue('supplier',null,'UNAVAILABLE');assert.equal(a.requests.length,1);assert.deepEqual(a.counts,{ALL:51,AWAITING_RESPONSE:50,PREPARING:0,UNAVAILABLE:1,CARD_SHARED:0});
+ const full=await work.queue('supplier'),second=await work.queue('supplier',full.next_before);assert.deepEqual(second.counts,a.counts);assert.equal((await work.queue('stranger')).counts.ALL,0);assert.equal((await work.queue('buyer-a')).counts.ALL,0);
+});
+test('workbench evidence topics compose with latest status, paginate independently and preserve private totals',async t=>{
+ const f=await fixture(t),work=new WorkbenchRequests(f.db,{clock:f.clock});
+ for(let i=0;i<51;i++)await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'electricity',period:'2026-10'});
+ const audit=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'audit',period:'2026-10'})).messages.at(-1);
+ await structuredSend(f,'supplier',{type:'RESPONSE',status:'PREPARING'},{reply_to:audit.id});
+ const a=await work.queue('supplier',null,'AWAITING_RESPONSE','electricity');
+ const b=await work.queue('supplier',a.next_before,'AWAITING_RESPONSE','electricity');
+ assert.equal(a.requests.length,50);assert.equal(b.requests.length,1);assert.equal(b.next_before,null);
+ assert.equal(new Set([...a.requests,...b.requests].map(q=>q.id)).size,51);
+ assert.ok([...a.requests,...b.requests].every(q=>q.request.topic==='electricity'));
+ assert.equal(a.counts.ALL,52);assert.deepEqual(a.counts,b.counts);
+ assert.equal((await work.queue('supplier',null,'PREPARING','audit')).requests[0].id,audit.id);
+ assert.equal((await work.queue('supplier',null,'PREPARING','electricity')).requests.length,0);
+ assert.equal((await work.queue('stranger',null,'ALL','audit')).counts.ALL,0);
+ assert.equal((await work.queue('buyer-a',null,'ALL','audit')).requests.length,0);
+ for(const topic of ['unknown','toString',"audit' OR 1=1--",''])await assert.rejects(work.queue('supplier',null,'ALL',topic),{code:'INVALID_INPUT'});
+});
+test('workbench month filter composes with topic/status and rejects malformed months',async t=>{
+ const f=await fixture(t),work=new WorkbenchRequests(f.db,{clock:f.clock});
+ for(const period of ['2026-09','2026-10'])await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'audit',period});
+ const page=await work.queue('supplier',null,'AWAITING_RESPONSE','audit','2026-09');
+ assert.equal(page.requests.length,1);assert.equal(page.requests[0].request.period,'2026-09');assert.equal(page.counts.ALL,2);
+ assert.equal((await work.queue('supplier',null,'PREPARING','audit','2026-09')).requests.length,0);
+ assert.equal((await work.queue('stranger',null,'ALL','ALL','2026-09')).requests.length,0);
+ for(const period of ['2026-13','2026-00','2026-1',"2026-09'",''])await assert.rejects(work.queue('supplier',null,'ALL','ALL',period),{code:'INVALID_INPUT'});
+});
+test('private task listing exposes verified month only to its owner for request matching',async t=>{
+ const f=await fixture(t);
+ const rows=await f.task.list('supplier');
+ assert.equal(rows.find(r=>r.id===f.s.task_id).period,'2026-10');
+ assert.equal((await f.task.list('buyer-a')).length,0);
+ assert.ok(!JSON.stringify(rows).includes('materials'));
+ f.sqlite.prepare("UPDATE dossivo_task_versions SET body_hash='tampered' WHERE task_id=?").run(f.s.task_id);
+ await assert.rejects(f.task.list('supplier'),{code:'INTEGRITY_FAILED'});
+});
+test('matching tasks filters before pagination and isolates owners',async t=>{
+ const f=await fixture(t);
+ for(let i=0;i<51;i++)await f.task.command('supplier',{action:'create',idempotency_key:'match-'+i,data:{synthetic_only:true,purpose:'Synthetic',organization:'Synthetic',facility:'Synthetic',period:'2026-09'}});
+ const a=await f.task.matching('supplier','2026-09'),b=await f.task.matching('supplier','2026-09',a.next_before);
+ assert.equal(a.tasks.length,50);assert.equal(b.tasks.length,1);assert.equal(new Set([...a.tasks,...b.tasks].map(x=>x.id)).size,51);
+ assert.equal((await f.task.matching('supplier','2026-10')).tasks[0].id,f.s.task_id);
+ assert.equal((await f.task.matching('buyer-a','2026-09')).tasks.length,0);
+ await assert.rejects(f.task.matching('supplier','2026-13'),{code:'INVALID_INPUT'});
+});
+test('collaboration boundary: revoked grant preserves request workflow but cannot send or reopen cards',async t=>{
+ const f=await fixture(t),work=new WorkbenchRequests(f.db,{clock:f.clock});
+ const q=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'electricity',period:'2026-10'})).messages.at(-1);
+ const card=(await structuredSend(f,'supplier',{type:'RESPONSE',status:'CARD_SHARED'},{reply_to:q.id,evidence_sequence:0})).messages.at(-1);
+ await f.access.revoke('supplier',f.g.grant.id,'boundary-revoke');
+ const unread=(await f.chat.inbox('buyer-a')).unread_total;
+ const page=await work.queue('supplier');assert.equal(page.requests[0].task_id,f.s.task_id);assert.equal(page.requests[0].status,'CARD_SHARED');
+ assert.equal((await f.chat.thread('buyer-a',f.g.grant.id)).reference_versions.length,0);
+ assert.equal((await f.chat.inbox('buyer-a')).unread_total,unread);
+ await assert.rejects(f.chat.reference('buyer-a',f.g.grant.id,card.id));
+ await assert.rejects(structuredSend(f,'supplier',{type:'RESPONSE',status:'CARD_SHARED'},{reply_to:q.id,evidence_sequence:0}));
+ await structuredSend(f,'supplier',{type:'RESPONSE',status:'UNAVAILABLE'},{reply_to:q.id});
+ assert.equal((await work.queue('supplier')).requests[0].status,'UNAVAILABLE');
+ assert.equal((await f.chat.thread('buyer-a',f.g.grant.id)).messages.find(m=>m.id===card.id).reference.sequence,0);
+});
+test('collaboration boundary: blocked contact cannot bypass block through an existing grant',async t=>{
+ const f=await fixture(t);linkPair(f);
+ const q=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'audit',period:'2026-10'})).messages.at(-1);
+ f.sqlite.prepare('UPDATE dossivo_contacts SET owner_blocked=1 WHERE id=?').run('dm_linked');
+ assert.equal((await f.chat.thread('buyer-a',f.g.grant.id)).send_allowed,false);
+ await assert.rejects(structuredSend(f,'supplier',{type:'RESPONSE',status:'PREPARING'},{reply_to:q.id}),{code:'CONVERSATION_READ_ONLY'});
+ await assert.rejects(send(f,'buyer-a','blocked'),{code:'CONVERSATION_READ_ONLY'});
+ assert.equal((await f.chat.thread('buyer-a',f.g.grant.id)).messages.length,1);
+});
+test('collaboration boundary: internal task association creates no grant, evidence view, or peer task access',async t=>{
+ const f=await fixture(t);linkPair(f);const work=new WorkbenchRequests(f.db,{clock:f.clock});
+ const q=(await f.chat.send('buyer-a',{grant_id:'dm_linked',structured:{type:'REQUEST',topic:'audit',period:'2026-10'},synthetic_only:true},'boundary-contact')).messages.at(-1);
+ const grants=f.sqlite.prepare('SELECT count(*) n FROM dossivo_basic_grants').get().n;
+ const views=f.sqlite.prepare('SELECT count(*) n FROM dossivo_access_events').get().n;
+ await work.bind('supplier',{request_id:q.id,task_id:f.s.task_id});
+ assert.equal(f.sqlite.prepare('SELECT count(*) n FROM dossivo_basic_grants').get().n,grants);
+ assert.equal(f.sqlite.prepare('SELECT count(*) n FROM dossivo_access_events').get().n,views);
+ await assert.rejects(f.task.read('buyer-a',f.s.task_id),{code:'TASK_NOT_FOUND'});
+ assert.equal((await f.chat.thread('buyer-a','dm_linked')).reference_versions.length,0);
+});
+test('complete contact request workflow: prepare, match, bind, respond, retry and mark read without disclosing task',async t=>{
+ const f=await fixture(t);linkPair(f);const work=new WorkbenchRequests(f.db,{clock:f.clock});
+ for(const actor of ['supplier','buyer-a'])f.sqlite.prepare('INSERT INTO dossivo_contact_profiles VALUES(?,?,?,?,?,?)').run(actor,'synthetic-'+actor,'Synthetic '+actor,1,f.clock(),f.clock());
+ const request=(await f.chat.send('buyer-a',{grant_id:'dm_linked',structured:{type:'REQUEST',topic:'social_insurance',period:'2026-09'},synthetic_only:true},'flow-request')).messages.at(-1);
+ const queue=await work.queue('supplier',null,'AWAITING_RESPONSE','social_insurance','2026-09');
+ assert.equal(queue.requests[0].id,request.id);assert.equal(queue.requests[0].task_id,null);
+ const state=(await f.task.command('supplier',{action:'create',idempotency_key:'flow-create',data:{synthetic_only:true,purpose:'Synthetic social insurance request',organization:'Synthetic',facility:'Synthetic',period:'2026-09'}})).state;
+ const matches=await f.task.matching('supplier','2026-09');assert.equal(matches.tasks[0].id,state.task_id);
+ await work.bind('supplier',{request_id:request.id,task_id:state.task_id});
+ const payload={grant_id:'dm_linked',structured:{type:'RESPONSE',status:'PREPARING'},reply_to:request.id,synthetic_only:true};
+ const first=await f.chat.send('supplier',payload,'flow-response');await f.chat.send('supplier',payload,'flow-response');
+ const latest=await work.queue('supplier',null,'PREPARING','social_insurance','2026-09');
+ assert.equal(latest.requests[0].task_id,state.task_id);
+ const thread=await f.chat.thread('buyer-a','dm_linked');assert.equal(thread.messages.length,2);assert.equal(thread.messages[1].id,first.messages.at(-1).id);
+ assert.equal((await f.chat.inbox('buyer-a')).unread_total,1);
+ await f.chat.markRead('buyer-a',{grant_id:'dm_linked',through_message_id:thread.messages.at(-1).id});
+ assert.equal((await f.chat.inbox('buyer-a')).unread_total,0);
+ await assert.rejects(f.task.read('buyer-a',state.task_id),{code:'TASK_NOT_FOUND'});
+ assert.equal(thread.reference_versions.length,0);assert.ok(!JSON.stringify(thread).includes(state.task_id));
+});
