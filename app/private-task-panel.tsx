@@ -1,5 +1,6 @@
 'use client';
 import {useState,useEffect,useRef} from 'react';
+import {StoragePreferencePanel} from './storage-preference-panel';
 import {EVIDENCE_TOPICS} from '@/lib/structured-evidence-request';
 import {ConversationPanel} from './conversation-panel';
 import {WorkbenchRequestQueue} from './workbench-request-queue';
@@ -29,6 +30,7 @@ export function PrivateTaskPanel({language}:{language:'zh'|'en'|'it'}){
  const button=(title:string,action:string,payload:Obj={})=><button disabled={busy} onClick={()=>void send(action,payload)}>{title}</button>;
  return <section id="private-tasks" className="private-tasks"><div className="task-heading"><div><p>DOSSIVO · {zh?'私密任务':'Private tasks'}</p><h2>{zh?'材料 → 确认 → 检查 → 固定准备件':'Materials → Review → Assess → Freeze'}</h2></div><a href="/protocol">Protocol ↗</a></div>
  <p>{zh?'真实保存与版本历史；本阶段只用合成材料。未调用 AI，未部署链上协议，不接受真实劳工原件。':'Persistent versioned workflow. Synthetic materials only; no AI calls or on-chain execution. No real labour originals.'}</p>
+ <StoragePreferencePanel language={language}/>
  {needsLogin?<a className="task-link" href="/signin-with-chatgpt?return_to=%2Fzh%2F%23private-tasks">{zh?'登录，建立私密任务':'Sign in to create a private task'}</a>:<>
  <WorkbenchRequestQueue onOpenTask={id=>void open(id)} onPrepareTask={q=>{setRequestContext(q);setShowRequest(false);setPurpose(EVIDENCE_TOPICS[q.request.topic as keyof typeof EVIDENCE_TOPICS]+' · 请求资料准备');setPeriod(q.request.period);document.getElementById('new-private-task')?.scrollIntoView({block:'center'});}}/>
  <details className="contact-help"><summary>{zh?'HR 智能体资料助手 · 筹备中':'HR AI Agent assistant · Planned'}</summary><p>{zh?'计划协助 HR 批量整理与上传重复资料，减少机械操作。当前尚未接通 Agent 上传或 PACI scan 操作记账。':'Planned assistance with repetitive HR document preparation and uploads. Agent uploads and PACI scan action recording are not connected yet.'}</p><p>{zh?'未来记录由谁执行（人或 AI）、资料来源、操作时间和人工确认状态。AI 上传不等于企业确认、独立核验或上链成功；发布与披露仍需用户明确授权。':'Future records will identify human or AI execution, sources, time and human review. AI uploads are not company confirmation, independent verification or proof of on-chain recording. Publication and disclosure require explicit user authorisation.'}</p><button disabled>{zh?'智能体批量资料助手（待接入）':'AI Agent batch assistant (not connected)'}</button></details>

@@ -10,6 +10,7 @@ function fail(e:unknown){return Response.json({code:e instanceof BridgeError?e.c
 export async function GET(request:Request){try{
  const user=await getChatGPTUser();if(!user)throw new BridgeError('AUTH_REQUIRED','Register or sign in before accessing basic evidence',401);
  const store=new BuyerAccessStore(env.DB),url=new URL(request.url),task=url.searchParams.get('task'),id=url.searchParams.get('grant');
+ if(url.searchParams.get('overview')==='1')return Response.json(await store.buyerOverview(user.userId,url.searchParams.get('status')??'ACTIVE',url.searchParams.get('before')),{headers});
  if(task)return Response.json(url.searchParams.get('usage')==='1'?{usage:await store.ownerUsage(user.userId,task)}:{grants:await store.ownerList(user.userId,task)},{headers});
  if(!id)return Response.json({received:await store.buyerList(user.userId)},{headers});
  const html=url.searchParams.get('format')==='html',view=await store.buyerRead(user.userId,id,html?'DOWNLOADED':'VIEWED',url.searchParams.has('sequence')?Number(url.searchParams.get('sequence')):null);

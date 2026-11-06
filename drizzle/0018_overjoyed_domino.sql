@@ -1,0 +1,1 @@
+ALTER TABLE `dossivo_conversation_messages` ADD `evidence_grant_id` text;

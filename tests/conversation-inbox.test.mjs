@@ -349,3 +349,43 @@ test('complete contact request workflow: prepare, match, bind, respond, retry an
  await assert.rejects(f.task.read('buyer-a',state.task_id),{code:'TASK_NOT_FOUND'});
  assert.equal(thread.reference_versions.length,0);assert.ok(!JSON.stringify(thread).includes(state.task_id));
 });
+
+async function crossRequest(f,period='2026-10'){linkPair(f);return (await f.chat.send('buyer-a',{grant_id:'dm_linked',structured:{type:'REQUEST',topic:'electricity',period},synthetic_only:true},'cross-request')).messages.at(-1);}
+function crossResponse(f,q){return {grant_id:'dm_linked',reply_to:q.id,structured:{type:'RESPONSE',status:'CARD_SHARED'},evidence_grant_id:f.g.grant.id,evidence_sequence:0,synthetic_only:true};}
+test('cross-card response: explicit redeemed grant connects original request, fixed reference and queue without new grants',async t=>{
+ const f=await fixture(t),q=await crossRequest(f),data=crossResponse(f,q);const before=f.sqlite.prepare('SELECT count(*) n FROM dossivo_basic_grants').get().n;
+ const sent=await f.chat.send('supplier',data,'cross-send'),m=sent.messages.at(-1);assert.equal(m.reply_to,q.id);assert.equal(m.reference.grant_id,f.g.grant.id);assert.equal(m.reference.sequence,0);
+ assert.equal((await f.chat.send('supplier',data,'cross-send')).messages.length,2);
+ const received=await f.chat.reference('buyer-a','dm_linked',m.id);assert.equal(received.grant_id,f.g.grant.id);assert.equal(received.snapshot.source_card_id,f.s.cards.at(-1).id);
+ assert.equal((await f.chat.reference('supplier','dm_linked',m.id)).snapshot.source_card_id,f.s.cards.at(-1).id);
+ const tracker=await f.chat.requests('buyer-a','dm_linked');assert.equal(tracker.requests[0].status,'CARD_SHARED');assert.equal(tracker.requests[0].response.reference.grant_id,f.g.grant.id);
+ assert.equal((await new WorkbenchRequests(f.db,{clock:f.clock}).queue('supplier')).requests[0].status,'CARD_SHARED');
+ assert.equal(f.sqlite.prepare('SELECT count(*) n FROM dossivo_basic_grants').get().n,before);
+ await assert.rejects(f.chat.reference('buyer-b','dm_linked',m.id),{code:'CONVERSATION_UNAVAILABLE'});
+});
+test('cross-card response: wrong month, wrong buyer, unredeemed grant and arbitrary note cannot attach evidence',async t=>{
+ const f=await fixture(t),q=await crossRequest(f,'2026-09'),data=crossResponse(f,q);
+ await assert.rejects(f.chat.send('supplier',data,'cross-month'),{code:'PERIOD_MISMATCH'});
+ const other=await f.access.createGrant('supplier',f.data,'cross-other');await f.access.redeem('buyer-b',other.code,'cross-other-redeem');
+ await assert.rejects(f.chat.send('supplier',{...data,evidence_grant_id:other.grant.id},'cross-other-send'),{code:'ACCESS_UNAVAILABLE'});
+ const pending=await f.access.createGrant('supplier',f.data,'cross-pending');await assert.rejects(f.chat.send('supplier',{...data,evidence_grant_id:pending.grant.id},'cross-pending-send'),{code:'CONVERSATION_UNAVAILABLE'});
+ await assert.rejects(f.chat.send('supplier',{grant_id:'dm_linked',kind:'NOTE',body:'synthetic',evidence_grant_id:f.g.grant.id,evidence_sequence:0,synthetic_only:true},'cross-note'),{code:'INVALID_INPUT'});
+ assert.equal((await f.chat.thread('supplier','dm_linked')).messages.length,1);
+});
+test('cross-card response: revoke preserves reference history but blocks new reads, downloads and sends',async t=>{
+ const f=await fixture(t),q=await crossRequest(f),data=crossResponse(f,q),m=(await f.chat.send('supplier',data,'cross-before-revoke')).messages.at(-1);
+ await f.access.revoke('supplier',f.g.grant.id,'cross-revoke');
+ for(const actor of ['supplier','buyer-a'])for(const kind of ['VIEWED','DOWNLOADED'])await assert.rejects(f.chat.reference(actor,'dm_linked',m.id,kind),{code:'ACCESS_UNAVAILABLE'});
+ await assert.rejects(f.chat.send('supplier',data,'cross-after-revoke'),{code:'ACCESS_UNAVAILABLE'});
+ assert.equal((await f.chat.thread('buyer-a','dm_linked')).messages.at(-1).reference.card_id,m.reference.card_id);
+});
+test('cross-card response: revoke during send rolls back message and sequence',async t=>{
+ const f=await fixture(t),q=await crossRequest(f);f.db.beforeBatch=async()=>{await f.access.revoke('supplier',f.g.grant.id,'cross-race-revoke');};
+ await assert.rejects(f.chat.send('supplier',crossResponse(f,q),'cross-race-send'),{code:'CONVERSATION_UNAVAILABLE'});
+ const thread=await f.chat.thread('supplier','dm_linked');assert.equal(thread.last_sequence,1);assert.equal(thread.messages.length,1);
+});
+test('cross-card response: blocked contact and expired temporary grants cannot be bypassed',async t=>{
+ const f=await fixture(t,{mode:'TEMPORARY'}),q=await crossRequest(f),data=crossResponse(f,q);
+ f.sqlite.prepare('UPDATE dossivo_contacts SET owner_blocked=1 WHERE id=?').run('dm_linked');await assert.rejects(f.chat.send('supplier',data,'cross-block'),{code:'CONVERSATION_READ_ONLY'});
+ f.sqlite.prepare('UPDATE dossivo_contacts SET owner_blocked=0 WHERE id=?').run('dm_linked');f.setNow(f.g.grant.expires_at);await assert.rejects(f.chat.send('supplier',data,'cross-expire'),{code:'ACCESS_UNAVAILABLE'});
+});

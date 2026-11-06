@@ -30,10 +30,22 @@
   "browser_public_production": "PASS: existing workflow, anonymous task login protection and Protocol page visible",
   "documentation_source": "Post-deployment documentation commit in same source repository; runtime remains site v20 / ded2beb207be95ad980fa5734f76c4ebea548044",
   "latest_release": {
-    "version": 51,
-    "runtime_commit": "a8e0edea3173fe3e14679965e89179ba97681162",
-    "deployment_id": "appgdep_6aedc02b3cc08191b2df68d30c5951db",
-    "status": "succeeded"
+    "version": 57,
+    "runtime_commit": "36ea9c4579e0f715bdc4b7fc0ac32c8e050e8a3d",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_f157a22e44448191af0f6c61b3dcb4a4",
+    "deployment_id": "appgdep_6aee2181a8688191bc44afed768fe3c3",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 221,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/cross-contact-card-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "0018_overjoyed_domino.sql",
+    "browser_qa": "NOT_VERIFIED: managed preview unavailable; authenticated acceptance pending",
+    "scope": "Explicit original contact-request responses referencing separately redeemed authorised fixed cards; no automatic sharing"
   },
   "release_history": [
     {
@@ -317,5 +329,101 @@
       "status": "succeeded",
       "tests_passed": 194
     }
-  ]
+  ],
+  "previous_release_v51": {
+    "version": 51,
+    "runtime_commit": "a8e0edea3173fe3e14679965e89179ba97681162",
+    "deployment_id": "appgdep_6aedc02b3cc08191b2df68d30c5951db",
+    "status": "succeeded"
+  },
+  "previous_release_v52": {
+    "version": 52,
+    "runtime_commit": "75e98c3e1e7c32439f949398bf3a974a9c5662b5",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_92138ee97e7c8191a34915e14d15309a",
+    "deployment_id": "appgdep_6aedfb5a75c8819186aefb9cdf39ff3f",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 205,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/storage-preferences-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "0015_marvelous_giant_girl.sql",
+    "browser_qa": "NOT_VERIFIED: managed preview unavailable; authenticated acceptance pending",
+    "scope": "Account deployment preference only; connector/local AI/original uploads/PACI scan execution not enabled"
+  },
+  "previous_release_v53": {
+    "version": 53,
+    "runtime_commit": "2b30b9464a3001d449e65b97d3f644e920e64866",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_372d280060648191a8c65c80b4abf482",
+    "deployment_id": "appgdep_6aee0440aae081918215de3ecd830f80",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 207,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/storage-preference-retry-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "No new migration; schema through 0015",
+    "browser_qa": "NOT_VERIFIED: managed preview unavailable; authenticated acceptance pending",
+    "scope": "Storage preference exact-transition retry recovery, sign-in return link and preference timestamp only"
+  },
+  "previous_release_v54": {
+    "version": 54,
+    "runtime_commit": "26d57f6bc54887f03464288a4fe8290d419e2c19",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_1b5fc5c5f54481918a22296018152303",
+    "deployment_id": "appgdep_6aee060ffb248191a7dda29bdf0c662e",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 210,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/buyer-overview-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "No new migration; schema through 0015",
+    "browser_qa": "NOT_VERIFIED: managed preview unavailable; authenticated acceptance pending",
+    "scope": "Buyer redeemed-grant overview with status totals, filtering and pagination; inactive evidence redacted"
+  },
+  "previous_release_v55": {
+    "version": 55,
+    "runtime_commit": "daaed275eed4178dee0318ac56faaea8c77fb79c",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_8f76ffe8da0c8191948e067f0448defa",
+    "deployment_id": "appgdep_6aee0d99b83081919a3fa30da9d806ea",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 214,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/account-contacts-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "0016_messy_sabretooth.sql",
+    "browser_qa": "NOT_VERIFIED: managed preview unavailable; authenticated acceptance pending",
+    "scope": "Unified account entry and authenticated unverified email/international phone contact settings; OTP and independent email/phone authentication not implemented"
+  },
+  "previous_release_v56": {
+    "version": 56,
+    "runtime_commit": "cce588de8e19de5f4c5cd34d1c682fedefb8bd45",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_903f5309cf748191a82471655c4fefb2",
+    "deployment_id": "appgdep_6aee2032498881918b0f739566aacb2d",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 216,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/account-confirmation-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "0017_ambiguous_mulholland_black.sql",
+    "browser_qa": "NOT_VERIFIED: managed preview unavailable; authenticated acceptance pending",
+    "scope": "Contact storage confirmation enforced server-side with version/time and explicit recovery UX; no OTP/authentication provider"
+  }
 }

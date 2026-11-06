@@ -266,3 +266,26 @@ test('contact block also stops sending through an older material-grant conversat
  await assert.rejects(chat.send('exporter',data,'blocked'),{code:'CONVERSATION_READ_ONLY'});
  assert.equal((await f.access.buyerRead('buyer-a',g.grant.id)).grant_id,g.grant.id);
 });
+
+test('buyer overview: expiry boundary, continuous mode and revocation are distinct; inactive evidence is withheld',async t=>{
+ const f=setup(t),s=await card(f),temp=await f.access.createGrant('exporter',grantData(s),'overview-temp'),continuous=await f.access.createGrant('exporter',{...grantData(s),fields:[],access_mode:'CONTINUOUS_SUMMARY'},'overview-continuous');
+ await f.access.redeem('buyer-a',temp.code,'overview-redeem-temp');await f.access.redeem('buyer-a',continuous.code,'overview-redeem-continuous');
+ const beforeEvents=f.sqlite.prepare('SELECT count(*) n FROM dossivo_access_events').get().n;
+ assert.deepEqual((await f.access.buyerOverview('buyer-a','ALL')).counts,{ALL:2,ACTIVE:2,EXPIRED:0,REVOKED:0});
+ f.setNow('2026-11-07T12:00:00.000Z');let overview=await f.access.buyerOverview('buyer-a','ALL');assert.deepEqual(overview.counts,{ALL:2,ACTIVE:1,EXPIRED:1,REVOKED:0});assert.equal(overview.grants.find(g=>g.id===temp.grant.id).organization,null);assert.equal(overview.grants.find(g=>g.id===continuous.grant.id).expires_at,null);
+ assert.equal(f.sqlite.prepare('SELECT count(*) n FROM dossivo_access_events').get().n,beforeEvents);
+ await f.access.revoke('exporter',temp.grant.id,'overview-revoke');overview=await f.access.buyerOverview('buyer-a','REVOKED');assert.equal(overview.counts.REVOKED,1);assert.equal(overview.counts.EXPIRED,0);assert.equal(overview.grants.length,1);assert.equal(overview.grants[0].organization,null);
+ for(const secret of ['parameters','snapshot_json','code_hash','owner_id','task_id','PRICE_123','SECRET_123','PRIVATE_COMPLAINT','Synthetic Exporter'])assert.ok(!JSON.stringify(overview).includes(secret),secret);
+ await assert.rejects(f.access.buyerRead('buyer-a',temp.grant.id),{code:'ACCESS_UNAVAILABLE'});
+});
+test('buyer overview: filter precedes pagination, totals span pages and ownership is enforced',async t=>{
+ const f=setup(t),s=await card(f),g=await f.access.createGrant('exporter',grantData(s),'overview-many');
+ const original=f.sqlite.prepare('SELECT * FROM dossivo_basic_grants WHERE id=?').get(g.grant.id),keys=Object.keys(original);
+ const insert=f.sqlite.prepare('INSERT INTO dossivo_basic_grants ('+keys.join(',')+') VALUES ('+keys.map(()=>'?').join(',')+')');
+ for(let i=0;i<55;i++){const row={...original,id:'overview-'+String(i).padStart(3,'0'),code_hash:'synthetic-code-'+i,redeemed_by:'buyer-a',revoked_at:i>=52?f.clock():null};insert.run(...keys.map(k=>row[k]));}
+ const a=await f.access.buyerOverview('buyer-a','ACTIVE');assert.equal(a.grants.length,50);assert.equal(a.counts.ALL,55);assert.equal(a.counts.ACTIVE,52);assert.ok(a.next_before);
+ const b=await f.access.buyerOverview('buyer-a','ACTIVE',a.next_before);assert.equal(b.grants.length,2);assert.equal(b.next_before,null);assert.equal(b.counts.ALL,55);assert.equal(new Set([...a.grants,...b.grants].map(g=>g.id)).size,52);
+ assert.equal((await f.access.buyerOverview('buyer-a','REVOKED')).grants.length,3);
+ assert.deepEqual((await f.access.buyerOverview('buyer-b','ALL',a.next_before)).counts,{ALL:0,ACTIVE:0,EXPIRED:0,REVOKED:0});assert.equal((await f.access.buyerOverview('exporter','ALL')).grants.length,0);
+});
+test('buyer overview rejects invalid filters and cursors without widening scope',async t=>{const f=setup(t);for(const [status,cursor] of [['UNKNOWN',null],['ALL',''],['ALL','x'.repeat(129)],['ALL',42]])await assert.rejects(f.access.buyerOverview('buyer-a',status,cursor),{code:'INVALID_INPUT'});});

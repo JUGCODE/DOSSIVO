@@ -251,7 +251,7 @@ export const dossivoConversations=sqliteTable('dossivo_conversations',{
  id:text('id').primaryKey().notNull(),grantId:text('grant_id'),contactId:text('contact_id'),ownerId:text('owner_id').notNull(),buyerId:text('buyer_id').notNull(),status:text('status').notNull().default('ACTIVE'),createdAt:text('created_at').notNull(),lastSequence:integer('last_sequence').notNull().default(0),
 },t=>[uniqueIndex('conversation_grant').on(t.grantId),uniqueIndex('conversation_contact').on(t.contactId),check('conversation_one_relation',sql`(${t.grantId} IS NOT NULL AND ${t.contactId} IS NULL) OR (${t.grantId} IS NULL AND ${t.contactId} IS NOT NULL)`)]);
 export const dossivoConversationMessages=sqliteTable('dossivo_conversation_messages',{
- id:text('id').primaryKey().notNull(),conversationId:text('conversation_id').notNull(),actorId:text('actor_id').notNull(),kind:text('kind').notNull(),body:text('body').notNull(),replyTo:text('reply_to'),sequence:integer('sequence').notNull().default(0),evidenceSequence:integer('evidence_sequence'),evidenceCardId:text('evidence_card_id'),structuredJson:text('structured_json'),createdAt:text('created_at').notNull(),idempotencyKey:text('idempotency_key').notNull(),commandHash:text('command_hash').notNull(),
+ id:text('id').primaryKey().notNull(),conversationId:text('conversation_id').notNull(),actorId:text('actor_id').notNull(),kind:text('kind').notNull(),body:text('body').notNull(),replyTo:text('reply_to'),sequence:integer('sequence').notNull().default(0),evidenceSequence:integer('evidence_sequence'),evidenceCardId:text('evidence_card_id'),evidenceGrantId:text('evidence_grant_id'),structuredJson:text('structured_json'),createdAt:text('created_at').notNull(),idempotencyKey:text('idempotency_key').notNull(),commandHash:text('command_hash').notNull(),
 },t=>[uniqueIndex('conversation_message_key').on(t.actorId,t.idempotencyKey),index('conversation_message_history').on(t.conversationId,t.createdAt),uniqueIndex('conversation_message_sequence').on(t.conversationId,t.sequence)]);
 
 export const dossivoConversationReads=sqliteTable('dossivo_conversation_reads',{
@@ -284,3 +284,12 @@ export const dossivoCommunicationRegions=sqliteTable('dossivo_communication_regi
 export const dossivoRequestTasks=sqliteTable('dossivo_request_tasks',{
  requestId:text('request_id').notNull(),actorId:text('actor_id').notNull(),taskId:text('task_id').notNull(),createdAt:text('created_at').notNull(),
 },t=>[primaryKey({columns:[t.requestId,t.actorId]})]);
+
+// Account-level deployment interest only; never a live storage configuration.
+export const dossivoStoragePreferences=sqliteTable('dossivo_storage_preferences',{
+ actorId:text('actor_id').primaryKey().notNull(),preference:text('preference').notNull(),version:integer('version').notNull(),updatedAt:text('updated_at').notNull(),
+});
+
+export const dossivoAccountContacts=sqliteTable('dossivo_account_contacts',{
+ actorId:text('actor_id').primaryKey().notNull(),email:text('email').notNull(),phone:text('phone').notNull(),version:integer('version').notNull(),updatedAt:text('updated_at').notNull(),consentVersion:text('consent_version'),confirmedAt:text('confirmed_at'),
+});
