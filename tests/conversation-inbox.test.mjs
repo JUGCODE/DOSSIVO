@@ -282,6 +282,7 @@ test('private task listing exposes verified month only to its owner for request 
  assert.equal(rows.find(r=>r.id===f.s.task_id).period,'2026-10');
  assert.equal((await f.task.list('buyer-a')).length,0);
  assert.ok(!JSON.stringify(rows).includes('materials'));
+ f.sqlite.exec('DROP TRIGGER task_versions_no_update'); // Deliberately bypass write guard to test corrupted storage reads.
  f.sqlite.prepare("UPDATE dossivo_task_versions SET body_hash='tampered' WHERE task_id=?").run(f.s.task_id);
  await assert.rejects(f.task.list('supplier'),{code:'INTEGRITY_FAILED'});
 });

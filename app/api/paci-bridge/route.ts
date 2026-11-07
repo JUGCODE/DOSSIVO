@@ -1,5 +1,5 @@
 import { env } from "cloudflare:workers";
-import { getChatGPTUser } from "@/app/chatgpt-auth";
+import { getCurrentUser } from "@/app/auth";
 import { BridgeError, requireSameOrigin } from "@/lib/paci-bridge-core";
 import { PaciBridgeStore } from "@/lib/paci-bridge-store";
 
@@ -12,7 +12,7 @@ function failure(error: unknown) {
 }
 
 export async function GET(request: Request) {
-  const user = await getChatGPTUser();
+  const user = await getCurrentUser();
   if (!user) return Response.json({ error: "Sign in is required", code: "AUTH_REQUIRED" }, { status: 401, headers: PRIVATE_HEADERS });
   try {
     const store = new PaciBridgeStore(env.DB);
@@ -39,7 +39,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const user = await getChatGPTUser();
+  const user = await getCurrentUser();
   if (!user) return Response.json({ error: "Sign in is required", code: "AUTH_REQUIRED" }, { status: 401, headers: PRIVATE_HEADERS });
   try {
     requireSameOrigin(request);

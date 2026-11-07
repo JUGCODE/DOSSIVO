@@ -30,21 +30,12 @@
   "browser_public_production": "PASS: existing workflow, anonymous task login protection and Protocol page visible",
   "documentation_source": "Post-deployment documentation commit in same source repository; runtime remains site v20 / ded2beb207be95ad980fa5734f76c4ebea548044",
   "latest_release": {
-    "version": 73,
-    "runtime_commit": "1aea6e58f06eb6d139bf3cb93c6d44cc2a954342",
-    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_34e6c42a27e4819199ea40b1aff956a3",
-    "deployment_id": "appgdep_6aee6c5c91bc8191b19e15e5d90ea307",
-    "deployment_status": "succeeded",
-    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
-    "unit_tests": {
-      "pass": 287,
-      "fail": 0
-    },
-    "test_log": "docs/evidence/repeated-field-tests.log",
-    "typecheck": "PASS",
-    "worker_build": "PASS",
-    "browser_signed_in": "NOT VERIFIED",
-    "github_sync": "verified main source snapshot 8fee53cc6d5916bb9214c82b6838ec556a283954"
+    "version": 113,
+    "commit_sha": "0e6e5489a2f4d39d667ec6daa32bd1072d3a585a",
+    "version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_8ad37a9c9ca08191a582dffc92962b9e",
+    "deployment_id": "appgdep_6aef15cba05c819182ec2225d0b927b2",
+    "status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site"
   },
   "release_history": [
     {
@@ -283,16 +274,16 @@
     }
   ],
   "current_validation": {
-    "scope": "D1 all repeated field candidates and conservative ambiguity handling",
+    "scope": "Blank-to-zero prevention and field confirmation history",
     "unit_tests": {
-      "pass": 287,
+      "pass": 314,
       "fail": 0
     },
-    "test_log": "docs/evidence/repeated-field-tests.log",
+    "test_log": "docs/evidence/field-review-tests.log",
     "typecheck": "PASS",
-    "publication": "succeeded: v73",
-    "github_sync": "verified main source snapshot 8fee53cc6d5916bb9214c82b6838ec556a283954",
+    "publication": "succeeded: v80",
     "browser_signed_in": "NOT VERIFIED",
+    "github_sync": "Not repeated; remains v73",
     "worker_build": "PASS"
   },
   "previous_latest_release_receipts": [
@@ -670,5 +661,528 @@
     "repository": "JUGCODE/DOSSIVO",
     "method": "Current sanitized source tree, parented only to existing GitHub history",
     "verified": true
+  },
+  "previous_release_v73": {
+    "version": 73,
+    "runtime_commit": "1aea6e58f06eb6d139bf3cb93c6d44cc2a954342",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_34e6c42a27e4819199ea40b1aff956a3",
+    "deployment_id": "appgdep_6aee6c5c91bc8191b19e15e5d90ea307",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 287,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/repeated-field-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "browser_signed_in": "NOT VERIFIED",
+    "github_sync": "verified main source snapshot 8fee53cc6d5916bb9214c82b6838ec556a283954"
+  },
+  "previous_release_v74": {
+    "version": 74,
+    "runtime_commit": "3dc1631a74c168c353a3818837f5f6c8274c8ba6",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_34a6715db9148191989300d6423ed664",
+    "deployment_id": "appgdep_6aee73c8c9588191825b5cba669d7f50",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 290,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/candidate-review-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "browser_signed_in": "NOT VERIFIED",
+    "github_sync": "Not repeated; GitHub remains v73"
+  },
+  "previous_release_v75": {
+    "version": 75,
+    "runtime_commit": "53d1ffb7dda0a15d2eef158f0b0674d98039f0d8",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_fb55095dc738819191e5c520e59965f3",
+    "deployment_id": "appgdep_6aee7579f1448191b70ee1c8da932aa5",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 294,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/preparation-overview-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "browser_signed_in": "NOT VERIFIED",
+    "github_sync": "Not repeated; remains v73"
+  },
+  "previous_release_v76": {
+    "version": 76,
+    "runtime_commit": "a9f16ba65d78ab08498a5c17926fbcf82e1a8bf5",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_eca58e6551fc8191a795772cb6c04c40",
+    "deployment_id": "appgdep_6aee770070588191b92f94e8d695441e",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 297,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/material-review-actions-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "browser_signed_in": "NOT VERIFIED",
+    "github_sync": "Not repeated; remains v73"
+  },
+  "previous_release_v77": {
+    "version": 77,
+    "runtime_commit": "ff0e6e14fd2bbb90ebb94368402fbd175b9d69da",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_18b792c6cc18819181ae6366374c6c1f",
+    "deployment_id": "appgdep_6aee79196840819194b7518171643b9c",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 301,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/material-gap-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "browser_signed_in": "NOT VERIFIED",
+    "github_sync": "Not repeated; remains v73"
+  },
+  "previous_release_v78": {
+    "version": 78,
+    "runtime_commit": "518d9cf85872f2b75dba477e6fcb1beb10e4ec58",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_420f344020c08191a6c48061e5036b8e",
+    "deployment_id": "appgdep_6aee7b7bbde48191a53c83b637476744",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 306,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/gap-receipt-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "browser_signed_in": "NOT VERIFIED",
+    "github_sync": "Not repeated; remains v73"
+  },
+  "previous_release_v79": {
+    "version": 79,
+    "runtime_commit": "2e75c1566fdbb666be38e9acd6f35e16425a46c5",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_e9f4b4aa8fa4819197d50c836c30d096",
+    "deployment_id": "appgdep_6aee7de3ca548191b98d993f59a26cfc",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 309,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/gap-overview-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "browser_signed_in": "NOT VERIFIED",
+    "github_sync": "Not repeated; remains v73"
+  },
+  "local_storage_runtime_acceptance": {
+    "date": "2026-11-07",
+    "checks_pass": 9,
+    "checks_fail": 0,
+    "runtime": "Miniflare/workerd local D1 and R2",
+    "command": "node scripts/verify-private-file-runtime.mjs",
+    "log": "docs/evidence/private-file-runtime.log",
+    "production_verified": false,
+    "authenticated_browser_verified": false,
+    "unit_tests_this_round": "not rerun; prior v89 363 PASS",
+    "deployed_version": 89
+  },
+  "local_storage_restart_acceptance": {
+    "date": "2026-11-07",
+    "checks_pass": 14,
+    "checks_fail": 0,
+    "new_restart_checks": 5,
+    "repeated_base_checks": 9,
+    "command": "node scripts/verify-private-file-runtime.mjs",
+    "log": "docs/evidence/private-file-restart-runtime.log",
+    "graceful_local_restart": true,
+    "production_verified": false,
+    "backup_restore_verified": false,
+    "deployed_version": 89
+  },
+  "local_storage_restore_acceptance": {
+    "date": "2026-11-07",
+    "checks_pass": 18,
+    "checks_fail": 0,
+    "new_restore_checks": 4,
+    "repeated_prior_checks": 14,
+    "log": "docs/evidence/private-file-restore-runtime.log",
+    "paired_local_snapshot_restore": true,
+    "stale_backup_deletion_risk_confirmed": true,
+    "production_backup_configured": false,
+    "production_verified": false,
+    "deployed_version": 89
+  },
+  "private_file_usage_acceptance": {
+    "tests_pass": 366,
+    "tests_fail": 0,
+    "tests_added": 3,
+    "typecheck": "PASS",
+    "log": "docs/evidence/private-file-usage-tests.log",
+    "signed_in_production": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "worker_build": "PASS"
+  },
+  "task_activity_acceptance": {
+    "tests_pass": 371,
+    "tests_fail": 0,
+    "tests_added": 5,
+    "typecheck": "PASS",
+    "log": "docs/evidence/private-task-activity-tests.log",
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "worker_build": "PASS"
+  },
+  "task_save_recovery_acceptance": {
+    "tests_pass": 376,
+    "tests_fail": 0,
+    "tests_added": 5,
+    "typecheck": "PASS",
+    "log": "docs/evidence/task-save-recovery-tests.log",
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "worker_build": "PASS"
+  },
+  "field_review_summary_acceptance": {
+    "tests_pass": 382,
+    "tests_fail": 0,
+    "tests_added": 6,
+    "typecheck": "PASS",
+    "log": "docs/evidence/field-review-summary-tests.log",
+    "model_training": false,
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "worker_build": "PASS"
+  },
+  "field_review_queue_acceptance": {
+    "tests_pass": 385,
+    "tests_fail": 0,
+    "tests_added": 3,
+    "typecheck": "PASS",
+    "log": "docs/evidence/field-review-queue-tests.log",
+    "authenticated_browser": "NOT_VERIFIED",
+    "model_training": false,
+    "deployment": "SUCCEEDED",
+    "worker_build": "PASS"
+  },
+  "multilingual_parser_acceptance": {
+    "tests_pass": 390,
+    "tests_fail": 0,
+    "tests_added": 5,
+    "typecheck": "PASS",
+    "log": "docs/evidence/multilingual-parser-tests.log",
+    "parser_version": "dossivo-synthetic-parser/1.0",
+    "model_connected": false,
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "worker_build": "PASS"
+  },
+  "field_location_diagnostics_acceptance": {
+    "tests_pass": 394,
+    "tests_fail": 0,
+    "tests_added": 4,
+    "typecheck": "PASS",
+    "log": "docs/evidence/field-location-diagnostics-tests.log",
+    "parser_version": "dossivo-synthetic-parser/1.1",
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "worker_build": "PASS"
+  },
+  "source_diagnostic_assessment_acceptance": {
+    "round11_recheck_pass": 73,
+    "round11_log": "docs/evidence/round11-recheck.log",
+    "tests_pass": 398,
+    "tests_fail": 0,
+    "tests_added": 4,
+    "typecheck": "PASS",
+    "log": "docs/evidence/source-diagnostic-assessment-tests.log",
+    "parser_version": "dossivo-synthetic-parser/1.2",
+    "checker_version": "dossivo-preparation/0.6",
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "worker_build": "PASS"
+  },
+  "task_list_pagination_acceptance": {
+    "tests_pass": 403,
+    "tests_fail": 0,
+    "tests_added": 5,
+    "typecheck": "PASS",
+    "log": "docs/evidence/task-list-pagination-tests.log",
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 98
+  },
+  "task_search_acceptance": {
+    "tests_pass": 406,
+    "tests_fail": 0,
+    "tests_added": 3,
+    "typecheck": "PASS",
+    "log": "docs/evidence/task-search-tests.log",
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 99
+  },
+  "task_history_acceptance": {
+    "tests_pass": 410,
+    "tests_fail": 0,
+    "tests_added": 4,
+    "typecheck": "PASS",
+    "log": "docs/evidence/task-history-tests.log",
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 100
+  },
+  "task_field_changes_acceptance": {
+    "tests_pass": 415,
+    "tests_fail": 0,
+    "tests_added": 5,
+    "typecheck": "PASS",
+    "log": "docs/evidence/task-field-change-tests.log",
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 101
+  },
+  "assessment_readiness_acceptance": {
+    "tests_pass": 419,
+    "tests_fail": 0,
+    "tests_added": 4,
+    "typecheck": "PASS",
+    "log": "docs/evidence/assessment-readiness-tests.log",
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 102
+  },
+  "card_download_language_acceptance": {
+    "tests_pass": 423,
+    "tests_fail": 0,
+    "tests_added": 4,
+    "typecheck": "PASS",
+    "log": "docs/evidence/card-download-language-tests.log",
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 103
+  },
+  "card_download_name_acceptance": {
+    "tests_pass": 428,
+    "tests_fail": 0,
+    "tests_added": 5,
+    "typecheck": "PASS",
+    "log": "docs/evidence/card-download-name-tests.log",
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 104
+  },
+  "task_history_append_only_acceptance": {
+    "tests_pass": 430,
+    "tests_fail": 0,
+    "tests_added": 2,
+    "typecheck": "PASS",
+    "local_d1_checks_pass": 7,
+    "migration": "0025_task_history_append_only",
+    "authenticated_browser": "NOT_VERIFIED",
+    "production_db_direct_inspection": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 105
+  },
+  "publication_history_acceptance": {
+    "tests_pass": 432,
+    "tests_fail": 0,
+    "tests_added": 2,
+    "typecheck": "PASS",
+    "local_d1_checks_pass": 9,
+    "migration": "0026_publication_history_append_only",
+    "authenticated_browser": "NOT_VERIFIED",
+    "production_db_direct_inspection": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 106
+  },
+  "access_history_acceptance": {
+    "tests_pass": 434,
+    "tests_fail": 0,
+    "tests_added": 2,
+    "typecheck": "PASS",
+    "local_d1_checks_pass": 6,
+    "migration": "0027_access_events_append_only",
+    "authenticated_browser": "NOT_VERIFIED",
+    "production_db_direct_inspection": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 107
+  },
+  "grant_lifecycle_acceptance": {
+    "tests_pass": 437,
+    "tests_fail": 0,
+    "tests_added": 3,
+    "typecheck": "PASS",
+    "local_d1_checks_pass": 7,
+    "migration": "0028_grant_lifecycle_guards",
+    "authenticated_browser": "NOT_VERIFIED",
+    "production_db_direct_inspection": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 108
+  },
+  "identity_preflight_acceptance": {
+    "tests_pass": 442,
+    "tests_fail": 0,
+    "tests_added": 5,
+    "typecheck": "PASS",
+    "external_email_registration": "BLOCKED",
+    "live_identity_changes": false,
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 109
+  },
+  "file_history_replace_acceptance": {
+    "tests_pass": 444,
+    "tests_fail": 0,
+    "tests_added": 2,
+    "local_d1_checks": 5,
+    "typecheck": "PASS",
+    "authenticated_browser": "NOT_VERIFIED",
+    "production_trigger_inspection": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 110
+  },
+  "material_import_review_acceptance": {
+    "tests_pass": 449,
+    "tests_fail": 0,
+    "tests_added": 5,
+    "typecheck": "PASS",
+    "browser": "NOT_VERIFIED: managed preview dev server conflict",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 111
+  },
+  "coverage_scope_acceptance": {
+    "tests_pass": 452,
+    "tests_fail": 0,
+    "tests_added": 3,
+    "typecheck": "PASS",
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 112
+  },
+  "disclosure_scope_acceptance": {
+    "tests_pass": 455,
+    "tests_fail": 0,
+    "tests_added": 3,
+    "typecheck": "PASS",
+    "authenticated_browser": "NOT_VERIFIED",
+    "deployment": "SUCCEEDED",
+    "build": "PASS",
+    "site_version": 113
+  },
+  "development_30": {
+    "date": "2026-11-07",
+    "site_version": 114,
+    "runtime_commit": "5774cea03de685b53c74a50031733e032e2dc88f",
+    "deployment_id": "appgdep_6aef30b653ac8191949b028383ca37ff",
+    "deployment_status": "succeeded",
+    "tests": {
+      "pass": 458,
+      "fail": 0,
+      "skipped": 0
+    },
+    "typecheck": "PASS",
+    "build": "PASS",
+    "browser": "NOT_VERIFIED",
+    "checkout": "DISABLED",
+    "real_sensitive_intake": "CLOSED",
+    "github_synced": false
+  },
+  "development_31": {
+    "date": "2026-11-07",
+    "site_version": 115,
+    "runtime_commit": "a36536f8f7f706b709953f1be4e11fcb6df5a312",
+    "deployment_id": "appgdep_6aef3342298c819189406b7c07afc78b",
+    "deployment_status": "succeeded",
+    "tests": {
+      "pass": 463,
+      "fail": 0,
+      "skipped": 0
+    },
+    "local_D1_checks": 6,
+    "migration": "0030_lazy_hex",
+    "typecheck": "PASS",
+    "build": "PASS",
+    "browser": "NOT_VERIFIED",
+    "identity": "SELF_DECLARED",
+    "billing": "NOT_CONNECTED",
+    "github_synced": false
+  },
+  "development_32": {
+    "date": "2026-11-07",
+    "site_version": 116,
+    "runtime_commit": "bc0f24044e622b25c512fadae086ad6d1260f332",
+    "deployment_id": "appgdep_6aef361956ac81918858972ef9533329",
+    "deployment_status": "succeeded",
+    "tests": {
+      "pass": 467,
+      "fail": 0,
+      "skipped": 0
+    },
+    "local_D1_checks": 6,
+    "typecheck": "PASS",
+    "build": "PASS",
+    "browser": "NOT_VERIFIED",
+    "billing": "PREPARATION_ONLY",
+    "payments": "NOT_CONNECTED",
+    "github_synced": false
+  },
+  "development_33_34": {
+    "date": "2026-11-07",
+    "site_version": 117,
+    "runtime_commit": "8a4e2af86de0cecac9669ca82598bed058bf5fa9",
+    "deployment_id": "appgdep_6aef379784208191ab451d8346d4fde4",
+    "deployment_status": "succeeded",
+    "tests": {
+      "pass": 471,
+      "fail": 0,
+      "skipped": 0
+    },
+    "local_D1_checks": 7,
+    "typecheck": "PASS",
+    "build": "PASS",
+    "browser": "NOT_VERIFIED",
+    "payments": "NOT_CONNECTED",
+    "github_synced": false
+  },
+  "development_35": {
+    "date": "2026-11-07",
+    "site_version": 118,
+    "runtime_commit": "63b4b00a590c71a59ba64e08d9994851a6a9fb72",
+    "deployment_id": "appgdep_6aef398340e88191b8e56a47cc398d09",
+    "deployment_status": "succeeded",
+    "tests": {
+      "pass": 478,
+      "fail": 0,
+      "skipped": 0
+    },
+    "local_HTTP_D1_checks": 7,
+    "typecheck": "PASS",
+    "build": "PASS",
+    "real_stripe": "NOT_CONNECTED",
+    "webhook_production": "DISABLED_NO_CONFIG",
+    "environment_revision": 0,
+    "github_synced": false
   }
 }

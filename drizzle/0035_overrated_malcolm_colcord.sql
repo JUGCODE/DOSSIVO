@@ -1,0 +1,1 @@
+ALTER TABLE `dossivo_payment_test_receipts` ADD `checkout_snapshot_json` text;

@@ -2622,5 +2622,55 @@
     "zh": "候选字段过多，请将合成材料拆分到较小的任务中。",
     "en": "Too many field candidates; split the synthetic material into smaller tasks",
     "it": "Troppi campi candidati; suddividi il materiale sintetico in attività più piccole."
+  },
+  "record_material_gap": {
+    "zh": "登记材料缺口",
+    "en": "Record material gap",
+    "it": "Registra lacuna materiale"
+  },
+  "gap reason is required (max 1000)": {
+    "zh": "请填写未取得原因，最多1000个字符。",
+    "en": "Enter the reason, up to 1000 characters.",
+    "it": "Inserisci il motivo, massimo 1000 caratteri."
+  },
+  "confirm_gap_receipt": {
+    "zh": "确认材料已补交",
+    "en": "Confirm material receipt",
+    "it": "Conferma ricezione"
+  },
+  "reopen_material_gap": {
+    "zh": "重新打开材料缺口",
+    "en": "Reopen material gap",
+    "it": "Riapri lacuna"
+  },
+  "Material gap unavailable": {
+    "zh": "材料缺口不可用",
+    "en": "Material gap unavailable",
+    "it": "Lacuna non disponibile"
+  },
+  "Reopen the gap before changing its linked material": {
+    "zh": "更换关联材料前请先重新打开缺口",
+    "en": "Reopen the gap before changing its linked material",
+    "it": "Riapri la lacuna prima di cambiare materiale"
+  },
+  "Only a confirmed receipt can be reopened": {
+    "zh": "只能重新打开已确认补交的缺口",
+    "en": "Only a confirmed receipt can be reopened",
+    "it": "Si può riaprire solo una ricezione confermata"
+  },
+  "Select a company-confirmed material with matching category, facility and month": {
+    "zh": "请选择已由企业确认且类别、场所和月份一致的材料，并勾选核对确认",
+    "en": "Select a company-confirmed material with matching category, facility and month",
+    "it": "Seleziona materiale confermato della stessa categoria, stabilimento e mese"
+  },
+  "gap review reason is required (max 1000)": {
+    "zh": "请填写核对依据，最多1000个字符",
+    "en": "Enter a review basis, up to 1000 characters",
+    "it": "Inserisci una motivazione, massimo 1000 caratteri"
+  },
+  "SOURCE_PARSE_ISSUE": {
+    "zh": "来源字段存在未解决的识别问题",
+    "en": "Unresolved source parsing issue",
+    "it": "Problema di lettura della fonte non risolto"
   }
 }

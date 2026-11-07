@@ -1,5 +1,5 @@
 import { and, desc, eq, gte, isNull, lte, or } from "drizzle-orm";
-import { getChatGPTUser } from "@/app/chatgpt-auth";
+import { getCurrentUser } from "@/app/auth";
 import { getDb } from "@/db";
 import { evidenceVersions } from "@/db/schema";
 import { resolveDemoSession } from "@/lib/demo-session";
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 const PRIVATE_HEADERS = { "cache-control": "private, no-store", "x-content-type-options": "nosniff" };
 
 export async function GET(request: Request) {
-  const user = await getChatGPTUser();
+  const user = await getCurrentUser();
   const session = resolveDemoSession(request, user?.userId ?? null);
   if (!session) return Response.json({ error: "Open the demo workspace before reading evidence", code: "DEMO_SESSION_REQUIRED" }, { status: 401, headers: PRIVATE_HEADERS });
   const url = new URL(request.url);

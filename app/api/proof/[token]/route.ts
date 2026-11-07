@@ -1,5 +1,7 @@
+import {env} from 'cloudflare:workers';
+import {ProofVerificationStore,verificationConfig} from '@/lib/proof-verification';
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
-import { getChatGPTUser } from "@/app/chatgpt-auth";
+import { getCurrentUser } from "@/app/auth";
 import { getDb } from "@/db";
 import { outcomeCases, proofAccessLogs, proofLinks } from "@/db/schema";
 
@@ -18,7 +20,15 @@ function frozenObject(value: string): Record<string, unknown> | null {
 }
 
 export async function GET(_request: Request, context: { params: Promise<{ token: string }> }) {
-  const { token } = await context.params;
+  const { token: suppliedToken } = await context.params;
+  let token=suppliedToken;
+  if(suppliedToken.includes('.')){
+    const c=verificationConfig(env);
+    if(!c||new URL(_request.url).hostname!==c.domain)return privateJson({error:'Proof unavailable.'},{status:404});
+    const resolved=await new ProofVerificationStore(env.DB).resolveSignedProof(suppliedToken,c);
+    if(!resolved)return privateJson({error:'Proof unavailable.'},{status:404});
+    token=resolved;
+  }
   const db = getDb();
   const [link] = await db.select().from(proofLinks).where(and(
     eq(proofLinks.token, token),
@@ -46,7 +56,7 @@ export async function GET(_request: Request, context: { params: Promise<{ token:
   )).returning();
   if (!consumed) return privateJson({ error: "This access link is no longer available. It may be expired, revoked, or already consumed." }, { status: 409 });
   const viewedAt = new Date().toISOString();
-  const user = await getChatGPTUser();
+  const user = await getCurrentUser();
   await db.insert(proofAccessLogs).values({
     id: crypto.randomUUID(), token, caseId: link.caseId,
     visitorLabel: user ? `Authenticated account: ${user.userId}` : "Unknown visitor (identity unverified)",

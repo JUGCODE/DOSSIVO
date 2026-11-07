@@ -1,0 +1,6 @@
+PASS migration preserves preexisting history
+PASS replacement rejected with recursive triggers OFF
+PASS replacement rejected with recursive triggers ON
+PASS new history remains appendable
+PASS restart retains replacement guard
+{"checks":5,"result":"PASS","runtime":"local Miniflare/workerd D1","production":false,"customer_data":false}

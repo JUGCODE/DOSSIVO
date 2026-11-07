@@ -1,0 +1,20 @@
+import {createRequire} from 'node:module';
+import {readFileSync,readdirSync,mkdtempSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {OrganizationStore} from '../lib/organization-store.js';
+const require=createRequire(import.meta.url),wranglerRequire=createRequire(require.resolve('wrangler/package.json')),{Miniflare}=wranglerRequire('miniflare');
+const root=path.resolve(import.meta.dirname,'..'),temporary=mkdtempSync(path.join(tmpdir(),'dossivo-org-'));
+const options={modules:true,script:'export default {fetch(){return new Response("local fixture")}}',compatibilityDate:'2026-05-15',d1Databases:['DB'],d1Persist:path.join(temporary,'d1')};
+let mf=new Miniflare(options),checks=0;
+const check=x=>{checks++;console.log('PASS '+x);};
+try{let db=await mf.getD1Database('DB');for(const file of readdirSync(path.join(root,'drizzle')).filter(f=>f.endsWith('.sql')).sort())for(const sql of readFileSync(path.join(root,'drizzle',file),'utf8').split('--> statement-breakpoint').map(x=>x.trim()).filter(Boolean))await db.prepare(sql).run();
+ let store=new OrganizationStore(db);const org=(await store.command('owner','create',{name:'Synthetic organisation',country:'IT',confirmed:true},'create')).organization_id;check('D1 migrations and organisation creation');
+ const d={organization_id:org,member_id:'member',expected_version:0};await store.command('owner','invite',d,'invite');await store.command('member','accept',{...d,expected_version:1},'accept');assert.equal((await store.list('member')).organizations[0].status,'ACTIVE');check('transactional invitation and explicit acceptance');
+ await assert.rejects(store.members('member',org),{code:'ORGANIZATION_UNAVAILABLE'});check('member cannot read private membership roster');
+ await store.command('owner','revoke',{...d,expected_version:2},'revoke');await assert.rejects(store.command('member','accept',{...d,expected_version:1},'stale'),{code:'VERSION_CONFLICT'});assert.equal((await store.list('member')).organizations.length,0);check('revocation and stale acceptance guard');
+ assert.equal((await db.prepare('SELECT count(*) n FROM dossivo_organization_events').first()).n,4);check('failed mutation adds no event');
+ await mf.dispose();mf=new Miniflare(options);db=await mf.getD1Database('DB');store=new OrganizationStore(db);assert.equal((await store.list('member')).organizations.length,0);assert.equal((await store.list('owner')).organizations[0].id,org);assert.equal((await store.command('owner','create',{name:'Synthetic organisation',country:'IT',confirmed:true},'create')).replayed,true);check('restart preserves organisation, revocation and idempotency');
+ console.log(JSON.stringify({checks,result:'PASS',runtime:'local Miniflare/workerd D1',production:false,customer_data:false}));
+}finally{await mf.dispose();rmSync(temporary,{recursive:true,force:true});}

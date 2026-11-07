@@ -1,0 +1,7 @@
+PASS migration preserves preexisting access event
+PASS D1 blocks UPDATE
+PASS D1 blocks DELETE
+PASS D1 blocks INSERT
+PASS new access event still appends
+PASS restart retains events and guard
+{"checks":6,"result":"PASS","runtime":"local Miniflare/workerd D1","production":false,"customer_data":false}

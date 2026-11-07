@@ -6,6 +6,7 @@ import { createRequire } from "node:module";
 import ts from "typescript";
 import { buildCards, createInitialState } from "../lib/workflow-core.js";
 
+import * as proofVerification from '../lib/proof-verification.js';
 const require = createRequire(import.meta.url);
 const { drizzle } = require("drizzle-orm/sqlite-proxy");
 
@@ -25,7 +26,7 @@ function loadTs(path, replacements = {}, extra = "") {
 
 const schema = loadTs("../db/schema.ts");
 
-function fixture(t, { beforeUpdate, user = null } = {}) {
+function fixture(t, { beforeUpdate, user = null, signed = false } = {}) {
   const sqlite = new DatabaseSync(":memory:");
   t.after(() => sqlite.close());
   const migrationDir = new URL("../drizzle/", import.meta.url);
@@ -52,13 +53,17 @@ function fixture(t, { beforeUpdate, user = null } = {}) {
     statement.setReturnArrays(true);
     return { rows: method === "get" ? statement.get(...params) : statement.all(...params) };
   });
+  const rawDb={prepare(sql){const make=args=>({bind:(...v)=>make(v),first:async()=>sqlite.prepare(sql).get(...args)??null,all:async()=>({results:sqlite.prepare(sql).all(...args)}),sql,args});return make([]);},async batch(items){sqlite.exec('BEGIN');try{const values=items.map(q=>sqlite.prepare(q.sql).run(...q.args));sqlite.exec('COMMIT');return values;}catch(e){sqlite.exec('ROLLBACK');throw e;}}};
+  const env=signed?{DB:rawDb,DOSSIVO_OFFICIAL_DOMAIN:'example.test',DOSSIVO_VERIFY_REGION:'eu',DOSSIVO_VERIFY_ACTIVE_KEY:'test',DOSSIVO_VERIFY_KEYS:JSON.stringify({test:'a'.repeat(64)}),DOSSIVO_VERIFY_RATE_KEY:'b'.repeat(64)}:{};
   const route = loadTs("../app/api/proof/[token]/route.ts", {
+    "cloudflare:workers":{env},
+    "@/lib/proof-verification":proofVerification,
     "@/db": { getDb: () => db },
     "@/db/schema": schema,
-    "@/app/chatgpt-auth": { getChatGPTUser: async () => user },
+    "@/app/auth": { getCurrentUser: async () => user },
   });
   const get = (headers = {}) => route.GET(new Request("https://example.test/api/proof/link-1", { headers }), { params: Promise.resolve({ token: "link-1" }) });
-  return { sqlite, get, cards, scope, expiresAt };
+  return { sqlite, get, cards, scope, expiresAt,rawDb,env,getToken:(token,host='example.test')=>route.GET(new Request('https://'+host+'/api/proof/'+token),{params:Promise.resolve({token})}) };
 }
 
 test("a proof link returns only its frozen version and does not identify a visitor as its recipient", async (t) => {
@@ -148,3 +153,6 @@ test("a superseded viewer request cannot replace the new token's result or surfa
   await missingRequest;
   assert.deepEqual(failures, ["snapshot_required"]);
 });
+
+test('signed proof route enforces official host, signature and original view consumption',async t=>{const f=fixture(t,{signed:true}),c=proofVerification.verificationConfig(f.env),store=new proofVerification.ProofVerificationStore(f.rawDb),registered=await store.bindExistingProof('owner','link-1',c);assert.equal((await f.getToken(registered.token,'other.test')).status,404);assert.equal((await f.getToken(registered.token+'a')).status,404);assert.equal(f.sqlite.prepare('SELECT remaining_views n FROM proof_links').get().n,3);const response=await f.getToken(registered.token);assert.equal(response.status,200);assert.deepEqual((await response.json()).card,f.cards);assert.equal(f.sqlite.prepare('SELECT remaining_views n FROM proof_links').get().n,2);f.sqlite.prepare('UPDATE proof_links SET revoked_at=?').run(new Date().toISOString());assert.equal((await f.getToken(registered.token)).status,404);assert.equal(f.sqlite.prepare('SELECT remaining_views n FROM proof_links').get().n,2);});
+test('signed proof route stays closed without domain and key configuration',async t=>{const f=fixture(t);assert.equal((await f.getToken('v1.eu.key.record.signature')).status,404);assert.equal(f.sqlite.prepare('SELECT remaining_views n FROM proof_links').get().n,3);});

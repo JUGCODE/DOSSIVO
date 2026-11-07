@@ -1,0 +1,12 @@
+{
+  "version": 122,
+  "status": "succeeded",
+  "runtime_commit": "8aec81ac2f438048be17e78fe68a8853955c5da2",
+  "deployment_id": "appgdep_6aef41af49548191a45e853d2acd41f4",
+  "environment_revision": 0,
+  "tests_passed": 511,
+  "local_runtime_checks": 15,
+  "real_stripe_verified": false,
+  "browser_verified": false,
+  "live_payments": false
+}

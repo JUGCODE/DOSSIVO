@@ -1,5 +1,5 @@
 import { env } from "cloudflare:workers";
-import { getChatGPTUser } from "@/app/chatgpt-auth";
+import { getCurrentUser } from "@/app/auth";
 import { BridgeError, requireSameOrigin } from "@/lib/paci-bridge-core";
 import { pilotBinding } from "@/lib/paci-http-client";
 import { PaciRegistrationStore } from "@/lib/paci-registration-store";
@@ -10,7 +10,7 @@ function fail(error: unknown) {
   return Response.json({ code: "REGISTRATION_UNAVAILABLE", error: "Registration confirmation is unavailable" }, { status: 503, headers });
 }
 export async function GET() {
-  const user = await getChatGPTUser();
+  const user = await getCurrentUser();
   if (!user) return Response.json({ code: "AUTH_REQUIRED" }, { status: 401, headers });
   try {
     const binding = pilotBinding(env as unknown as Record<string, string>, user.userId);
@@ -18,7 +18,7 @@ export async function GET() {
   } catch (error) { return fail(error); }
 }
 export async function POST(request: Request) {
-  const user = await getChatGPTUser();
+  const user = await getCurrentUser();
   if (!user) return Response.json({ code: "AUTH_REQUIRED" }, { status: 401, headers });
   try {
     requireSameOrigin(request);

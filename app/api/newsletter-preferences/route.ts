@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { getChatGPTUser } from "@/app/chatgpt-auth";
+import { getCurrentUser } from "@/app/auth";
 import { getDb } from "@/db";
 import { newsletterSubscriptions } from "@/db/schema";
 import { maskEmail, NEWSLETTER_CONSENT_VERSION, NEWSLETTER_LANGUAGES } from "@/lib/newsletter-core";
@@ -7,7 +7,7 @@ import { maskEmail, NEWSLETTER_CONSENT_VERSION, NEWSLETTER_LANGUAGES } from "@/l
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const user = await getChatGPTUser();
+  const user = await getCurrentUser();
   if (!user) return Response.json({ canSubscribe: false, subscription: null });
   try {
     const [subscription] = await getDb().select().from(newsletterSubscriptions)
@@ -23,7 +23,7 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
-  const user = await getChatGPTUser();
+  const user = await getCurrentUser();
   if (!user) return Response.json({ error: "Sign in is required to save newsletter preferences" }, { status: 401 });
   try {
     const input: unknown = await request.json();

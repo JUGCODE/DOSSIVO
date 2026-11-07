@@ -1,0 +1,10 @@
+PASS upgrade preserves original grant and published snapshot
+PASS dossivo_basic_grants blocks UPDATE
+PASS dossivo_basic_grants blocks DELETE
+PASS dossivo_basic_grants blocks INSERT
+PASS dossivo_summary_publications blocks UPDATE
+PASS dossivo_summary_publications blocks DELETE
+PASS dossivo_summary_publications blocks INSERT
+PASS lifecycle columns and appended publications remain writable
+PASS restart preserves lifecycle state and publication guard
+{"checks":9,"result":"PASS","runtime":"local Miniflare/workerd D1","production":false,"customer_data":false}

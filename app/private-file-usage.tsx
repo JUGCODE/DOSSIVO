@@ -1,0 +1,10 @@
+import {UIText} from './ui-language';
+export type FileUsage={account:{occupied:number;limit:number;remaining:number};task:{stored:number;uploading:number;deleting:number}};
+const copy={
+ zh:{title:'暂存文件概览',quota:'账号已占用名额',remaining:'剩余文件名额',task:'本任务',stored:'已保存 · 未审阅',uploading:'上传未完成',deleting:'删除待重试',note:'名额按账号所有任务合计；上传未完成和删除待重试仍占名额。刷新后更新，不代表证据完成度或实际云存储用量。'},
+ en:{title:'Staged file overview',quota:'Account slots used',remaining:'File slots remaining',task:'This task',stored:'Stored · Unreviewed',uploading:'Upload incomplete',deleting:'Deletion needs retry',note:'Slots cover all tasks in this account. Incomplete uploads and pending deletions still occupy slots. Updated on refresh; not evidence completion or measured cloud storage usage.'},
+ it:{title:'Riepilogo file temporanei',quota:'Posti occupati nell’account',remaining:'Posti disponibili',task:'Questa attività',stored:'Salvati · Non esaminati',uploading:'Caricamento incompleto',deleting:'Eliminazione da riprovare',note:'I posti includono tutte le attività dell’account. Caricamenti incompleti ed eliminazioni in attesa occupano ancora un posto. Aggiornato al ricaricamento; non indica completezza delle evidenze o spazio cloud misurato.'}
+};
+export function PrivateFileUsage({usage,language}:{usage:FileUsage;language:'zh'|'en'|'it'}){
+ const c=copy[language];return <section aria-label={c.title} className="private-file-usage"><h4><UIText>{c.title}</UIText></h4><p><UIText>{c.quota}</UIText>: {usage.account.occupied} / {usage.account.limit} · <UIText>{c.remaining}</UIText>: {usage.account.remaining}</p><meter aria-label={c.quota} min={0} max={usage.account.limit} value={Math.min(usage.account.occupied,usage.account.limit)} style={{width:'100%'}}/><p><UIText>{c.task}</UIText></p><dl style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:'1rem'}}>{(['stored','uploading','deleting'] as const).map(key=><div key={key}><dt><UIText>{c[key]}</UIText></dt><dd style={{margin:0,fontSize:'1.4rem'}}>{usage.task[key]}</dd></div>)}</dl><small><UIText>{c.note}</UIText></small></section>;
+}

@@ -1,0 +1,8 @@
+PASS migration preserves active and already revoked grants
+PASS partial redemption rejected
+PASS first complete redemption allowed
+PASS buyer rebinding rejected
+PASS revoked grant cannot reopen or redeem
+PASS revocation and no-op retry remain allowed
+PASS restart retains final revocation guard
+{"checks":7,"result":"PASS","runtime":"local Miniflare/workerd D1","production":false,"customer_data":false}

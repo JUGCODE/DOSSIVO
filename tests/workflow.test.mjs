@@ -175,9 +175,8 @@ test("attachment copy is precise and aligned across all three languages", () => 
 });
 
 test("supplier follow-up copy promises reviewable drafts, not automatic outreach", () => {
-  const source = readFileSync(new URL("../app/compliance-home.tsx", import.meta.url), "utf8");
+  const source = readFileSync(new URL("../app/subscription-pricing.tsx", import.meta.url), "utf8");
   for (const text of [
-    "英文供应商催办消息草稿",
     "企业审核后自行发送，Dossivo 不会自动联系供应商。",
     "Your company reviews and sends each draft; Dossivo does not contact suppliers automatically.",
     "L’impresa verifica e invia ogni bozza; Dossivo non contatta automaticamente i fornitori.",

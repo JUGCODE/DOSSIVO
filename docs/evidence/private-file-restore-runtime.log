@@ -1,0 +1,19 @@
+PASS all tracked migrations applied to local D1, including history triggers
+PASS real local R2 upload and D1 finalisation
+PASS retry creates no duplicate object
+PASS R2 body stream passes byte bounds and digest validation
+PASS cross-account and cross-origin denial
+PASS upload gate closure preserves owner download
+PASS restart retains matching D1 metadata and R2 file bytes
+PASS restart preserves owner isolation and upload admission
+PASS retry after restart retains idempotency without extra objects or history
+PASS deletion removes local R2 bytes and blocks further downloads
+PASS D1 triggers retain minimal state history
+PASS runtime enforces append-only history
+PASS restart after delete does not resurrect bytes or permit old-key reupload
+PASS restart preserves exact historical events and append-only triggers
+PASS isolated paired-store snapshot restores exact bytes and snapshot history
+PASS restore preserves owner isolation and does not grant upload admission
+PASS stale backup demonstrably contains a subsequently deleted file: reconciliation required
+PASS replaying deletion manifest removes stale restored bytes before release
+{"checks":18,"result":"PASS","runtime":"local Miniflare/workerd D1 and R2","production":false,"customer_data":false}

@@ -1,0 +1,24 @@
+import {createRequire} from 'node:module';
+import {readFileSync,readdirSync,mkdtempSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {SubscriptionDrafts} from '../lib/subscription-drafts.js';
+import {OrganizationStore} from '../lib/organization-store.js';
+const require=createRequire(import.meta.url),wranglerRequire=createRequire(require.resolve('wrangler/package.json')),{Miniflare}=wranglerRequire('miniflare');
+const root=path.resolve(import.meta.dirname,'..'),temporary=mkdtempSync(path.join(tmpdir(),'dossivo-subscription-'));
+const options={modules:true,script:'export default {fetch(){return new Response("local fixture")}}',compatibilityDate:'2026-05-15',d1Databases:['DB'],d1Persist:path.join(temporary,'d1')};
+let mf=new Miniflare(options),checks=0;
+const check=x=>{checks++;console.log('PASS '+x);};
+try{let db=await mf.getD1Database('DB');for(const file of readdirSync(path.join(root,'drizzle')).filter(f=>f.endsWith('.sql')&&!f.startsWith('0032_')).sort())for(const sql of readFileSync(path.join(root,'drizzle',file),'utf8').split('--> statement-breakpoint').map(x=>x.trim()).filter(Boolean))await db.prepare(sql).run();
+ let store=new OrganizationStore(db);const org=(await store.command('owner','create',{name:'Synthetic organisation',country:'IT',confirmed:true},'create')).organization_id;check('D1 migrations and organisation creation');
+ const d={organization_id:org,expected_version:0,catalog_version:'2026-11-07.1',plan_id:'starter',cycle:'annual',confirmed:true};
+ let billing=new SubscriptionDrafts(db);const first=await billing.save('owner',d,'save');assert.equal(first.draft.quote.amount_minor,49000);check('server-priced draft saved in D1');
+ const old=(await billing.history('owner',org)).drafts;
+ for(const sql of readFileSync(path.join(root,'drizzle','0032_neat_sandman.sql'),'utf8').split('--> statement-breakpoint').map(x=>x.trim()).filter(Boolean))await db.prepare(sql).run();assert.deepEqual((await billing.history('owner',org)).drafts,old);check('upgrade preserves earlier saved amounts');
+ for(const table of ['dossivo_subscription_drafts','dossivo_organization_events']){await assert.rejects(db.prepare(`DELETE FROM ${table}`).run(),/HISTORY_APPEND_ONLY/);await assert.rejects(db.prepare(`UPDATE ${table} SET created_at='changed'`).run(),/HISTORY_APPEND_ONLY/);await assert.rejects(db.prepare(`INSERT OR REPLACE INTO ${table} SELECT * FROM ${table}`).run(),/HISTORY_APPEND_ONLY/);}await assert.rejects(db.prepare("INSERT OR REPLACE INTO dossivo_subscription_drafts SELECT organization_id,99,actor_id,request_key,command_hash,quote_json,created_at FROM dossivo_subscription_drafts").run(),/HISTORY_APPEND_ONLY/);check('D1 rejects all ordinary history overwrite paths');
+ const w={organization_id:org,expected_version:1,confirmed:true};await billing.withdraw('owner',w,'withdraw');assert.equal((await billing.read('owner',org)).draft.quote.status,'WITHDRAWN');assert.equal((await billing.history('owner',org)).drafts.length,2);check('withdrawal appends without destroying preparation');
+ await assert.rejects(store.audit('other',org),{code:'ORGANIZATION_UNAVAILABLE'});await assert.rejects(billing.history('other',org),{code:'ORGANIZATION_UNAVAILABLE'});check('owner-only history boundaries');
+ await mf.dispose();mf=new Miniflare(options);db=await mf.getD1Database('DB');billing=new SubscriptionDrafts(db);assert.equal((await billing.withdraw('owner',w,'withdraw')).replayed,true);assert.equal((await billing.read('owner',org)).draft.quote.status,'WITHDRAWN');check('restart retains withdrawal and replay');
+ console.log(JSON.stringify({checks,result:'PASS',runtime:'local Miniflare/workerd D1',production:false,customer_data:false}));
+}finally{await mf.dispose();rmSync(temporary,{recursive:true,force:true});}

@@ -1,0 +1,9 @@
+PASS all migrations and immutable verification triggers apply in D1
+PASS synthetic registration generates code and HMAC token in workerd
+PASS workerd validates signature and rejects changed token
+PASS verification projects metadata without evidence or share identity
+PASS registration and lookup persist across restart
+PASS eleventh IP lookup denied by persisted limiter
+PASS revoked record exposes status/date only
+PASS verification history cannot be deleted
+{"checks":8,"result":"PASS","runtime":"local workerd WebCrypto and D1","production":false,"synthetic":true}

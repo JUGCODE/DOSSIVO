@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {mkdtempSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {validateIdentityMigrationPlan as check} from '../lib/identity-migration-plan.js';
+const plan=()=>({format:'dossivo-identity-migration/1',allowed_issuers:['https://identity.example.test'],legacy_actor_ids:['legacy-A','legacy-B'],bindings:[{issuer:'https://identity.example.test',subject:'subject-A',actor_id:'legacy-A',email:'same@example.test'},{issuer:'https://identity.example.test',subject:'subject-B',actor_id:'legacy-B',email:'same@example.test'}]});
+test('offline plan preserves legacy actor IDs without merging equal emails or activating identities',()=>{const p=plan(),original=structuredClone(p),r=check(p);assert.deepEqual(r.bindings.map(b=>b.actor_id),['legacy-A','legacy-B']);assert.equal(r.ownership_rewrites,0);assert.equal(r.activation_allowed,false);assert.equal(r.requires_dual_control_review,true);assert.doesNotMatch(JSON.stringify(r),/same@example/);assert.deepEqual(p,original);});
+test('migration rejects missing actors unknown actors and many-to-one identities',()=>{
+ const cases=[p=>p.bindings.pop(),p=>p.bindings[0].actor_id='unknown',p=>p.bindings[1].subject='subject-A',p=>p.bindings[1].actor_id='legacy-A'];
+ for(const [i,change] of cases.entries()){const p=plan();change(p);assert.throws(()=>check(p),{code:['UNMAPPED_LEGACY_ACTOR','UNKNOWN_ACTOR','DUPLICATE_PROVIDER_IDENTITY','ACTOR_MULTIPLE_BINDINGS'][i]});}
+});
+test('issuer and subject are exact identities and unapproved issuers are rejected',()=>{const p=plan();p.bindings[1].subject='Subject-A';assert.equal(check(p).identity_count,2);p.bindings[0].issuer='https://identity.example.test/';assert.throws(()=>check(p),{code:'ISSUER_NOT_ALLOWED'});for(const issuer of ['http://identity.example.test','https://user:pass@example.test','https://example.test?token=secret']){const q=plan();q.allowed_issuers=[issuer];assert.throws(()=>check(q),{code:'INVALID_ISSUER'});}});
+test('malformed and oversized migration plans fail closed',()=>{assert.throws(()=>check(null),{code:'INVALID_PLAN'});const p=plan();p.bindings[0].subject=' ';assert.throws(()=>check(p),{code:'INVALID_SUBJECT'});p.bindings=Array(10001).fill({});assert.throws(()=>check(p),{code:'PLAN_TOO_LARGE'});const q=plan();q.legacy_actor_ids.push('legacy-A');assert.throws(()=>check(q),{code:'DUPLICATE_ACTOR'});});
+test('offline CLI reports only counts or codes and never outputs identities or changes input',t=>{const dir=mkdtempSync(join(tmpdir(),'identity-plan-'));t.after(()=>rmSync(dir,{recursive:true,force:true}));const path=join(dir,'synthetic.json'),p=plan(),input=JSON.stringify(p);writeFileSync(path,input);const run=()=>spawnSync(process.execPath,['scripts/check-identity-migration-plan.mjs',path],{cwd:new URL('../',import.meta.url),encoding:'utf8'});const r=run();assert.equal(r.status,0);assert.equal(readFileSync(path,'utf8'),input);assert.doesNotMatch(r.stdout+r.stderr,/legacy-A|subject-A|same@example/);assert.equal(JSON.parse(r.stdout).activation_allowed,false);p.bindings.pop();writeFileSync(path,JSON.stringify(p));const bad=run();assert.equal(bad.status,1);assert.equal(JSON.parse(bad.stderr).code,'UNMAPPED_LEGACY_ACTOR');});

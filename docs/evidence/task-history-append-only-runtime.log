@@ -1,0 +1,8 @@
+PASS upgrade preserves preexisting snapshot
+PASS D1 blocks UPDATE
+PASS D1 blocks DELETE
+PASS D1 blocks INSERT
+PASS idempotent replay still works
+PASS new version appends without modifying old snapshot
+PASS restart preserves history and guard
+{"checks":7,"result":"PASS","runtime":"local Miniflare/workerd D1","production":false,"customer_data":false}

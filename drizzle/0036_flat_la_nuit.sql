@@ -1,0 +1,1 @@
+CREATE INDEX `payment_receipt_session` ON `dossivo_payment_test_receipts` (`object_id`,`event_created`,`event_id`);

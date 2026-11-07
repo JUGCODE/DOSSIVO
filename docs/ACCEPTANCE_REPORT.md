@@ -1,3 +1,547 @@
+## 2026-11-07 · Development 39: recover unbound TEST sessions before stopping
+
+Release: v122 deployed successfully; build PASS. Runtime commit 8aec81ac2f438048be17e78fe68a8853955c5da2; deployment appgdep_6aef41af49548191a45e853d2acd41f4; environment revision 0 unchanged.
+
+Implemented provider-read recovery for an existing test order with durable stop intent but no saved session ID. Cancellation now lists existing Checkout sessions within the order creation/expiry interval (300-second lower-bound clock margin), at most two pages of 100. It never replays session creation. A single matching server order reference must also match TEST mode, subscription mode, amount, currency, creation interval, expiry and supported status. Only after complete bounded enumeration is the session ID bound conditionally, then the existing retrieve/expire workflow runs. Checkout URLs and unrelated provider records are neither stored nor returned by recovery.
+
+No match leaves REQUESTED with NOT_FOUND_YET; a later explicit retry can recover. Multiple matches, malformed pages, repeated IDs, inconsistent details or incomplete pagination refuse binding. An already-expired session becomes EXPIRED_CONFIRMED after retrieval; an already-completed one becomes COMPLETED_REVIEW. Database/network failures and concurrent retries preserve stop intent and converge on the saved binding. Browser input cannot select a provider ID. Chinese/English/Italian status copy explains that stop retry searches existing sessions.
+
+Validation: 511 automated tests PASS / 0 failed / 0 skipped (7 added); TypeScript PASS. 15 local HTTP Miniflare/workerd/WebCrypto + D1 checks PASS (2 added: unbound recovery/expiry with no URL disclosure and restart persistence). Providers in tests are synthetic; no real Stripe credentials configured, no outbound Stripe request or charge. Browser and real-provider integration NOT VERIFIED. Logs: docs/evidence/round39-tests.log, round39-types.log, round39-runtime.log. Build/publication receipt recorded after completion.
+
+Compatibility: no database migration this round; existing 0037 cancellation columns and session uniqueness reused. No changes to PACI, evidence authorization, draft history, subscription entitlements, live payment gate or hosted configuration. Real sensitive intake CLOSED. No public GitHub synchronization.
+
+Boundaries: recovery is explicit on a stop retry, not a background scheduler. List results are not a provider-wide transaction; an in-flight creation may become visible later, so an empty result never confirms absence or cancellation. The two-page/200-session cap is a technical safety bound, not a commercial quota; larger intervals stay pending for further review/tooling. Paid subscription activation, renewals/refunds, full historical order controls and real Stripe TEST merchant validation remain unfinished. Missing binding recovery is now implemented under these boundaries; historical notes below describe earlier states.
+
+Next: securely connect a designated Stripe TEST merchant and verify hosted end-to-end behavior; add bounded background retry orchestration and operator review for incomplete scans before any live-payment lifecycle.
+
+## 2026-11-07 · Development 38: durable TEST checkout stop requests
+
+Release: v121 deployed successfully; build PASS. Runtime commit acf69341aa7e56f0e76854aec2a9effc3fc354c4; deployment appgdep_6aef4005c58881919bc63deda1c6f324; environment revision 0 unchanged.
+
+Implemented owner-only `cancel_test_checkout` command on `/api/payments/test-checkout`. Input accepts organization, saved draft version and explicit confirmation; the provider session ID and URL come only from the server order. Stop intent is persisted before remote work. The adapter retrieves the bound TEST session, validates ID/reference/mode/amount/currency, expires open sessions using a fixed provider endpoint and deterministic idempotency key, then records only confirmed outcomes. Already-expired sessions converge without another POST; already-completed sessions become COMPLETED_REVIEW, never refund/cancellation success. Network/provider/database failures retain REQUESTED for retry.
+
+Migration 0037_amused_archangel adds nullable requested/resolved timestamps and outcome. Draft withdrawal and corresponding stop intent commit in the same transaction. The withdrawal API attempts remote expiry after committing; failure does not roll back the withdrawal or falsely confirm expiry. Creation checks durable stop intent before sending/returning a URL. When withdrawal races with a successful in-flight creation, the session is bound for reconciliation and expiry is attempted without returning the URL. Stop retries do not re-create checkout or overwrite the original request time.
+
+Three-language account status now distinguishes REQUESTED, EXPIRED_CONFIRMED and COMPLETED_REVIEW; explicit confirmation precedes a new stop. Pending requests for older draft versions remain visible and retryable, bounded to 20 per read with a more-results notice. Payment receipt results remain separate and unchanged; stopping a link does not reverse payments, refund, cancel subscriptions or grant evidence access.
+
+Validation: 504 automated tests PASS / 0 failed / 0 skipped (10 added); TypeScript PASS. 13 local HTTP Miniflare/workerd/WebCrypto + D1 checks PASS, including two new synthetic-provider expiry/persistence checks. The first new runtime check correctly stayed REQUESTED because its synthetic key failed the configuration gate; fixed the test fixture, reran successfully. No real credentials configured, Stripe calls or charges. Browser/real-provider verification NOT PERFORMED. Logs: docs/evidence/round38-tests.log, round38-types.log, round38-runtime.log. Build/publication receipt follows.
+
+Boundaries: no automatic background retry worker yet; retry is explicit, and pending does NOT mean the remote link is unusable. If session creation succeeded remotely but its response was lost and no session ID was bound, stop remains pending; recovery of that missing provider binding is not implemented this round. An already handed-out link remains potentially usable until provider confirmation. Saving a replacement draft alone does not automatically expire older sessions; explicit stop remains available for the latest order and queued stop requests. Full historical order management, live financial settlement, refunds/renewals and paid entitlement lifecycle are still pending.
+
+Compatibility: additive migration, unchanged draft history, actor ownership, PACI core and evidence authorization. Checkout configuration moved to a shared module while retaining its prior export. Real sensitive intake CLOSED; live billing unsupported; hosted configuration unchanged. No public GitHub synchronization.
+
+Next: recover uncertain/unbound provider sessions and add automated bounded retries; validate real Stripe TEST account and hosted webhook delivery before live-payment lifecycle work.
+
+## 2026-11-07 · Development 37: owner-visible TEST receipt reconciliation
+
+Release: v120 deployed successfully; build PASS. Runtime commit d1cc604ed3f03829d5621e26a085364a50b1c8a7; deployment appgdep_6aef3dddef088191b2e30619711442d6; environment revision 0 unchanged.
+
+Implemented signed checkout receipt snapshots containing only reference, amount, currency, mode and payment status. Authentication, untouched-byte signature verification, live/Connect rejection, event deduplication and minimal data retention remain in place. Migrations 0035_overrated_malcolm_colcord (nullable snapshot, backward compatible) and 0036_flat_la_nuit (session lookup index) included.
+
+`TestPaymentStatus.status` compares the latest server-bound order with matching checkout-session receipts and its frozen quote. Owner-only GET `/api/payments/test-checkout?organization=...` returns status, draft version/currentness, local expiry and bounded receipt count; no URL, session ID, customer information, request body or secret. Account UI displays Chinese/English/Italian status with a manual refresh. Withdrawn/superseded drafts remain labeled historical test results. Browser return parameters never establish payment status.
+
+Read-only outcomes: NO_TEST_ORDER, SESSION_NOT_BOUND, WAITING_RECEIPT, PAYMENT_PENDING, TEST_PAYMENT_MATCHED, TEST_PAYMENT_FAILED, DETAILS_MISMATCH, CONFLICTING_RECEIPTS, REVIEW_REQUIRED. Missing legacy snapshots require review. A completed/unpaid event is pending; matched paid snapshots do not regress when older unpaid completion arrives. Contradictory success/failure or mismatching details require review. Receipt-before-binding catches up on the next read without webhook replay. More than 200 matching receipts returns REVIEW_REQUIRED with a capped count, never a conclusion from a truncated subset. Invoice/subscription events and unrelated session IDs cannot stand in for checkout matches.
+
+This is TEST snapshot reconciliation, not production financial settlement or subscription activation. No Stripe API retrieval of current sessions/line items, real-provider delivery test, tax/invoice policy, cancellation, refunds, renewals, founder eligibility or entitlement lifecycle was completed. No configuration or secrets changed; test checkout and webhook intake remain disabled in hosted environment revision 0. No real Stripe request, charge or sensitive-data intake. A prior remote checkout URL is not invalidated by withdrawing its draft.
+
+Validation: 494 automated tests PASS / 0 failed / 0 skipped (8 added); TypeScript PASS. 11 local HTTP Miniflare/workerd WebCrypto + D1 checks PASS (4 added: signed snapshot matching, unrelated actor denial in the local service fixture, restart persistence, conflicting receipts). Local fixtures are synthetic and do not verify the hosted sign-in route or real Stripe account. Browser/real-provider verification NOT PERFORMED. Evidence: docs/evidence/round37-tests.log, round37-types.log, round37-runtime.log. Build/publication receipt appended after completion.
+
+Compatibility: additive nullable receipt field/index; old receipts remain readable but are not backfilled or upgraded into proof of payment. PACI core unchanged. No new evidence access, membership authority, proof level or paid entitlement. No public GitHub synchronization this round.
+
+Next: connect the designated Stripe TEST account securely; validate hosted checkout and real test webhook delivery, retrieve current provider session/line items and reconcile cancellation/renewals before implementing live entitlement transitions.
+
+## 2026-11-07 · Development 36: server-bound TEST checkout adapter
+
+Release: v119 deployed successfully; build PASS. Runtime commit 6797ae42e6c398c27d72ea7103c41b754a5d6e4a; deployment appgdep_6aef3c5515c08191ab02ec5073bb2ff1; environment revision 0 unchanged. Test checkout remains disabled.
+
+Implemented authenticated owner-only `/api/payments/test-checkout`, with same-origin command validation, strict input allowlist, explicit test confirmation and server-recomputed Starter/Business prices. Migration 0034 persists an immutable request snapshot and unique organization/draft-to-session mapping. Each draft has one test order; provider retries use the same frozen request and idempotency key, including recovery after provider success / database failure. Live credentials/sessions, unsafe redirect URLs, changed amounts, stale or withdrawn drafts and expired orders are refused. Checkout return URLs never activate subscriptions or evidence access.
+
+Account preparation UI adds a localized test-only panel for eligible saved drafts. Default configuration is CLOSED; no secrets were configured and no real provider request or charge occurred. Existing webhook receipt inbox remains separate: automatic order/receipt reconciliation, taxes, founder discounts, invoices, cancellation, entitlement lifecycle and independent identity verification are NOT completed. Withdrawal prevents returning a URL, but cannot retract a previously delivered remote test URL; live use remains blocked until provider cancellation/reconciliation is implemented. Test orders expire after one hour; a new confirmed draft is required after expiry.
+
+Validation: 486 automated tests PASS / 0 failed / 0 skipped, including 8 new checkout tests with synthetic provider responses and SQLite migrations. TypeScript PASS. Seven existing local HTTP workerd/WebCrypto/D1 webhook regression checks PASS with all migrations including 0034. Checkout provider integration and browser interaction NOT VERIFIED; build/publication result recorded separately. Logs: docs/evidence/round36-tests.log, round36-types.log, round36-runtime.log. No public GitHub sync. Real sensitive intake remains CLOSED.
+
+Compatibility: PACI core unchanged; no replacement kernel, no new evidence permission, no payment-derived proof level. Organization membership and payment remain independent from evidence authorization. Existing draft/history/access protocols unchanged; additive database migration and endpoint only.
+
+Next: securely configure a test Stripe account and webhook destination, validate real test sessions/delivery, then implement receipt reconciliation and cancellation before considering live payments.
+
+## 2026-11-07 · Development 35: disabled-by-default test payment receipt intake
+
+Release: v118 deployed successfully; build PASS. Runtime commit 63b4b00a590c71a59ba64e08d9994851a6a9fb72; deployment appgdep_6aef398340e88191b8e56a47cc398d09; environment revision 0 unchanged.
+
+Implemented Stripe snapshot webhook POST /api/payments/stripe-webhook with untouched-byte WebCrypto HMAC-SHA256 verification, 300-second past/future freshness window, bounded streaming body/header, strict test-mode gate, live/Connect rejection, event allowlist and durable event-ID deduplication. Stores minimal receipt metadata and digest, not raw payload, contacts, billing address, amount, signature or secrets. Database write failure is retryable; same ID with different signed bytes returns conflict. Out-of-order events remain receipts and do not mutate subscription state.
+
+Migration 0033_melodic_stepford_cuckoos and schema metadata included. No checkout, payment, invoice-paid state, founder reservation, entitlement or evidence grant occurs. Production environment revision 0 inspected: no payment configuration keys. No secrets created/configured, no Stripe account or destination modified. Endpoint remains disabled (503) without explicit TEST_RECEIPT_ONLY configuration. It cannot be switched to live by a configuration value.
+
+Validation: 478 tests PASS / 0 failed / 0 skipped (7 added), TypeScript PASS. Seven local HTTP Miniflare/workerd WebCrypto + D1 checks PASS for migrations, forged signature denial, verified receipt, deduplication, live denial, data minimization/no activation, and restart. Logs docs/evidence/round35-tests.log, round35-types.log, round35-runtime.log. This is synthetic local testing, not real Stripe merchant/provider integration. Production HTTP/browser not verified.
+
+Next concrete payment work and required setup: docs/PAYMENT_WEBHOOK_HANDOFF.md. Select intended merchant/account, securely configure TEST destination secret and complete hosted real-provider delivery tests; separately implement trusted checkout-order mapping, tax/invoice/discount terms, event reconciliation and transactional entitlement lifecycle before live payments. Independent identity/verified legal entities remain blockers. Real sensitive intake CLOSED. No public GitHub sync. PACI core and existing access rules unchanged.
+
+## 2026-11-07 · Developments 33–34: withdrawal, commercial history and membership audit
+
+Release: v117 deployed successfully, build PASS. Runtime commit 8a4e2af86de0cecac9669ca82598bed058bf5fa9; deployment appgdep_6aef379784208191ab451d8346d4fde4.
+
+Round 33: subscription preparations now support explicit owner-only withdrawal, appending WITHDRAWN while preserving the quoted amount, catalog and previous version. Withdrawal is idempotent and version-checked, never a payment refund or cancellation of an external signed subscription. A later confirmed save creates a fresh preparation. Owner-only paginated history shows versions, plan/cycle, original catalog amount, status and server UTC time. No founder slot, charge or entitlement is created.
+
+Round 34: owner-only membership audit is connected to the organisation management UI/API, with actor, subject, action and UTC time. Invitations, acceptance, rejection, revocation and voluntary exit remain visible to the creator after membership ends. Other members/organisations cannot read this roster/history. Stable (timestamp,id) pagination handles ties; output has no evidence bodies, account-directory contacts or billing details. Account ID still does not verify enterprise identity.
+
+Migration 0032_neat_sandman adds organisation-history lookup index and ordinary SQL UPDATE/DELETE/REPLACE guards for organisation events and subscription versions. Subscription replacement is blocked through both primary version key and unique actor/request key. Earlier rows are preserved. No protection is claimed against privileged schema/database replacement; these are not blockchain proofs, permanent retention promises or completed support audit. Approved erasure/retention will require an explicit controlled implementation, not ordinary row deletion bypass.
+
+Validation: 471 tests PASS / 0 failed / 0 skipped (4 added), TypeScript PASS. Seven local Miniflare/workerd D1 checks PASS including upgrade preservation, overwrite paths, withdrawal, tenant isolation and restart/retry. Logs docs/evidence/round33-34-tests.log, round33-34-types.log, round33-34-runtime.log. Browser/two-live-account QA NOT_VERIFIED; production DB not directly inspected. Both requested rounds delivered together in one release.
+
+Unchanged blockers: independent production signup, verified legal entities, merchant/payment/webhooks, actual paid entitlement/quotas, support access approval, comprehensive audit/export/retention, product dossiers and approved real-data deployment. Real sensitive intake CLOSED. Public GitHub not synced. Do not report these history improvements as production payment readiness.
+
+## 2026-11-07 · Development 32: creator-owned subscription preparation
+
+Release: v116 deployed successfully; build PASS. Runtime commit bc0f24044e622b25c512fadae086ad6d1260f332; deployment appgdep_6aef361956ac81918858972ef9533329.
+
+Added /api/subscription-drafts and an account organisation panel for choosing a plan and billing cycle, confirming preparation-only status, and saving server-priced versioned drafts. lib/subscription-catalog.json remains the source of prices; lib/subscription-drafts.js rejects client amount, paid, entitlement and discount fields, unsupported cycles (including Enterprise monthly), stale catalogs and unconfirmed input. Amounts use EUR integer minor units. Export/Enterprise retain manual quote requirements; taxes and founder eligibility are not assessed, no founder place reserved.
+
+Migration 0031_colossal_living_mummy and schema metadata persist draft versions, server-calculated quote snapshots and per-actor idempotency keys. Only the organisation creator may read/write; members, invitees and other owners cannot. Compare-and-insert version guards prevent lost updates, failure rolls back the whole save, repeated keys replay without creating duplicate versions. Previous saved versions are preserved by this API. This is not a blockchain/privileged-database immutability guarantee.
+
+No merchant/payment session, charge, subscription activation, entitlement increase, evidence grant, verification or email is created. Organisation membership and billing remain separate from evidence authorisation. Existing synthetic workflows and original owners are unchanged; no commercial quota is falsely enforced against unverified organisations. Preparing or choosing Free does not cancel an external signed subscription. No private attachments or contract drafts published to public assets/GitHub.
+
+Validation: 467 tests PASS / 0 failed / 0 skipped (4 added), TypeScript PASS. Six local Miniflare/workerd D1 checks PASS for migrations, server amounts, owner isolation, stale rejection, previous snapshot preservation, restart/idempotency. Logs: docs/evidence/round32-tests.log, round32-types.log, round32-runtime.log. Browser/two-live-account QA NOT_VERIFIED, production database not directly inspected.
+
+Remaining blockers: independent production registration, verified legal entities, merchant/payment credentials and verified webhooks, tax/invoice setup, paid entitlement lifecycle and concurrent organisation metering. Support approvals/full audit/export/retention and product dossiers remain pending. Real sensitive intake CLOSED. Public GitHub unchanged. Next payment integration must create a new confirmed checkout quote from the applicable catalog and payment provider; never activate from a browser redirect or this saved preparation record.
+
+## 2026-11-07 · Development 31: self-declared organisations and consented membership
+
+Release: v115 deployed successfully, build PASS. Runtime commit a36536f8f7f706b709953f1be4e11fcb6df5a312; deployment appgdep_6aef3342298c819189406b7c07afc78b.
+
+Account page now includes an organisation workspace backed by authenticated /api/organizations and migration 0030_lazy_hex (schema and generated metadata included). Current development scope allows one created workspace per account plus membership in other workspaces; this is not a commercial factory/organisation quota or proof that two accounts represent different legal entities. Name and two-letter country code are self-declared, not company/authority/ISO-country verification, and do not change regional restrictions.
+
+Creator can invite an exact site account ID (supplied by the recipient), view their own member roster, revoke invitations/membership and re-invite. Recipient explicitly accepts/declines and can leave. No account-directory lookup, email sending, ownership transfer or verification API. No automatic join, mailbox-based merging or role escalation. Members cannot list the private roster. A recipient sees only their own invitations/memberships; revocation removes organisation visibility. Existing evidence stays owned by its original actor; membership grants no task/file/card/log access, no buyer authority, no paid subscription and no PACI identity claim.
+
+Mutations use version comparisons, per-actor idempotency keys and transactional event/operation writes. A revocation wins against stale acceptance; re-invitation needs a new recipient decision. Failure rolls back state and events together. Membership events are operational audit rows, not chain proofs or a complete append-only platform audit. Tests retain existing consent/sharing boundaries. No existing actor migration or private task reassignment.
+
+Validation: 463 tests PASS / 0 failed / 0 skipped (5 added); TypeScript PASS; 6 local Miniflare/workerd D1 checks PASS for migrations, acceptance, roster isolation, stale rejection, rollback audit and restart persistence. Evidence: docs/evidence/round31-tests.log, round31-types.log, round31-runtime.log. Browser/two-live-account QA NOT_VERIFIED; production DB not directly inspected.
+
+Next: verified organisation identity/duplicate-entity handling, production signup path, commercial entitlement metering, merchant and payment lifecycle remain blocked/not connected. Customer support approvals, full audit/export/retention and product dossiers remain pending. No public GitHub sync; real sensitive intake remains CLOSED. Do not sell membership preparation as complete enterprise collaboration or billing.
+
+## 2026-11-07 · Development 30: versioned pricing and owner-visible access events
+
+Release: v114 deployed successfully. Runtime commit 5774cea03de685b53c74a50031733e032e2dc88f; deployment appgdep_6aef30b653ac8191949b028383ca37ff. Build PASS.
+
+Decisions: docs/ROUND30_COMMERCIAL_PRIVACY_DECISION.md freezes v1.1 + supplied v1.2 with access-log viewing as a baseline privacy protection. Old prototype prices and language-tier restrictions removed. Public catalog 2026-11-07.1 drives trilingual subscription cards; purchase/automatic payment disabled. Enterprise workspace combines buyer and lead exporter roles; no fabricated quota/fair-use terms.
+
+Implemented: owner-authenticated, task-isolated paginated access-log API and UI (account identifier, UTC time, card, grant, event). No evidence bodies, codes, directory joins or unrelated relationships. Historical events remain after revoke/expiry. Account is NOT verified company/person; download event is NOT confirmed saving. Current logging covers basic-card workflow, not all platform or support activity. Existing access-event database guards remain; no new migration, PACI kernel change or old snapshot rewrite.
+
+Open blockers: organisation identity, independent signup, concurrent commercial quotas, merchant/payment webhooks, support approvals, audit export/retention, real-data region approval and product dossier. Existing synthetic test capabilities stay enabled, not claimed paid entitlements. Confidential attachments not placed in static assets or public GitHub. GitHub not synced.
+
+Validation: 458 tests PASS, 0 fail, 0 skipped; TypeScript PASS. Three tests added: owner log isolation/redaction/revocation, timestamp-tie pagination, and trilingual catalog rendering/pricing invariants. Existing reminder test updated to remove obsolete language-tier restriction while preserving human-reviewed sending. Evidence: docs/evidence/round30-tests.log and round30-types.log. Browser QA not verified. No claim of production billing readiness.
+
+## 2026-11-07 · Development 29: scope-bound numeric disclosure
+
+New basic projections require selected field code, finite confirmed numeric value, exact valid monthly task scope on the field, and matching source-material scope. Missing source/scope fails closed; zero is retained. Shared evidence-scope helpers keep coverage and parameter projection aligned. Fields from other facilities/months remain in private source records and assessments, but are not included in new buyer numeric projections. Filtering never clears ambiguity/insufficiency or selects a favourable candidate. Continuous summaries still disallow precise fields.
+
+Compatibility: new grants/projections use the corrected filter; existing stored grant/publication snapshots and historical hashes are not rewritten. Earlier synthetic grants containing cross-scope parameters may require owner review and revocation/reissue; this release does not retroactively redact already stored or downloaded snapshots. No production customer records inspected. No schema migration, PACI core, formal pricing or policy change.
+
+Validation: 455 tests PASS / 0 failed / 0 skipped (3 added), TypeScript PASS. Actual SQLite-backed task import/confirm/assess/freeze/grant/redeem/read flow verifies excluded values never reach new buyer snapshot or ZH/EN/IT HTML, insufficient status remains, another buyer is denied, continuous summaries contain no precise fields, earlier fixed card unchanged. Unit checks cover missing source/scope, invalid month, non-finite values and valid zero. Evidence docs/evidence/disclosure-scope-tests.log. Authenticated browser NOT_VERIFIED. Signup/payment/real-intake blockers unchanged. GitHub unchanged. Build PASS; site v113 published successfully. Runtime commit 0e6e5489a2f4d39d667ec6daa32bd1072d3a585a; deployment appgdep_6aef15cba05c819182ec2225d0b927b2.
+
+## 2026-11-07 · Development 28: scoped coverage and isolated frozen snapshots
+
+Unified coverageFor with the task facility/month: other-scope and missing-scope materials no longer inflate new checklist/card coverage or company-confirmed counts. Missing/invalid task scope fails closed. Matching readable material and field scope are required for field-based confirmation; zero remains a valid confirmed value. Coverage schema is now 0.2 with scope/status/excluded-count metadata; denominator remains 11, no scoring or PACI policy changes.
+
+New fixed card bodies are deep-cloned before hashing so in-memory subsequent transitions cannot mutate them via shared material/field references. New cards retain the chosen preparation categories. Existing stored cards and buyer projections with recorded coverage retain their original snapshot; no historical rewrite or migration. First test run exposed the shared-reference issue; fixed before final passing run.
+
+Validation: 452 tests PASS / 0 failed / 0 skipped (3 added); TypeScript PASS. Tests cover facility/month exclusion, missing scope, valid zero, overview consistency, real core assess/freeze transitions, subsequent materials, preserved old hashes, new buyer projections and legacy coverage preservation. Evidence: docs/evidence/coverage-scope-tests.log. Authenticated browser NOT_VERIFIED; prior managed preview conflict unresolved. Signup/payment/real intake blockers unchanged. GitHub unchanged. Build PASS; site v112 published successfully. Runtime commit 73ea49e747dc7557206ee61e24aae0bcf7c9cb7e; deployment appgdep_6aef14e21088819183a9d8c18d0d1b61.
+
+## 2026-11-07 · Development 27: safe text import and source review visibility
+
+Synthetic TXT draft imports now use a latest-selection reader: earlier success/failure cannot overwrite a later selection or a cancelled/unmounted task. Save is disabled while reading or after an import failure; users can explicitly cancel to preserve the prior draft. Successful imports reset the synthetic-material declaration. Empty text, invalid UTF-8, oversized bytes and unsupported filenames are rejected with localized Chinese/English/Italian messages; no file contents are uploaded by this reader.
+
+Preparation overview now recomputes source parsing diagnostics and keeps affected material categories in review even after company/field confirmation. Diagnostics are limited to current facility/month and relevant category metrics; stale stored location reports do not suppress warnings. Source links remain available. Coverage percentages, evidence levels, PACI kernel and assessment rules are unchanged; no AI/OCR or real intake enabled.
+
+Validation: 449 tests PASS / 0 failed / 0 skipped (5 added); TypeScript PASS. Tests cover reversed completion, cancellation, invalid replacement selection, decoding and size errors, stale source reports and scope/category isolation. Evidence: docs/evidence/material-import-review-tests.log. Browser QA NOT_VERIFIED: managed preview failed with an existing Vinext dev server conflict; status reports stopped. No auth bypass attempted. Independent signup/payment and real intake blockers remain. GitHub unchanged. Build PASS; site v111 published successfully. Runtime commit 7bf65440e5d0c7a584486d66df6b67b03bd22f5e; deployment appgdep_6aef1139cb548191b2faa943c19a1e82.
+
+## 2026-11-07 · Development 26: private file history replacement guard
+
+Closed an ordinary SQL replacement-write gap in private-file audit history. Migration 0029 adds a BEFORE INSERT collision guard on event sequence; INSERT OR REPLACE and REPLACE cannot overwrite earlier events even when recursive triggers are disabled. Existing events are preserved; normal upload, deletion, retry and cleanup remain supported. No PACI kernel, evidence scoring, disclosure policy or user-facing language changed. This is database DML protection, not blockchain immutability or protection against privileged schema replacement.
+
+Validation: 444 tests PASS / 0 failed / 0 skipped (2 added); TypeScript PASS. Five local Miniflare/workerd D1 checks PASS, including migration preservation, both recursive-trigger settings, new appends and restart persistence. Logs: docs/evidence/file-history-replace-tests.log and docs/evidence/file-history-replace-runtime.log. Production authenticated browser and direct production trigger inspection NOT_VERIFIED. Real customer intake remains closed; independent email signup and payments remain BLOCKED/not connected. GitHub unchanged. Build PASS; site v110 published successfully. Runtime commit cbf64a0881629a13224df58feba1789ef5c4eb97; deployment appgdep_6aef0b54adc08191bae3d89a65d29b51.
+
+## 2026-11-07 · Developments 24–25: identity capability re-audit and offline migration preflight
+
+Round 24 rechecked the current identity adapter, hosting identity documentation and tool capabilities. Independent email signup remains BLOCKED; no supported external identity configuration was found in the inspected surface. Existing platform sign-in remains unchanged. Updated paid-pilot gates to record the audit result and require a concrete supported hosting/identity path.
+
+Round 25 added lib/identity-migration-plan.js and scripts/check-identity-migration-plan.mjs. Offline structural checking preserves legacy actor IDs, uses exact allowlisted issuer+subject pairs, rejects missing/duplicate/unknown/merged mappings and ignores email as an identity key. CLI emits only counts/error codes. No login-token verification, dual-control proof, linking, data mutation or activation is performed; activation_allowed is always false. Full inventory completeness still requires a separate audit. See IDENTITY_PREFLIGHT.md.
+
+Validation: 442 automated tests PASS / 0 failed / 0 skipped (5 added), TypeScript PASS. Tests cover stable identities despite equal emails, mapping conflicts, exact issuer/subject matching, malformed and oversized plans, CLI exit codes/output minimization and unchanged input files. Evidence docs/evidence/identity-migration-preflight-tests.log. No new live registration UI or provider is enabled. Authenticated browser NOT_VERIFIED. GitHub unchanged. Build PASS; published site v109, runtime commit 4c740f9a5859b4ca3f3323dfd78204341c0fffbe; deployment appgdep_6aef0a34f2008191a2e8acf85106ec0a SUCCEEDED.
+
+## 2026-11-07 · Development 23: final revocation and fixed redemption binding
+
+Appended migration 0028_grant_lifecycle_guards and generated metadata after publishing round 22 as v107. Existing grants retain their data. Once revoked_at is non-null, it cannot be cleared or changed by UPDATE. Once redeemed_by is non-null, buyer identity and redemption timestamp cannot be changed/reset. A revoked unclaimed grant cannot later receive a buyer binding. Changes that produce a partial or empty redemption pair are rejected; unchanged legacy rows are not rewritten. New grants remain available for renewed sharing. Normal first redemption, revocation, no-op retries and publication workflow remain compatible.
+
+These are database backstops for existing application rules, not new regulatory policy or proof of identity. They do not validate arbitrary privileged INSERTs, prevent schema/database replacement or provide on-chain immutability. Original-snapshot and replacement guards from 0026 still apply; API ownership/access checks remain essential. No new UI, PACI or disclosure contents.
+
+Validation: 437 automated tests PASS / 0 failed / 0 skipped (3 added), TypeScript PASS. Tests cover buyer rebinding/reset/retimestamp attempts, partial redemption, irrevocable revoke, same-key replay, denied reads and successful fresh-grant sharing. Local Miniflare/workerd D1: 7 checks PASS for upgrade, partial/first redemption, rebinding, revoked-state enforcement, idempotent revocation and restart. Logs docs/evidence/grant-lifecycle-tests.log and grant-lifecycle-runtime.log. Production DB direct inspection and authenticated browser NOT_VERIFIED. GitHub unchanged. Published Site v108 successfully with migration 0028; build PASS. Runtime commit f5b17775b0407eac0aeef5c0fa53975614cc0fb8; deployment appgdep_6aef089170888191b6b2a0e157cb1a93. Production triggers not directly inspected.
+
+## 2026-11-07 · Development 22: append-only evidence access audit
+
+Appended migration 0027_access_events_append_only and generated metadata. BEFORE UPDATE/DELETE triggers protect dossivo_access_events; conflicting INSERT/REPLACE is rejected before implicit deletion, including when recursive triggers are disabled. New access events remain insertable and existing events remain unchanged. No backfill, changed event fields, UI behavior, retention policy, authorization or PACI changes.
+
+Read/download/redeem/revoke history now has ordinary database DML protection alongside task and publication history. This does not prove every real-world action was logged, validate malicious inserted data, prevent privileged schema/database replacement or provide on-chain immutability. Formal retention/purge administration still needs an explicit future design. Denied reads do not produce a successful download event; repeated same-key revocation remains idempotent.
+
+Validation: 434 automated tests PASS / 0 failed / 0 skipped (2 added), TypeScript PASS. Tests exercise update/delete/replace/upsert with recursive triggers on/off, unchanged saved events, continued read logging, revoked download refusal and no duplicate revoke event. Local Miniflare/workerd D1: 6 checks PASS for upgrade preservation, write guards, new append and restart. Logs docs/evidence/access-history-tests.log and access-history-runtime.log. Production DB direct inspection and authenticated browser NOT_VERIFIED. GitHub unchanged. Published Site v107 successfully with migration 0027; build PASS. Runtime commit 77a53f75b74cbd3c235d60ba88804f6beee0eba9; deployment appgdep_6aef07df3a008191b8cf70eebd818d5b. Production triggers not directly inspected.
+
+## 2026-11-07 · Development 21: immutable published disclosure snapshots
+
+Appended migration 0026_publication_history_append_only with generated metadata; no edits to applied migrations. Published summary rows now reject UPDATE/DELETE and conflicting INSERT/REPLACE by either primary ID or grant+sequence. Original grant identity, owner/task/card, code hash, snapshot/digest, disclosure choice, creation/expiry and mode/purpose/version policy are fixed after insert. Grant DELETE/REPLACE is blocked. Redemption, revocation and publication-sequence lifecycle columns remain writable by existing authorized workflows. Existing rows are preserved; no data rewrite or backfill.
+
+This extends database DML protection to buyer-disclosed history, without treating revoked access as deletion of historical evidence. Backend access checks, revocation and publication-chain read verification remain unchanged. Privileged schema changes/database replacement remain outside these trigger guarantees; this is not blockchain immutability. Retention/purge administration still requires a separate explicit design. The preexisting corrupt-history test deliberately drops its isolated update trigger to preserve read-integrity coverage.
+
+Validation: 432 automated tests PASS / 0 failed / 0 skipped (2 added; 1 corruption fixture adapted), TypeScript PASS. Tests cover both publication replacement conflict paths with recursive triggers on/off, protected grant columns, unchanged originals, real redeem/publish/replay/historical read/revoke flow. Local Miniflare/workerd D1: 9 checks PASS covering upgrade preservation, DML guards, lifecycle/appends and restart. Evidence docs/evidence/publication-history-tests.log and publication-history-runtime.log. Production DB direct inspection and authenticated browser NOT_VERIFIED. GitHub unchanged. Published Site v106 successfully with migration 0026; production build PASS. Runtime commit 28e1b904fbe1a74a399eef15e51125bc675de3a7; deployment appgdep_6aef06caf7008191aa7bc241f3697574. Hosting applies pending migrations before Worker publication; production triggers not directly inspected.
+
+## 2026-11-07 · Development 20: database append-only task versions
+
+Audit found task-version digests detected corrupted reads but no database write guards existed for saved versions. Appended migration 0025_task_history_append_only (generated custom migration and metadata; prior migrations unchanged). BEFORE UPDATE and BEFORE DELETE triggers reject changes with TASK_HISTORY_APPEND_ONLY. A BEFORE INSERT conflict guard also blocks INSERT OR REPLACE from silently deleting an existing task/version, including when SQLite recursive triggers are off. Fresh version inserts remain allowed. Existing rows are preserved; no backfill or cleanup. No authentication, assessment or disclosure policy change.
+
+This protects normal database DML against rewriting/deleting saved task snapshots, not against privileged schema changes or database replacement, and is not a blockchain immutability claim. Current head rows remain mutable by the normal optimistic-concurrency workflow. Retention/deletion administration needs an explicit future design; no deletion path was added. Existing read-time hash guards remain active. Corruption tests now explicitly drop the update trigger in their isolated fixtures to continue verifying read guards after privileged bypass; application code never does this.
+
+Validation: 430 automated tests PASS / 0 failed / 0 skipped (2 added; existing corruption fixtures adapted), TypeScript PASS. New tests cover update/delete/replace/upsert, recursive triggers on/off, idempotent replay, normal append and preserving existing records during upgrade. Local Miniflare/workerd D1: 7 checks PASS (upgrade, update/delete/replace rejection, replay, append, restart persistence). Logs docs/evidence/task-history-append-only-tests.log and task-history-append-only-runtime.log. This is local runtime verification, not a direct production DB inspection. Authenticated production browser NOT_VERIFIED. GitHub unchanged. Published Site v105 successfully with migration 0025; production build PASS. Runtime commit 4a83523b1557f27eab9e9f8bb68a558b3b0f5ec4; deployment appgdep_6aef05b20a588191b86f1d6bb4b9d55b. Hosting applies pending migrations before Worker publication; direct production trigger inspection was not performed.
+
+## 2026-11-07 · Development 19: identifiable card download filenames
+
+User clarified continuation counter as 19; no rollback or repeated round-18 implementation. Added shared safe download naming for owner HTML, buyer HTML and private JSON. Filenames identify the saved card and task version, with HTML language and buyer publication sequence when available. Private JSON has its own prefix and no misleading language suffix. Customer names, email, grant IDs and authorization codes are excluded. Missing/unsafe historical card identity uses legacy; invalid version uses unknown. Only bounded ASCII IDs are accepted, preventing header/path injection. Legacy names are not guaranteed unique, and repeated downloads of the same snapshot retain the same name.
+
+No snapshot contents, authorization, download logging, route parameters, cache/CSP headers, schema or PACI changes. Buyer snapshot identity never falls back to the grant ID. Evidence contents continue to identify their own saved version; names are convenience labels, not proof of authenticity or current validity.
+
+Validation: 428 automated tests PASS / 0 failed / 0 skipped (5 added), TypeScript PASS. Tests cover identity/version/locale/publication naming, zero publication sequence, unsafe/missing metadata, data minimization, real owner route auth and header output, and buyer route authorized card naming. Evidence docs/evidence/card-download-name-tests.log. Authenticated production browser download UX NOT_VERIFIED. GitHub unchanged. Published Site v104 successfully; production build PASS. Runtime commit 0b2391893a8028accd8968946746b0521b8758de; deployment appgdep_6aef044ae01c819187746de47b2d8c9c.
+
+## 2026-11-07 · Development 18: localized downloadable cards
+
+Audit confirmed that HTML downloads already include card identity, task version, snapshot/download time and offline revocation/update limitations. Fixed an actual gap: lang=it previously rendered English. Added Italian system copy for parameters, material catalog, issue stages, publication history, expiry and snapshot notices. Chinese insufficient status now uses 是/否/未提供 instead of raw boolean/ambiguous values; English/Italian localize 人/件 display units. Unsupported locale retains English fallback. Known financial/energy unit codes remain unchanged. User-provided evidence/company strings are preserved and HTML-escaped, not translated.
+
+Rendering only: no snapshot format, authorization, selected disclosure, stored quantities, publication history, expiry, logging, PACI or AI changes. Both owner and buyer HTML routes already pass lang to the shared renderer. Expiry does not make a saved historical copy unreadable; offline copies cannot check newer revocations/updates. Those boundaries remain in all three languages.
+
+Validation: 423 automated tests PASS / 0 failed / 0 skipped (4 added), TypeScript PASS. Tests cover Italian full parameter/category/unit rendering, boolean unknown/zero handling, publication history/stages, original data preservation, HTML escaping and real SQLite buyer disclosure/download event. Evidence docs/evidence/card-download-language-tests.log. Authenticated production browser and visual print layout NOT_VERIFIED. GitHub unchanged. Published Site v103 successfully; production build PASS. Runtime commit 61c0c54a63176c2761abd0635520cae9f84015cd; deployment appgdep_6aeefdf47f548191b5d7b482ae23f608.
+
+## 2026-11-07 · Development 17: shared assessment readiness
+
+Verified that the backend already rejects stale assessment freezing. Extracted that existing condition without changing policy into assessmentReadiness, shared by transitionTask and the UI. Frontend now disables freeze until the backend condition is met, replacing the previous clickable error path. Four localized states: missing, ready, frozen, needs_check. Frozen classification requires the last event, card task version and assessment ID to match; it does not imply material changes. Shows current task version and latest card input task version, and explains immutable snapshot semantics. Removed the earlier event-only freshness message.
+
+Insufficient/unresolved checks may still produce a clearly limited private preparation card, exactly as before; readiness is not compliance approval. Later material/field changes require new checks, while existing cards retain their snapshot. No schema, assessment math, disclosure, PACI or AI changes. Existing backend error code and command semantics remain compatible.
+
+Validation: 419 automated tests PASS / 0 failed / 0 skipped (4 added), TypeScript PASS. Tests cover readiness predicates and inconsistent metadata, real assess/freeze/update/reassess sequence, rejected premature/repeated/stale freeze, preserved old cards and three-language disabled controls. Evidence docs/evidence/assessment-readiness-tests.log. Authenticated production browser NOT_VERIFIED. GitHub unchanged. Published Site v102 successfully; production build PASS. Runtime commit dec69113647f2a5c0accb914aeeb040852e6ba8e; deployment appgdep_6aeef8026fcc8191975688d2372e93cc.
+
+## 2026-11-07 · Development 16: adjacent-version field comparison
+
+Added an owner-only read endpoint using task + field_changes=<version>, comparing saved version N to N-1 (N >= 2). Both snapshots pass existing actor authorization and body digest verification; absent or corrupted snapshots fail instead of silently comparing against current data. Comparison is by field ID, so duplicate metric codes remain separate. Projects code, material ID, unit, extracted value, confirmed value and confirmation count only; no material text, locators or reasons are exposed by this new projection. Values are private to the owner, not added to public/basic cards.
+
+History rows now provide three-language on-demand compare controls. Displays additions/removals/projected changes, previous/new values and confirmation counts. Null remains unconfirmed, zero remains zero. Same-value repeated confirmations appear through the count change. Closing/unmounting ignores late results; parent authenticated request handling clears task views on session loss. Shows at most 100 changes with complete total/truncation notice. No rollback, training, disclosure, schema or PACI behavior change. This is not a complete document/assessment diff, reason-text diff or independent verification.
+
+Validation: 415 automated tests PASS, 0 failed/skipped (5 added); TypeScript PASS. Tests cover duplicate-code identity, zero/null, repeated confirmation, removal, truncation, real saved snapshots, ownership, invalid/missing versions, corrupted previous snapshot, unchanged current data and multilingual escaping. Evidence docs/evidence/task-field-change-tests.log. Authenticated production browser NOT_VERIFIED. GitHub unchanged. Published Site v101 successfully; production build PASS. Runtime commit 7205123c61d68a17f08b921aad9c7478f7e14639; deployment appgdep_6aeef5a1af34819185dfaa83ad996ddc.
+
+## 2026-11-07 · Development 15: private version history overview
+
+Added authenticated GET task history with descending version pagination (20/page). Each returned version is read through the existing owner check and saved-body digest verification before projecting saved time, purpose, period and counts of materials, fields, confirmed fields, assessments, frozen cards and flag records. No raw material text, field values or assessment details are returned by this endpoint. Counts describe that snapshot, not verification or event deltas. Existing task/current version remains unchanged.
+
+Three-language read-only history overview in an opened task, collapsed initially and fetched on demand. Close/unmount invalidates pending responses; parent task/version key resets history when task changes or saves. Requests reuse parent session handling, so authentication loss clears private task views. Supports older pages and retry, no rollback or redisclosure actions. No schema, PACI, policy or AI changes. Full snapshot browsing and field-by-field version comparison are NOT implemented in this round.
+
+Validation: 410 automated tests PASS, 0 failed/skipped (4 added), TypeScript PASS. SQLite checks 24 versions over two pages, historical counts, unchanged current state, account isolation, invalid cursors and corrupted digest refusal; API login/no-store checks; localized escaped UI rendering. Evidence docs/evidence/task-history-tests.log. Authenticated browser NOT_VERIFIED. GitHub unchanged. Published Site v100 successfully; production build PASS. Runtime commit e8db52a1e4b7747b691d9515fa2f858312465e15; deployment appgdep_6aeef1338244819180d92bc48075843f.
+
+## 2026-11-07 · Development 14: private task name search
+
+Added owner-scoped server-side literal substring search across saved task names, including records beyond the first 50. GET /api/private-tasks accepts optional q (max 100 characters; trimmed), with existing tuple pagination and actor-bound integrity reads preserved. SQL uses bound parameters and instr, so percent/underscore/quotes are literal. ASCII case-insensitive matching follows SQLite lower(); no Unicode case-folding, fuzzy or material-content search is claimed. Empty query preserves the previous list API.
+
+Three-language search/clear controls reset pagination; load-more and refresh retain the applied query. Existing request-generation guard rejects stale list responses. Session loss clears search text and results. No schema, evidence, disclosure, PACI or AI behavior changes.
+
+Validation: 406 automated tests PASS, 0 failures/skips (3 added), TypeScript PASS. Tests cover 55 matching tasks over two pages, actor isolation, literal special characters, empty/invalid/bounded inputs and localized accessible controls. Evidence: docs/evidence/task-search-tests.log. Authenticated production browser NOT_VERIFIED. GitHub unchanged. Published Site v99 successfully; production build PASS. Runtime commit 73a9e428ead312c374d1a5c0b26490963621e923; deployment appgdep_6aeeed2bef94819195c42d883b17bb5b.
+
+## 2026-11-07 · Saved-task pagination after v97
+
+Published v98 successfully on 2026-11-07. Runtime commit c5d1e932c6efe5270d5c55ccc985dddca4d17d3c; deployment appgdep_6aeeec0579d8819194f261ded5de16ef. Production build PASS. Authenticated browser acceptance remains NOT_VERIFIED; GitHub not synchronized this round.
+
+Continuing development after the completed round-12 source-diagnostic integration; the user's repeated counter does not undo or rerun that implementation. Fixed the existing saved-task list's inaccessible older-than-50 entries. PrivateTaskStore.listPage returns 50 projected tasks plus next_before, ordered by updated_at DESC and id DESC with a validated tuple cursor. Existing list(actor) remains a first-page array for compatibility. API's default list response retains tasks and adds next_before; matching-by-month remains unchanged. Every page keeps the actor-bound SQL filter and stored-version/digest checks. Cursor is a navigation hint, not an authorization credential.
+
+UI adds localized older-task loading, loaded count and loading state. Appends deduplicate IDs, explicit refresh replaces pages, list generations reject stale responses and session loss clears rows/cursor. Same-timestamp ties are deterministic. This is NOT a frozen snapshot: edits during browsing can move tasks, so the UI instructs refresh for the newest list. No total-count claim, new schema, evidence or PACI changes.
+
+Validation: 403 automated tests PASS / 0 failed / 0 skipped (5 added); TypeScript/diff checks PASS. Evidence docs/evidence/task-list-pagination-tests.log. Real SQLite verifies 105 own tasks across 50/50/5 pages, ties, actor isolation including reused foreign cursor, compatibility list, and new inserts with stable older-page boundaries. Also validates cursor shape/bounds, client deduplication and three-language controls. Authenticated hosted browser NOT VERIFIED. GitHub unchanged. Build/publication receipt follows.
+
+Published Site v97 after round-11 recheck and round-12 implementation: runtime e1c85c4e7f9a7eb3f36a446da1d19d1fa7ab3332; deployment appgdep_6aeee411ebc8819198d8c328b2b1d074 succeeded. TypeScript and build PASS. Authenticated browser NOT VERIFIED; GitHub unchanged.
+
+## 2026-11-07 · Round 11 verified before round 12 source-check integration
+
+Sequence requested by user: first rechecked the completed v96 round-11 implementation (73 targeted tests PASS, 0 failed/skipped; docs/evidence/round11-recheck.log). This is a rerun of existing tests, not 73 new tests. Then implemented round 12 below.
+
+Preparation checker 0.6 performs a fresh deterministic source-diagnostic pass on all current synthetic text materials, including unlocated and legacy materials. It does not rewrite their stored location reports or add fields. Known metrics with parsing issues are excluded from ratio inputs with SOURCE_PARSE_ISSUE; affected ratios remain INCONCLUSIVE/null. Other independent ratios may still calculate, but overall insufficient is true. New fixed cards and the existing limited basic-card projection retain insufficient; historical assessments/cards are unchanged. No claim of finding all unknown labels or independently verifying content.
+
+Synthetic parser 1.2 now records per-code counts over ALL recognized issues, separate from its 100-detail display cap. Thus issues after truncation still block affected ratios. Private assessment diagnostic summary exposes only material IDs, codes and counts, not excerpts/values/reasons. Three-language UI explains the issue and links to source materials. Existing disclosure selection remains unchanged; basic-card output does not acquire raw source diagnostics. Existing confirmed parameters remain company assertions, not verified figures. No candidate exclusion, automatic remediation, PACI kernel, schema, model or real-data intake change.
+
+Validation: 398 automated tests PASS / 0 failed / 0 skipped (4 added); TypeScript and diff checks PASS. Evidence: docs/evidence/source-diagnostic-assessment-tests.log. Real SQLite test confirms a bad alternate source blocks R6a/R6b despite confirmed readable values, allows unaffected R1, preserves original reports/versions and propagates insufficient through frozen/basic cards. Other tests cover full counts beyond truncation, unlocated source checks, no raw diagnostic leakage and multilingual rendering. Authenticated hosted browser NOT VERIFIED. GitHub unchanged. Publication receipt follows.
+
+Published Site v96: runtime 5a6393bf7866f416eb8040d60742645dd3833815; deployment appgdep_6aeedd652b508191af298c933f3b88b3 succeeded. TypeScript and build PASS. Authenticated browser NOT VERIFIED; real AI/OCR unconnected; GitHub unchanged.
+
+## 2026-11-07 · Persisted field-location diagnostics (round counter 11)
+
+Synthetic parser 1.1 adds inspection of recognized labels not successfully located: unsupported structure/number, missing or unsupported unit, and out-of-range value. Reports preserve exact original excerpts and UTF-16 positions/line numbers for private owner review. Full issue count is retained with at most 100 detailed issues and an explicit truncation flag. No supported labels is distinguished from valid recognized labels; neither outcome claims full recognition or authenticity.
+
+locate_fields now persists location_report alongside fields in the existing versioned task transaction, including zero-field outcomes. Repeated attempts on the same already-located material are rejected, and historical versions/source text are unchanged. Format fixes require separate material with provenance; candidates are never silently replaced or auto-confirmed. Existing historical materials have no fabricated backfill. Current preparation checker and PACI kernel unchanged; no database migration or external model call. UI shows Chinese/English/Italian results and escaped source text within the existing owner-only task view. Reports remain private; no new sharing or training flow.
+
+Validation: 394 automated tests PASS / 0 failed / 0 skipped (4 added), TypeScript and diff checks PASS. Tests cover reason classification/exact excerpts, no-label/valid/truncated cases, actual SQLite zero-result report persistence and replay denial, historic version preservation, multilingual rendering and source escaping. Evidence: docs/evidence/field-location-diagnostics-tests.log. Hosted authenticated browser remains NOT VERIFIED, real AI/OCR and real document intake remain unavailable. GitHub unchanged. Build/publication receipt follows.
+
+Published Site v95: runtime f8e16bc3efad9a5d292ac7ecef097ac42e797f3c; deployment appgdep_6aeedbdbe66c8191b77133afb259e842 succeeded. TypeScript and build PASS. Authenticated browser NOT VERIFIED; AI/OCR unconnected; GitHub unchanged.
+
+## 2026-11-07 · Multilingual deterministic synthetic field location (round counter 10)
+
+Replaced Chinese-label-only location with versioned dossivo-synthetic-parser/1.0, supporting explicit Chinese, English and Italian labels for the existing seven metrics. Preserves exact quote, UTF-16 offsets, line, raw number/unit and explicit yuan scale conversion; normalized units remain compatible with current assessments. Model remains null and confirmation remains manual. Mixed-language duplicates remain separate candidates and retain existing ambiguity handling. Existing saved fields/versions are unchanged; new parses record the parser version separately from the unchanged preparation checker.
+
+Accepted grammar: explicit colon, non-negative dot-decimal number, supported suffix unit; line/whitespace/semicolon boundaries. Units are metric-specific. No comma decimals/thousands, EUR/USD conversion, unspecified units, OCR, translated-document inference or real-data intake. Unsupported/mismatched/over-range entries are not guessed. UI adds native-language examples and limits, plus localized textarea examples. The existing 500-candidate cap and 1e12 numeric ceiling are engineering limits, not commercial or legal policy.
+
+Validation: 390 automated tests PASS / 0 failed / 0 skipped (5 added); TypeScript PASS. Tests cover exact Unicode offsets, normalization, unsupported syntax/units, multilingual duplicates, real SQLite persisted source-linked unconfirmed fields and three-language guide rendering. Evidence: docs/evidence/multilingual-parser-tests.log. No AI/API credentials or model calls, no PACI kernel change, no schema migration, no independent verification claims. Authenticated production browser remains NOT VERIFIED; paid-launch blockers remain open. GitHub unchanged. Publication receipt follows.
+
+Published Site v94: runtime 2685ea9d2245c740962c07ced6dd487a033e6c4b; deployment appgdep_6aeeda4e4a548191a0f322c5a14ecf1c succeeded. TypeScript and build PASS. Authenticated browser NOT VERIFIED; no model training; GitHub unchanged.
+
+## 2026-11-07 · Actionable private field review queue
+
+Completed the review-overview interaction: clickable count filters open the review queue; eight explicit filters cover all, pending, current matching/different, historically changed, confirmation-history issues, unlinked source and scope mismatch. A restored original value remains discoverable under historical changes. Each result shows source/scope issues and links to a focusable existing field-review article. Display is bounded to 20 rows with Show more; selecting a filter resets its row limit, switching tasks resets filter state. No evidence is removed, confirmed or adjudicated by filtering.
+
+Validation: 385 automated tests PASS, 0 failed/skipped (3 added), TypeScript PASS, diff check PASS. Evidence: docs/evidence/field-review-queue-tests.log. Tests cover overlapping classifications, unchanged input/state, invalid filters, empty results, three-language markup, links and initial row bounds. Real authenticated browser clicks are NOT VERIFIED. This completes this bounded feedback-review UI, not AI extraction, dataset authorization, model training or overall paid-launch acceptance. No schema, API permissions, PACI or disclosure changes. GitHub unchanged. Publication receipt follows.
+
+Published Site v93: runtime b88d22f1291c0697d5b63de9321617e8bce4cfd1; deployment appgdep_6aee9c647a588191b81467b66d14a555 succeeded. TypeScript and build PASS. Authenticated browser NOT VERIFIED; no model training; GitHub unchanged.
+
+## 2026-11-07 · Private field review feedback overview (round counter 9)
+
+Added fieldReviewSummary shared projection and a Chinese/English/Italian task panel showing pending, latest-value matching/differing, and historically changed fields. Reconfirming an unchanged value does not inflate value-change events; restoring the extracted value does not erase previous changes. Flags missing/mismatched confirmation history, unlinked source offsets/material versions and facility/month mismatch. Counts are per field candidate, not independent sources, model accuracy, verified labels or evidence level. Current implementation parses synthetic text deterministically; no AI model is connected or trained.
+
+Owner-only GET /api/private-tasks?task=<id>&review=1 returns a private/no-store projection after existing authentication, ownership and stored-digest checks. Includes task/version, field IDs/codes, review states and counts only; excludes original text, quoted text, exact values, reasons and actor IDs. No export to model services, cross-tenant aggregation, training consent or model-training pipeline added. Existing originals and company confirmations are not independently verified ground truth. Any future improvement loop must distinguish workflow feedback, evaluation datasets and authorized model training; this feature only establishes inspectable feedback diagnostics.
+
+Validation: 382 automated tests PASS / 0 failed / 0 skipped (6 added), TypeScript PASS. Tests cover zero versus missing, restore/reconfirmation history, source/scope mismatches, minimal projection, real SQLite correction history, actual route authentication/ownership/no-store and three-language rendering. Evidence: docs/evidence/field-review-summary-tests.log. Authenticated production browser remains NOT VERIFIED. No migration, PACI, sharing or real-intake changes. GitHub unchanged. Publication receipt follows.
+
+Published Site v92: runtime 2c37c520f9cc627fade9c4cc47a2d1f0bf55a65b; deployment appgdep_6aee972adbc481919866260a40651057 succeeded. TypeScript and build PASS. Authenticated browser recovery NOT VERIFIED; GitHub unchanged.
+
+## 2026-11-07 · Uncertain task save and version-conflict recovery (round counter 8)
+
+Task mutations now retain a detached command snapshot and the same idempotency key after uncertain transport/server outcomes. A three-language recovery panel retries the ORIGINAL request; new task mutations and switching are blocked until resolved. Later form edits are excluded. Acknowledged writes are cleared before follow-up reads so refresh failures do not reclassify a saved write as pending. Structured API error codes and HTTP status take precedence over explanatory prose. Definitive validation failures release the pending command; VERSION_CONFLICT presents an explicit latest-version reload with warning that unsent field-review drafts will be cleared. No auto-merge or automatic resubmit against a newer version.
+
+The pending request is memory-only: leaving/reloading or session loss removes it. UI instructs users to inspect saved tasks before recreating after reload. This does not provide cross-session durable offline recovery. Existing server-side version checks and idempotency remain authoritative. No schema, PACI, disclosure, identity or real-intake changes.
+
+Validation: 376 tests PASS / 0 failed / 0 skipped, including 5 new tests. Real local SQLite lost-create-acknowledgement replay retains exactly one task and one operation. Also tested snapshot isolation, uncertain/definitive error classification, structured conflict error and Chinese/English/Italian recovery markup. Evidence: docs/evidence/task-save-recovery-tests.log. Authenticated production browser recovery remains NOT VERIFIED. Build and deployment receipt follows. GitHub unchanged.
+
+Published Site v91: runtime 7d12fa37d585473ed165991b6a043fd97074dcf3; deployment appgdep_6aee94056b1c8191a134600312403d81 succeeded. Build PASS. Authenticated browser verification remains outstanding; GitHub unchanged.
+
+## 2026-11-07 · Task request lifecycle isolation (round counter 7)
+
+Private task UI now uses independent request generations for list, detail and download, plus a shared session epoch. Late reads, errors and completion handlers cannot overwrite a newer selection or clear its busy indicator. Same-task reloads are also distinguished. Session 401 is handled before JSON parsing, clears loaded task/list/outbox/review/form/request state and invalidates outstanding responses. Unmount/reactivation never revives old requests. Synchronous mutation guard blocks duplicate saves and task opening while saving; the existing server version checks and idempotency keys remain authoritative. New selection invalidates a pending JSON download; already downloaded copies cannot be recalled.
+
+Validation: 371 automated tests PASS, 0 failed/skipped (5 added); TypeScript PASS. Log: docs/evidence/private-task-activity-tests.log. Tests use controlled delayed responses and check request generations, malformed/repeated 401, disposal/reactivation, error propagation and exact mutation request retention. Authenticated browser races are NOT VERIFIED. No database migration, PACI change, disclosure change, real-data intake or identity-provider change. This is UI lifecycle isolation, not server-side session revocation or a replacement for authorization. GitHub unchanged. Publication receipt follows.
+
+Published Site v90 successfully: runtime a07b4b3b29b3272e11b91a95ba9c56855d16e104; deployment appgdep_6aee92fde85c8191af76fe941d38d588. Build PASS. Signed-in production file workflow remains NOT VERIFIED. GitHub unchanged.
+
+## 2026-11-07 · Private file usage overview (round counter 6)
+
+Implemented owner-authorized database usage summary: all-task account slot occupancy/remaining capacity plus selected-task stored, uploading and deletion-pending counts. Deleted rows release capacity; other accounts are excluded. New-upload closure does not hide existing usage. UI renders Chinese, English and Italian with a quota meter explicitly separate from evidence completion. Refresh-based snapshot, not measured R2 bytes or a quota guarantee during concurrent writes. No evidence-level, PACI, disclosure, pricing or schema changes. Engineering test cap remains 20 files, not commercial policy.
+
+Validation: 366 automated tests PASS (3 added), 0 failed/skipped; TypeScript PASS. Evidence: docs/evidence/private-file-usage-tests.log. Previous 18 local runtime recovery checks were not rerun and are not cloud acceptance. Signed-in production verification remains outstanding; real customer intake and new file test admission remain closed. GitHub not synchronized. Deployment receipt follows.
+
+## 2026-11-07 · paired-store backup restore rehearsal after v89
+
+Extended the local integration script with an offline consistent copy of BOTH D1 and R2 persistence directories while workerd is disposed. Restores the snapshot into a separate test-only directory and validates exact file bytes, snapshot-time events, owner isolation and upload admission. Explicitly demonstrates stale backups contain files deleted after snapshot; test-only replay of current deletion metadata removes restored objects before release. Original latest event history is not merged/reconstructed: this is a bounded rehearsal, not a production migration utility.
+
+Actual 18/18 runtime checks PASS: four new restore/deletion-reconciliation checks plus rerun of fourteen prior checks. Log docs/evidence/private-file-restore-runtime.log. No live data or production resources touched. No unit-suite rerun; earlier 363 PASS remains historical. Production snapshot coordination, independent durable deletion ledger, restore policy and authenticated hosted acceptance remain unimplemented/unverified. Online remains v89; GitHub remains v73.
+
+## 2026-11-07 · persistent runtime restart acceptance after v89
+
+Expanded scripts/verify-private-file-runtime.mjs to dispose/recreate the actual local Miniflare/workerd runtime against the same isolated D1/R2 persistence directories twice: after upload and after deletion. No schema reapplication or reseeding on restart. Checks retain file bytes/digest/metadata, owner isolation, closed upload admission, stable idempotency keys, exact historical events and append-only triggers. Deleted objects remain absent and the prior upload key cannot recreate them.
+
+Actual result: 14/14 runtime checks PASS, including 5 new restart checks and rerun of the earlier 9 checks. Log docs/evidence/private-file-restart-runtime.log. This is graceful local runtime shutdown/restart, NOT abrupt process termination, power-loss resilience, cross-region restore, backup restoration or production authentication/R2 acceptance. Unit suite not rerun; earlier v89 363 PASS remains historical. No runtime application changes, database migration or configuration changes; online stays v89. GitHub remains v73.
+
+## 2026-11-07 · local storage runtime acceptance after v89
+
+Added scripts/verify-private-file-runtime.mjs using the installed pinned Wrangler Miniflare/workerd runtime, local D1 and local R2 persisted in an isolated temporary directory. Runs all tracked migrations (including file history triggers), exercises the actual privateFileRequest service, and disposes runtime/removes only its own temp directory. No credentials, production requests, customer data or uploaded files are involved. The PDF-shaped fixture tests bytes, not PDF parsing or malware inspection.
+
+Actual new result: 9/9 runtime checks PASS. Upload/finalisation, retry deduplication, R2 stream/digest, ownership/origin denial, closed-upload owner management, deletion, event history and append-only triggers passed. Log docs/evidence/private-file-runtime.log. This is local runtime integration with injected synthetic actor identities, NOT a real hosted login or production R2 test. Previous unit suite remains 363 PASS (not rerun or counted as new this round). No application runtime change; reuse previously verified production build. GitHub remains v73.
+
+## 上线回执 · v89
+
+运行源码 `c9605a6b8d8f54af1d8fb8bd419ac907ab947212`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_73b2570409308191afa8466de3338c14`；部署 `appgdep_6aee8ed024e08191bcf84b5d83687faf`，succeeded。363项测试、类型检查、生产构建通过。下载流实际大小限制已发布；线上R2与登录验收未完成，真实资料上传未开放。GitHub保持v73。
+
+## 2026-11-07 · v89 bounded private download
+
+Replaced unbounded object.arrayBuffer download with bounded stream reading. Actual bytes must equal the stored expected size and stay within the existing 2 MiB engineering cap; oversized streams are cancelled, truncated files rejected and reader locks released on failure. Existing digest and post-read deletion-state checks remain. No data schema, permissions, PACI, evidence-level or real intake changes.
+
+363 tests PASS / 0 fail / 0 skip; TypeScript PASS. Three new tests cover chunked reads/truncation, cancellation despite misleading size metadata, invalid limits/storage errors. Existing end-to-end local file tests now use streaming R2 doubles. Hosted R2 and signed-in browser still NOT VERIFIED. Build/publication pending receipt. GitHub remains v73. User counter 2 does not set implementation scope.
+
+## 上线回执 · v88
+
+运行源码 `ed998c22d33b4da78743b94b48003a7fed9ca1fc`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_7277250e375881919b4074d7c1bce42b`；部署 `appgdep_6aee8e0e07bc8191ac0e797d257ff5dd`，succeeded。360项测试、类型检查与生产构建通过。新增上传资格与已有文件管理分离；仍未配置测试账号、未开放真实资料、未完成线上R2和登录浏览器验收。GitHub保持v73。
+
+## 2026-11-07 · v88 owner management after upload gate closure
+
+Separated new-upload admission from management of existing owner files. Upload still requires configured test actor, storage binding and synthetic confirmation. Existing task ownership and authentication authorize list/history/download/delete/recovery even after the upload allowlist is removed or malformed. Same-origin mutation checks and cross-account denial are retained. Metadata/history can be read without a bucket; binary operations still fail safely if storage is unavailable. No buyer access or real customer intake enabled.
+
+List response includes can_upload; UI uses this explicit server flag, hides upload form when closed, and retains existing file/history/deletion controls. Account labels now specify new-upload testing. A gate closure response during upload clears the pending selection without hiding already loaded owner files.
+
+360 tests PASS, 0 fail, 0 skip; TypeScript passed. Two new tests cover owner management following revoked/malformed admission and retry cleanup after revoked upload rights; previous gate tests updated to distinguish intake from ownership. Actual hosted storage and authenticated UI remain unverified; no test IDs configured. Build/publication pending. User suffix “1” is only their round counter, not a task limit or product version. GitHub remains v73.
+
+## 上线回执 · v87
+
+运行源码 `6c98e80ee986167523291f6d33ac71b55b8357f1`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_56a433b501688191a69a9b3763a33c62`；部署 `appgdep_6aee8cc2d6208191bfb5bd78042a4195`，succeeded。358项测试、类型检查和生产构建通过。0024文件状态记录迁移及三语言分页查询界面已发布。文件测试门禁仍关闭；线上R2及登录后操作未验收。GitHub保持v73。
+
+## 2026-11-07 · v87 private file state history
+
+Added migration 0024_sleepy_steel_serpent.sql with a private state-event table, owner/task/sequence index, and SQL triggers recording inserts/state changes atomically with the file metadata statement. Event UPDATE/DELETE is rejected by triggers. This is application/database append-only behavior, not protection against a privileged database operator, not blockchain immutability. No historical backfill or invented events.
+
+Owner-only, test-gated GET history with validated monotonic cursor, 50-event pages and no-store responses. Projection includes sequence, opaque file ID, from/to state and recorded timestamp only; no filename, object key, document body, recipient or other account ID. New three-language collapsed history viewer offers refresh and older pages, including after object deletion. No human/AI attribution inferred: this is file state history, not access/download logging or PACI execution receipts.
+
+358 tests PASS, 0 fail, 0 skip; TypeScript passed. Seven new tests cover persistence after deletion/minimal projection, append-only constraints and atomic rollback, no duplicate events on retries, ownership/gate/cursor validation, pagination with concurrent additions, client request and localized escaping. Real local SQLite executes the new trigger migration; R2 remains a test double. Actual hosted R2/authenticated browser remain unverified. No test account configured and no real intake enabled. Build/deployment pending receipt; GitHub remains v73.
+
+## 上线回执 · v86
+
+运行源码 `3fc32b9eef83ca0e4290f8a135e78b045b2dd62d`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_bc7b52f2b8e8819186eedafe6f184e84`；部署 `appgdep_6aee8b82d8f481919faef094121d3845`，succeeded。351项测试、类型检查和生产构建通过。中断文件清理与失败删除重试已发布，仍受测试账号门禁保护；真实线上存储和登录浏览器未验收。GitHub保持v73。
+
+## 2026-11-07 · v86 incomplete file recovery
+
+Added explicit per-task cleanup POST action and three-language confirmation UI for interrupted uploads and failed deletes. Eligibility: DELETING immediately, or UPLOADING older than 15 minutes (engineering recovery delay, not evidence retention policy). Maximum 20 candidates; only current actor/task and configured test gate, same-origin mutation. Atomic conditional claim rechecks state/time before deletion, so an upload completed after discovery is skipped. Late object puts following cleanup are removed by existing upload cancellation handling. Per-item errors yield pending counts without exposing storage details; retry is safe. Existing stored-unreviewed files are excluded. No scheduling or automatic background cleanup is claimed.
+
+351 tests PASS, 0 fail, 0 skip; TypeScript passed. Six new tests cover eligibility/repeated cleanup, retryable storage failure, completed-upload race, auth/tenant/origin/gate, late-put race, and client action without file bytes. Real SQLite plus existing in-memory R2 double; actual hosted storage and authenticated UI still unverified. No runtime config, database migration, buyer/PACI or evidence-coverage change. Build/deployment pending receipt. Test account ID still required; GitHub remains v73.
+
+## 上线回执 · v85
+
+运行源码 `a455cde6c28e9594671ca1e708bdeafa9acf69b0`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_781e3b0062cc8191a7d02711141bca54`；部署 `appgdep_6aee8a70b43081919c53b6f0627e88a3`，succeeded。345项测试、类型检查及生产构建通过。账号编号复制和测试状态面板已发布；测试账号尚未配置。实际浏览器确认发布前账号页处于未登录状态；登录后面板及R2实测未验收。GitHub保持v73。
+
+## 2026-11-07 · v85 account test-access handoff
+
+Added signed-in account identity panel: read-only site actor ID with copy/manual fallback, explicit distinction from password/public contact ID, and per-actor file-test access status. Server computes only this user's eligibility; configured IDs, bindings and other users are never serialized. Shared privateFileAccess is used both by the account page and file API, preserving fail-closed behavior and synthetic-only restrictions. No auto-enrolment or grant mutation.
+
+345 tests PASS / 0 fail / 0 skip; TypeScript passed. Four new tests cover missing/malformed access configuration, no real-data permission, escaped read-only ID and three languages, and absence of identity/test controls for anonymous visitors. Existing file API tests also passed using the shared gate. Build/publication pending receipt.
+
+Actual cloud-browser visit to /account?lang=zh succeeded this round: signed-out account page, disabled contact fields, pending email/phone registration and localized footer observed. There is no authenticated browser session. No tester ID was inferred, no test gate configured, no R2 operation claimed. Browser outcome completion-summary tool failed schema validation (required code despite completion_summary contract); page observation itself succeeded. Next external prerequisite: user signs in and supplies the displayed site account ID so a narrowly configured synthetic test can proceed. GitHub remains v73.
+
+## 上线回执 · v84
+
+运行源码 `f22c7c418b80384f28b0ae9392f04d26e6d93511`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_505674f5674c8191b6ee5f112b1b37ad`；部署 `appgdep_6aee88ed33288191aa9850a3741e7704`，succeeded。341项测试、类型检查、生产构建通过。私密任务内新增折叠文件测试界面；线上确认测试账号配置缺失，上传入口保持关闭。实际R2读写和登录浏览器验收未完成；未开放真实客户文件。GitHub保持v73。
+
+## 2026-11-07 · v84 private file test interface
+
+Added a collapsed PrivateFilePanel inside each selected private task. The panel explicitly states platform cloud storage, synthetic fixtures only, no scanning/extraction/evidence linkage and no evidence-level increase. Upload controls appear only after an authenticated list succeeds. Closed and expired-session states are localized in Chinese/English/Italian. A separate checkbox confirms synthetic-test cloud storage. File validation uses the shared backend policy; uploads retain the same request key and bytes on uncertain retries within the mounted panel. Downloads check the binary response before saving. Delete requires an inline confirmation, offers retries, and never implies recalling downloaded copies. Pending/deleting objects cannot be downloaded. Task/language remounts abort pending reads and prevent stale updates; file content is never stored in browser persistent storage.
+
+341 tests PASS, 0 fail, 0 skip (7 new client/navigation/render tests). TypeScript passed after correcting the client helper JSDoc options contract; build/publication pending receipt. Tests include stable retry keys, raw filename encoding, size/type/confirmation policy, gate/error propagation, unexpected download content, cancellation propagation, collapsed state, language and filename escaping. No new migration or runtime configuration. Online configuration read confirmed PRIVATE_FILE_TEST_ACTOR_IDS absent. No authenticated browser or real R2 read/write acceptance; gate remains closed. GitHub remains v73.
+
+## 上线回执 · v83
+
+运行源码 `4a7855d3cfebde76f2ffad3c1b9a101a9acc6057`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_a9be74fc5e44819195da7002614173d6`；部署 `appgdep_6aee87a0d1fc81918b37fc8c10774da1`，succeeded。334项测试、类型检查、生产构建通过。新增私密文件后端、R2绑定及0023迁移；测试账号未配置、入口默认关闭。实际线上R2读写、登录浏览器及真实文件处理未验收。GitHub保持v73。
+
+## 2026-11-07 · v83 private file staging backend
+
+Implemented authenticated /api/private-files GET/POST/DELETE with existing task ownership, same-origin mutations, bounded streaming input (2 MiB), PDF/PNG/JPEG signature screening, SHA-256, request-key idempotency and an atomic 20-active-file per-account reservation. These numeric caps are engineering test limits, not evidence or pricing policy. Binary data goes to private R2; D1 stores metadata and UPLOADING / STORED_UNREVIEWED / DELETING / DELETED states. Download is owner-only, attachment/octet-stream with no-store/nosniff/sandbox headers and hash verification. Object keys are not exposed. Delete hides access before removing bytes, supports retry, clears current filename, and handles in-flight upload/delete races.
+
+New migration 0023_magenta_dexter_bennett.sql and generated metadata; R2 binding BUCKET declared. Endpoint defaults CLOSED: only IDs in PRIVATE_FILE_TEST_ACTOR_IDS may use it, with explicit synthetic-test-only-v1 upload confirmation. No IDs configured this round. This is not a real-customer upload launch, virus scanner, AI extraction, evidence verification or buyer sharing. Existing synthetic private-task workflow is unchanged and files do not count toward material progress.
+
+Validation: 334 tests PASS / 0 fail / 0 skip; 10 new request/storage tests using real SQLite migrations and an in-memory R2 double. Covers cross-account denial, origin, closed gate, upload/download, idempotency, caps, format checks, digest failures, retryable deletion, failed put, concurrent retry and upload/delete race. TypeScript passed. Actual hosted R2 operations and signed-in browser NOT VERIFIED; publication receipt pending. GitHub remains v73.
+
+## 上线回执 · v82
+
+运行源码 `2208a4b5cb652e887fe39e01b3fa33e64a87bccb`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_6ac27894218c8191bb4911867c6eac6e`；部署 `appgdep_6aee85d72bc48191a987aafa23ee3dce`，succeeded。324项测试、类型检查、生产构建通过。身份入口统一和首页姓名安全回退已发布；独立邮箱注册未开通，真实登录浏览器验收待完成。GitHub保持v73。
+
+## 2026-11-07 · v82 application identity boundary
+
+All business API routes and identity-dependent pages now use app/auth.ts (getCurrentUser / signInPath), which delegates exclusively to the existing hosted provider. Stable actor IDs remain byte-identical; no database keys are rewritten and no account is linked by email. No new session, OAuth stack or OTP provider is enabled. Hosted provider headers remain confined to app/chatgpt-auth.ts. Home no longer decodes raw name headers directly; malformed percent encoding safely falls back. Anonymous greeting is localized.
+
+324 tests PASS, 0 fail, 0 skip; 6 new boundary tests cover anonymous/incomplete identity, untrusted hints, same-email distinct actors, stable IDs, hosted redirects, display-name fallback and dependency confinement. First run exposed the direct-header home path and a stale old-helper test assertion; both corrected before the passing rerun. TypeScript passed. Authenticated browser and external-provider acceptance NOT VERIFIED. Build/publication pending receipt. No GitHub sync.
+
+## 上线回执 · v81
+
+运行源码 `ef34d45cd6bbdf0fc6248099ce3205f5f0871315`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_52cb12986f348191adc243f43b9efb3a`；部署 `appgdep_6aee843b179c8191b9a0574acb51a838`，succeeded。318项测试、类型检查、生产构建通过。登录返回衔接及隐私文案已发布；真实登录回调浏览器验收待完成。独立邮箱注册尚未实现。GitHub保持v73。
+
+## 2026-11-07 · v81 account navigation / paid-pilot gate
+
+Implemented validated internal return destinations through the account sign-in round trip, language switches and session-expiry recovery. Signed-in users get a prominent continuation action; contact entry remains optional. Reject external/protocol-relative URLs, backslashes/control characters, encoded path bypasses, auth/account loops and API destinations. Account privacy footer is localized in Chinese, English and Italian.
+
+Validation: 318 tests PASS, 0 fail, 0 skip (4 new security/navigation/render tests); TypeScript passed. Full authenticated browser round trip has NOT been verified. Production build/publication receipt pending. No database migration, new identity provider, OTP, email delivery, payment or real-material enablement. GitHub remains v73.
+
+Hosting audit: existing Sites integration owns visitor authentication and confirms ChatGPT sign-in. External email identity support has not been established. Do not build an unapproved parallel session stack or present contact fields as account creation. Independent email registration is a release blocker, not completed by this round.
+
+## 上线回执 · v80
+
+运行源码 `8b104743b59b0ec7659394eff69be5052fe93e7f`；保存版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_cafe1f4470ec81919bb8f2099cac7a1a`；部署 `appgdep_6aee7fdd1d708191addc377685e88ffa`，succeeded。314项测试、类型检查、生产构建通过。字段空白保护与确认历史已上线；登录后的实际输入/展开尚未浏览器验收。GitHub保持v73。
+
+## 2026-11-07 · 字段空值保护与确认历史
+
+修复前端 Number('') 把清空输入转为0的问题：独立输入解析器拒绝空白、非法格式、负数、非有限及超出后端上限的值；明确输入0仍可提交。确认表单要求数值和非空依据，输入/提交在请求中禁用，提交处理再检查有效性。支持小数与合法科学计数法，拒绝十六进制和带分隔符字符串。后端既有numeric校验继续拒绝缺失/null/字符串/布尔值，没有放宽接受范围。
+
+每个字段新增折叠的确认/更正历史，呈现原确认值、新值、理由和时间，保留0与未确认的区别。只读显示已有后端追加记录，不凭空补历史，不显示操作者账号、不向买方新增披露。中英意系统文案分开，用户说明转义。无数据库迁移、任务schema、PACI接口或检查政策变更。
+
+实际314项测试通过、0失败、0跳过（新增5项）。首次测试夹具传了JSON不支持的undefined导致预期错误码不符；改为实际HTTP会出现的缺失字段后全套通过。覆盖空输入/异常数字、明确0、小数/边界、控件禁用、三语言历史转义、后端拒绝无效值及零值更正后旧版本保留。日志 docs/evidence/field-review-tests.log。TypeScript/diff通过，生产构建发布待回执；实际登录浏览器输入/展开未验收。GitHub保持v73。
+
+## 上线回执 · v79
+
+运行源码 `2e75c1566fdbb666be38e9acd6f35e16425a46c5`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_e9f4b4aa8fa4819197d50c836c30d096`；部署 `appgdep_6aee7de3ca548191b98d993f59a26cfc`，succeeded。309项测试、类型检查、生产构建通过。概览补交待办及失效关联恢复已上线；登录后的滚动/聚焦尚未浏览器验收。GitHub保持v73。
+
+## 2026-11-07 · 概览补交待办与失效关联恢复
+
+证据准备概览新增独立的材料补交待办，按当前场所/月展示尚无可用已确认材料、已有材料待关联、企业确认补交、原关联需重开核对四种状态及未完成/已确认数量。材料覆盖百分比不变，明确100%覆盖不等于缺口已确认。点击去处理会展开补交面板，滚动并聚焦对应项，支持锚点和键盘。
+
+状态使用与后端检查相同的gapReceiptConfirmed/eligibleGapMaterials规则，不仅凭保存的status判断。防御性修复：历史记录虽标已确认，但关联材料或版本失效时，界面仍能重新打开，避免只能重复确认而被后端拒绝。候选材料要求缺口具备非空类别、场所及月份，缺少范围不能凭空匹配。无新增业务权限、数据库、PACI接口或正式政策，旧版本不重写。
+
+实际309项测试通过、0失败、0跳过；新增3项验证满覆盖仍待确认、确认/版本失效/重开后的状态变化、跨范围及空类别拒绝、三语言渲染与失效关联重开控件。日志 docs/evidence/gap-overview-tests.log。TypeScript/diff通过；真实登录浏览器滚动/聚焦未验收，构建发布待回执。GitHub保持v73。
+
+## 上线回执 · v78
+
+运行源码 `518d9cf85872f2b75dba477e6fcb1beb10e4ec58`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_420f344020c08191a6c48061e5036b8e`；部署 `appgdep_6aee7b7bbde48191a53c83b637476744`，succeeded。306项测试、类型检查和生产构建通过。材料补交确认/重开均已实现，仍仅合成材料；登录浏览器完整流程未验收。无新增数据库迁移或PACI接口变更。GitHub保持v73。
+
+## 2026-11-07 · 材料缺口补交确认与重开
+
+新增 confirm_gap_receipt / reopen_material_gap 前后端动作。补交确认必须明确选择同任务、同类别、同场所和月份、可读且已企业确认内容的合成材料，填写依据并勾选核对；后端重新验证所有条件，不信任前端列表。关联保存材料编号/版本、操作者、时间和依据。重复确认要求先重开，重开必须说明原因。幂等重试不增加重复历史，仍沿用租户隔离、版本并发控制、原子写入。
+
+gap.status 新增 RECEIPT_CONFIRMED，记录resolution和追加history；原缺口reason、登记人/日期、目录性质不变。重开清空当前resolution但保留历史事件和旧快照。基础检查器更新 dossivo-preparation/0.5：只有仍能验证对应材料/版本的已确认补交记录，才不再仅因旧目录项触发资料不足；未确认字段、数字冲突、其他目录继续阻止完整结论。旧冻结卡不重算，no_anomaly仍false。买方白名单不新增披露缺口依据。此为企业材料取得声明，不是独立核验、实质整改关闭或法律合规。
+
+界面增加可折叠“材料缺口补交核对”，显示可选材料、确认条件、关联原文跳转、重开操作和历史。中英意提示独立；用户自填文本转义。无数据库迁移，任务schema仍0.2（可选gap附加字段），PACIscan/Protocol/正式卡条件不变。无真实文件、邮件或自动裁决。
+
+实际306项测试通过、0失败、0跳过（本轮新增5项），包括确认/重开与旧卡不变、错范围/类别/目录/未确认拒绝、幂等及账号隔离、未确认字段仍阻断、三语言控件与转义。日志 docs/evidence/gap-receipt-tests.log；类型检查/diff通过。浏览器实际登录闭环未验收；构建与发布回执后补。GitHub本轮未同步。
+
+## 上线回执 · v77
+
+运行源码 `ff0e6e14fd2bbb90ebb94368402fbd175b9d69da`；保存版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_18b792c6cc18819181ae6366374c6c1f`；部署 `appgdep_6aee79196840819194b7518171643b9c`，succeeded。301项测试、类型检查及生产构建通过。登录后的缺口保存浏览器闭环仍待验收；仅合成资料，无真实通知、无自动缺口关闭。GitHub保持v73，未重复同步。
+
+## 2026-11-07 · 私密材料缺口登记
+
+“待补充”新增登记未取得原因入口，预选对应材料类别，打开合成资料表单，填写材料名、保管/跟进人和原因/后续安排。新增 record_material_gap 后端动作：类别白名单、必填及长度校验，强制使用当前任务场所/月和真实登录操作者；复用版本存储、幂等键、并发检查、租户隔离及原子写入。
+
+保存为 DIRECTORY，original_seen=false，附加 dossivo-material-gap/0.1 说明；不可据此定位字段或确认原件，不增加提交进度、不发送通知、不授权披露。概览显示私密缺口历史，所有自填文字转义，中英意分别渲染。之后补交同类同范围合成材料可恢复概览提交覆盖，旧缺口记录及版本继续保留；历史提示明确不代表当前仍缺。既有基础评估对目录的保守资料不足判断不在本轮改写，因此本轮不声称完成缺口关闭/裁定。待后续建立明确的关联与复核关闭流程，不能仅靠上传同类文件删除历史缺口。
+
+测试301项通过、0失败、0跳过（新增4项）：持久化/来源隔离/私密投影，非法输入及幂等，补交后覆盖与历史保留，三语言及转义。日志 docs/evidence/material-gap-tests.log。TypeScript/diff通过。没有数据库迁移或PACI接口/Protocol变化，没有真实通知或真实原件开放。实际登录浏览器保存闭环尚未验收；生产构建与发布回执后补。GitHub本轮不重复同步。
+
+## 上线回执 · v76
+
+运行源码 `a9f16ba65d78ab08498a5c17926fbcf82e1a8bf5`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_eca58e6551fc8191a795772cb6c04c40`；部署 `appgdep_6aee770070588191b92f94e8d695441e`，succeeded。297项测试、类型检查、生产构建通过。登录后实际锚点滚动未验收；未新增数据库迁移/PACI契约，GitHub保持v73。
+
+## 2026-11-07 · 准备概览逐材料处理路径
+
+已提交/待核对卡片增加可展开的材料明细与原材料锚点，逐份显示材料确认、字段缺失/未定位、字段确认、重复候选四类待办。材料区新增对应定位目标与高亮。修正同类一份材料已确认而另一份待确认不显著的问题；也不再把整份材料声明已确认等同于所需字段已定位。当前范围以场所和月份精确匹配，跨范围材料不混入来源列表。
+
+当前概览的待核对规则更严格，但既有覆盖统计与冻结卡不重写。全部核对完成只表示准备待办已完成，不表示独立核验/法律合规。无新增授权、数据库迁移、PACI接口或正式政策。原材料标题安全转义，提示中英意分离；没有自动确认、删除候选或自动裁决。
+
+实际297项测试通过、0失败、0跳过（新增3项）：多材料待办不被掩盖、字段与材料状态分别处理、三语言提示/安全链接渲染。日志 docs/evidence/material-review-actions-tests.log。类型检查、diff通过；构建发布待回执。登录后的实际锚点滚动仍未做浏览器验收。GitHub本轮未同步，保持v73。
+
+## 上线回执 · v75
+
+运行源码 `53d1ffb7dda0a15d2eef158f0b0674d98039f0d8`；保存版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_fb55095dc738819191e5c520e59965f3`；部署 `appgdep_6aee7579f1448191b70ee1c8da932aa5`，succeeded。294项测试、类型检查、生产构建通过。准备概览位于打开后的私密任务材料区顶部；不是跨任务首页仪表盘。登录后跳转/手机端浏览器未验收。本轮无新数据库迁移，GitHub仍v73。
+
+## 2026-11-07 · 证据准备概览（本轮）
+
+在已打开的私密任务顶部增加四张概览卡：已提交、待补充、待核对、可进一步补强。读取当前任务已保存材料/字段与自选清单，无虚构经营数字。自选进度仅统计当前场所及月份的材料；跨范围材料单独提示，零项计划显示未选择而非100%。目录不计提交，企业确认不等于独立核验，重复指标即使已确认仍进入待核对。
+
+电费/社保/工资/产量/外部报告提供补强用途说明。真实账单、PDF/图片路径标明尚未开放，按钮明确为合成资料准备；点击打开现有表单并选定类别，不自动保存或授权。待核对链接进入字段确认区；调整清单展开既有设置。完整参考覆盖与历史L1/L2/L3范围详情折叠，突出四卡概览。界面中/英/意分别提供文案；原材料/场所内容保持原样且转义。采用响应式双列/单列布局。
+
+此概览只作为准备辅助，不改变原卡片覆盖算法、证据等级、披露权限、数据库、PACIscan或Protocol接口。待补充只是当前自选清单，不推定所有项目法定必交。未新增不适用裁定或真实文件处理。状态来自现有后端私密任务，未新增独立统计服务。
+
+实际294项测试通过（本轮新增4项），0失败、0跳过；测试涵盖目录/未提交、月份场所隔离、零项计划、确认后冲突仍提示、状态不变与三语言渲染转义。日志 docs/evidence/preparation-overview-tests.log。类型检查与diff通过；构建发布待回执。真实登录后的点击、滚动及移动端浏览器交互尚未验收。GitHub本轮不重复同步，仍为v73。
+
+## 上线回执 · v74
+
+运行源码 `3dc1631a74c168c353a3818837f5f6c8274c8ba6`；保存版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_34a6715db9148191989300d6423ed664`；部署 `appgdep_6aee73c8c9588191825b5cba669d7f50`，succeeded。290项测试、类型检查和生产构建通过。真实登录浏览器展开/定位尚未验收；上轮浏览器超时，本轮未重复尝试。GitHub保持v73，未再次同步。
+
+用户新议题：需要突出“已提交、还缺什么、可补充的交叉核对材料”的证据准备概览。建议沿用真实材料覆盖状态，区分用户待补充与产品尚未支持，不能把电费等上传直接认定为更高证据等级或合规分数。此议题尚未作为新Dashboard实施；下一轮优先核查现有覆盖面板与材料目录再落地。
+
+## 2026-11-07 · D1 候选冲突核对面板
+
+私密任务新增按指标归组的候选核对面板，逐条呈现材料标题、场所/月、原文引句及页行、解析值与企业确认值，并链接到对应确认记录。系统提示中/英/意分离；材料标题和引句原样转义显示。没有重复候选时不显示面板，重复组默认折叠。该面板基于当前任务，不把旧检查结果与新数字混合呈现。
+
+基础检查增加 candidate_conflicts，保留候选字段/材料编号、范围、引句位置、来源组及当时确认值；相关比率明确报告 AMBIGUOUS_INPUT 或 SCOPE_MISMATCH。检查器版本 dossivo-preparation/0.4，任务schema仍0.2；附加字段不改数据库/PACIscan/Protocol接口。冻结准备件保留当时冲突快照，后续更正不改旧卡。买方基本投影继续白名单，不披露新增冲突明细。没有排除候选、自动裁决或独立核验；用户仍须核对原文，不因多份材料增加独立佐证。
+
+实际测试290项通过、0失败、0跳过；新增3项验证冲突快照/冻结后不变/买方不泄露、跨范围及空状态、三语言渲染转义与定位链接。日志 docs/evidence/candidate-review-tests.log；TypeScript与diff检查通过。生产构建/发布回执待补。真实登录后的展开、锚点跳转未进行浏览器验收。仅合成资料，真实OCR/模型解析和正式链上证明仍未开启。本轮未再次同步GitHub，GitHub保持上轮v73与79b9fb7回执。
+
 ## GitHub 同步回执 · v73 · 2026-11-07
 
 公开仓库 JUGCODE/DOSSIVO 的 main 已核验包含源码提交 `8fee53cc6d5916bb9214c82b6838ec556a283954`，树 `3ada05f77cf9fe90505c702452da1e3a1f8f3a2c`，399个当前跟踪文件；此后仅追加本文档回执。不导入Sites历史，无保密合同正文、真实个人资料、运行数据库或密钥。运行版本v73及287项本地测试结果见下。源码同步不表示真实账号浏览器流程、正式PACI链上证明或真实数据处理已经验收。
@@ -636,3 +1180,114 @@ Direct messaging shows unread badge when authenticated unread_total is positive,
 Validation: existing 235 tests passed; TypeScript/diff checks passed. Log evidence/sidebar-work-layout-tests.log. No new tests added for reversible layout styling. No schema/migration, contractual policy or PACI permission change. Browser verification receipt follows. GitHub remains at v57 pending requested sync.
 
 Published Site v62 successfully: runtime e29f3ae4670d77aeb7109f5f7c88950b8fef4774; deployment appgdep_6aee49834f608191b016d524c8d75d38. Anonymous production browser at /zh: default expanded observed; clicked compact toggle; screenshot confirmed 2x2 and wide direct-message row with work tools visible; reload retained compact. Signed-in trigger/unread, narrow/mobile interaction remain unverified. GitHub remains v57.
+
+
+## 2026-11-07 · Round 41 (user correction: 21 was a typo), including unpublished round 40
+
+Both input documents were read: DOSSIVO 三栏工作界面规格 v1.docx and 做一组修改20261107.docx. New /workspace uses existing private evidence tasks, with persisted conversation messages, immutable result versions, task titles/pins/archive, owner-scoped UI preferences and action audits. Homepage prepare/header entry opens it; legacy evidence tools remain reachable. Desktop three columns, tablet result overlay and mobile drawer/bottom sheet are implemented. Homepage hero now emphasizes continuous records; direct messaging moves up and retains its two-person icon in the narrow sidebar. Chinese/English/Italian UI strings are supplied; source evidence is not translated.
+
+Backend migrations 0038 and 0039 are additive. Round 40 adds a dedicated-auth test checkout stop worker, atomic leases, bounded retry/backoff and review state. Hosted scheduling and its credential remain unconfigured; this is an engine, not an active scheduler. Round 41 result bodies are hash-checked and protected by append-only SQL triggers. Deleting a workspace task hides it, preserving existing evidence. Internal links do not grant access. Workspace list/messages/results have explicit technical limits, not subscription policy.
+
+Boundaries: real sensitive intake stays closed; generated drafts are rule-based synthetic preparation, not live AI or legal conclusions. Paid subscriptions and verified buyer organizations are not activated. External share creation fails closed in the backend. No new public links, QR codes, buyer-cap activation or paid entitlement is claimed. Existing PACI adapter/kernel and disclosure rules are unchanged. PDF uses browser print/save; DOCX and JSON download fixed snapshots. Browser preview was blocked by an existing managed dev server; responsive/focus/download interaction is NOT browser-verified. No public GitHub synchronization requested or performed.
+
+Validation: 525 unit/integration tests; 7 local HTTP/workerd/D1 workspace checks; 18 local payment/stop worker checks; TypeScript; DOCX ZIP/Unicode/XML/metadata parsing. Runtime fixtures are synthetic and do not verify production login or real Stripe. See evidence/round41-* and docs/ROUND41_ACCEPTANCE_MATRIX.md. Build/publication receipt recorded separately after completion.
+
+Published Site v123 successfully. Runtime commit cce9b24420cbd4d6512a462943caf37ad99f07a6; deployment appgdep_6aef4719d9e48191a150e4fc0b4fa08d; URL https://dossivo-outcome-workbench.xugv.chatgpt.site/workspace?lang=zh . Native publication succeeded; browser QA remains unverified as stated above. Public GitHub was not synchronized.
+
+
+## 2026-11-07 · Round 42 — workspace audit and authorized export
+
+Implemented the previously placeholder workspace-record action as an owner-only paginated record panel (Chinese/English/Italian), showing server-recorded task-data reads, result generation and task metadata actions, and export preparation with exact version and format. GET audit does not recursively create a read event. Pages use deterministic timestamp/id cursors (50 events + lookahead); response projection omits command payload hashes and internal actor identifiers. Migration 0040 adds an index and UPDATE/DELETE/REPLACE protection for workspace events; schema and migration snapshot updated. Existing history is retained; read/export tracking starts with this update, not retrospectively.
+
+Export now requests the exact immutable result from the authenticated backend and commits its preparation record before returning it; no client-cache fallback on failure. Export retries are idempotent and still recheck current task availability. Cross-owner/task result IDs, unsupported formats and caller-supplied scope are rejected. JSON/DOCX use returned fixed snapshot; browser print/PDF opens its window before asynchronous permission checking and closes it on failure. Audit explicitly does not claim completed download, offline-copy tracking or external buyer visits. Existing external buyer access logs are a separate system; no new sharing eligibility or buyer access is enabled here.
+
+Also added Markdown copy, corrected copy-success wording, and made Escape close the top modal without also closing the underlying result panel. Preview start again failed due to an existing managed dev server (PID 14, /site); status stopped. Infrastructure was not modified. Desktop/tablet/mobile touch/focus and print-dialog behavior remain NOT BROWSER VERIFIED.
+
+Verification: 530 tests PASS (5 added for owner audit, exact-version export/idempotency, cross-task/deleted-task denial, stable pagination and append-only SQL enforcement); 11 local HTTP/workerd/D1 workspace checks PASS (4 additional export/audit checks); TypeScript and diff checks PASS. These are synthetic runtime fixtures, not production login or actual buyer/Stripe tests. Evidence in evidence/round42-*. No real sensitive-data intake, live AI, PACI kernel change, paid activation or public GitHub sync. Next: browser verification when preview recovers; connect eligible external sharing only through verified subscription and buyer-organization authority. Publication receipt follows.
+
+Round 42 published as Site v124. Runtime commit 75bbd60e39371354606a88b459b755cadb188942; deployment appgdep_6aef4c4c9a3c8191b5fe9c18ea4f7981 succeeded. URL https://dossivo-outcome-workbench.xugv.chatgpt.site/workspace?lang=zh . Native deployment verified; browser interaction remains unverified. Public GitHub unchanged.
+
+
+## 2026-11-07 · Round 43 — human revision notes with immutable lineage
+
+Workspace result panel now offers Add revision note / Open latest version in Chinese, English and Italian. A saved human note appends a new result version and a conversation result card. The original rule-based narrative, material coverage, evidence snapshot, facility/period, private synthetic scope and non-verification flags remain unchanged. Human notes are visibly labeled and are included in plain/Markdown copy and PDF-print/DOCX/JSON exports. This is annotation, not editing source evidence or upgrading a compliance rating. Regenerating a fresh rule-based result uses current task evidence; prior annotated versions remain retained.
+
+Backend revise accepts only task_id, result_id, expected_hash and a nonempty note up to 2000 characters. It checks owner access, exact base hash and latest version of the same result type. A transactional guard detects another version or task deletion between read and commit; result, conversation card, updated timestamp and audit event commit together. Retried saves are idempotent, including a fresh availability check; cross-owner requests, forged evidence/scope fields, stale versions and deleted-task replay are rejected. Revision lineage records parent result ID/hash with kind HUMAN_NOTE. Audit projection includes revision version without note text. No schema migration or PACI kernel change.
+
+Validation: 535 tests PASS (5 new tests for immutable lineage, denied/stale inputs, rollback, simultaneous revision conflict, note limits/deleted replay); 14 local HTTP/workerd/D1 checks PASS (3 added for revision, stale rejection and exported snapshot lineage); TypeScript and diff checks PASS. Logs: evidence/round43-*. Local runtime uses synthetic data and does not test production login. Known managed preview blockage from rounds 41/42 remains unresolved; no recovery evidence, so browser/touch/print UI acceptance is still NOT VERIFIED and was not represented as passed.
+
+U6 is now partially completed with human annotation versions; unrestricted document/source editing is deliberately not introduced. Remaining: eligible external sharing/buyer-organization and billing integration; browser viewport and touch acceptance; full document editing only with explicit provenance design. Real sensitive intake and live AI remain disabled. No public GitHub sync. Publication receipt follows.
+
+Round 43 published as Site v125. Runtime commit 363f095eb6a2434dc73d5694e6a2c2e1d848f268; deployment appgdep_6aef4e1f93a88191a6a142b281750250 succeeded. URL https://dossivo-outcome-workbench.xugv.chatgpt.site/workspace?lang=zh . Native publication confirmed; browser interaction still unverified. Public GitHub unchanged.
+
+
+## 2026-11-07 · Round 44 — historical cited-source viewer
+
+Corrected result evidence chips: they now open an authenticated historical-source panel rather than the unrelated private-file staging panel. Backend verifies task ownership, active workspace task, result membership and cited material membership; loads the exact private-task version recorded by the result; verifies its full snapshot fingerprint; then returns a limited source projection. Readable content is restricted to synthetic text. Directory/unreadable sources return no text and never claim an original was reviewed. React renders source text as text, not HTML. No R2 file linkage or real-document preview is claimed.
+
+Successful source reads commit a source_read audit event before returning content. The workspace log records result/version without source text. Cross-owner, absent result, uncited/later-added material and deleted-task access are denied. The panel shows result/task version, snapshot ID, facility and period, with explicit historical-source wording. Result panels warn when the currently loaded task version differs and offer explicit regeneration from current materials; old results remain fixed. This warning is based on the latest fetched task state, not live monitoring. New rule-based results do not automatically carry forward manual notes; earlier annotated versions remain available.
+
+Validation: 540 tests PASS (5 new source access, historical isolation, deleted/foreign denial, directory-only and audit-failure checks); 17 local HTTP/workerd/D1 workspace checks PASS (3 new source runtime checks); TypeScript and diff checks PASS. Evidence: evidence/round44-*. Tests use synthetic fixtures, not production login. Browser/mobile/print verification remains outstanding due to the previously observed preview infrastructure conflict; no recovery was observed and no bypass was attempted. No new migration, subscription activation, sharing grant, AI inference, PACI kernel change or public GitHub synchronization. Four handoff documents updated; publication receipt follows.
+
+Round 44 published as Site v126. Runtime commit f4a342a73bcb7cc03e7f8268ff1f911d40a85716; deployment appgdep_6aef4ff67d2c81918c872f97e14934fb succeeded. URL https://dossivo-outcome-workbench.xugv.chatgpt.site/workspace?lang=zh . Native publication confirmed; browser UI remains unverified. Public GitHub unchanged.
+
+
+## 2026-11-07 · Round 45 — workspace material intake and gap recording
+
+Result checklist plus buttons now open a category-prefilled material panel instead of file staging. The composer also offers Add materials for an existing task. Chinese/English/Italian forms support synthetic text (title, category, bounded 2000-character text, task facility/period) and missing-material catalogue records (title, category, custodian, reason). Both require the user to confirm synthetic-only input in the UI. Text import additionally enforces synthetic_only on the existing server command. File staging remains separate and does not imply evidence linkage.
+
+Reuses authenticated /api/private-tasks with existing owner checks, expected-version CAS, idempotency and private-task operation audit; no duplicate evidence engine. Save retries retain request IDs while payload/version is unchanged. Saved material refreshes the workspace task without overwriting existing result snapshots; returning to a result exposes the newer-task warning and explicit regeneration. A catalogue record never counts as submitted. Only matching facility/period material contributes to coverage; neither text nor catalogue entries auto-confirm the company or claim verification/legal compliance. Asynchronous refresh after switching tasks is guarded so it does not reopen the previous task. Intake audit remains in private-task operations, not falsely claimed as a new workspace-log event.
+
+Validation: 544 tests PASS (4 new intake-to-result coverage, retry/stale-save, gap-only and synthetic/scope checks); 20 local HTTP/workerd/D1 checks PASS (3 additional intake, replay and regenerated coverage checks); TypeScript/diff checks PASS. Evidence: evidence/round45-*. Runtime is synthetic and does not validate production login. Browser/mobile/print acceptance remains pending because the known managed preview conflict has not recovered. No new migration, real-original intake, AI provider, PACI kernel, paid entitlement or public GitHub sync. Four handoff docs updated. Remaining: validate authenticated UI in recovered preview; eligible buyer sharing/billing integration; real file ingestion only after its existing gates are satisfied. Publication receipt follows.
+
+Round 45 published as Site v127. Runtime commit c75e363df5db5d8b25d44a46149d99376b76c3ef; deployment appgdep_6aef512174f081919790c3812b8b5496 succeeded. URL https://dossivo-outcome-workbench.xugv.chatgpt.site/workspace?lang=zh . Native publication verified; browser UI acceptance remains pending. Public GitHub unchanged.
+
+
+## 2026-11-07 · Round 46 — proof verification foundation (supplemental anti-phishing design)
+
+Read the full attached DOCX, including configuration and P1–P15 tables. Implemented /verify (ZH/EN/IT), explicit-submit code prefill, /security guidance, workspace entry, and legacy synthetic proof-page notices. Verification is NOT activated: no official domain, signing/rate keys or abuse channel was configured. UI says preparation; server fails closed with 503 rather than claiming NOT_FOUND or successful verification. Current hosted ChatGPT sign-in is accurately distinguished from a future official-domain login policy.
+
+Added internal-only registry/signature primitives, no public issuance endpoint: unbiased random 12-character code using prescribed alphabet; hashed code storage; full canonical snapshot hash with 16-hex display; metadata-only status projection; immutable registry fields/revocation history; region/key-ID HMAC-SHA256 tokens; old-key verification when retained. D1 fixed-window rate limits: 10 per trusted CF IP/minute and 30 per code/hour, short-lived keyed IP digests, expired bucket cleanup. Requires explicitly configured domain, key map, active key, region and separate rate key; only matching hostname may serve lookup. Migration 0041_gorgeous_beyonder and schema snapshot included.
+
+Critical qualification: copied codes/fingerprints do not authenticate a cloned page or prove unchanged visible content. The registry verifies a recorded snapshot/status, not evidence truth/legal compliance. Fingerprint is for the canonical snapshot, not a byte hash of PDF/DOCX. No chain anchor, direct snapshot hash publication on-chain, issuer/buyer names, customer relations or evidence body are exposed by lookup. Legacy /proof token rendering remains its prior mechanism and is NOT newly HMAC-protected; its UI explicitly says not integrated. Existing workspace sharing remains denied; entitlement/privacy gates unchanged.
+
+Validation: 550 tests PASS (6 new groups covering code/config, all-character token alteration, old-key rotation, privacy projection, revoked/expired states, rate bounds, immutable records/new versions); 8 local workerd WebCrypto/D1 runtime checks PASS; TypeScript and diff checks PASS. Evidence: evidence/round46-*. No production config, live signed sharing or browser/touch/print acceptance verified. This is foundation delivery, not P1–P15 completion. See docs/ROUND46_ANTI_PHISHING_ACCEPTANCE.md. No public GitHub sync or uploaded confidential document copied to source. Publication receipt follows.
+
+Round 46 foundation published as Site v128. Runtime commit e5e4e56c2e5edda079be922674ea809bf4f3a5c8; deployment appgdep_6aef531dd844819186a614f9aaeb75a7 succeeded. URL https://dossivo-outcome-workbench.xugv.chatgpt.site/verify?lang=zh . Verification remains explicitly unconfigured, no keys/domain or live issuance enabled. Browser acceptance pending. Public GitHub unchanged.
+
+
+## 2026-11-07 · Round 47 — proof-source lifecycle binding
+
+Founder explicitly deferred the official domain and abuse mailbox. Retain both as pending; do not repeatedly request them or invent values. No runtime secret/domain configuration or live verification activation performed.
+
+Added internal owner-checked binding from an existing synthetic proof link to a verification record, with an atomic CAS guard for source ownership, activity, expiry and frozen snapshot bytes/version. Binding and registry insertion roll back together; duplicate/racing binding returns a conflict. New migration 0042_sad_jimmy_woo protects binding identity and the frozen snapshot/recipient/scope/expiry of bound proof links. Registry records cannot silently follow a newer snapshot. Existing unbound legacy links are not relabeled or migrated.
+
+Verification now reads the original bound source: revoked/expired results disclose only state/date; exhausted views disclose EXHAUSTED; missing case or incompatible snapshot returns SOURCE_UNAVAILABLE. Public /api/verify explicitly requires a source binding, so standalone internal fixture records cannot report ACTIVE through it. Metadata lookup never consumes views or exposes the source bearer token. Signed token resolution checks signature, record and source before the existing proof route; matching configured host is required. The original route then rechecks access and atomically consumes a view/logs access. An independently signed token grants no extra visits. Invalid/disabled signed requests return a generic 404 without content. Config remains absent, so production signed access remains closed.
+
+Scope: this binds the existing synthetic controlled-summary demonstration, not paid workspace entitlements or verified buyer organisations. No public binding/issuance UI/API was added; owner tenant must come from the existing authenticated session integration, not client-supplied input. Native share modal/export code presentation and idempotent recoverable public issuance remain unfinished. Old proof-page notices remain accurate for the currently issued legacy test links. No mail, report queue, passkey, domain monitoring or PACI anchor changes.
+
+Validation: 559 tests PASS (9 new lifecycle, owner, rollback/race, exhaustion, immutable source, unbound-public-mode and actual signed-route tests); 11 local workerd/WebCrypto/D1 checks PASS (3 new binding/source-lifecycle checks); TypeScript/diff checks PASS. Existing proof-route tests now substitute Cloudflare env with fixtures while running actual signature module, Drizzle predicates and SQLite. No real domain, live token issuance, production login or browser acceptance claimed. Evidence in evidence/round47-*. Four handoff documents updated; GitHub not synchronized. Publication receipt follows.
+
+Round 47 published as Site v129. Runtime commit 0ecb94afa126f55ea86eddf63947a858ca660672; deployment appgdep_6aef599769608191b56a1bc3d2df6c78 succeeded. URL https://dossivo-outcome-workbench.xugv.chatgpt.site . Domain/mailbox remain deferred by founder; signed issuance remains disabled. Browser acceptance pending. Public GitHub unchanged.
+
+
+## 2026-11-07 · Round 48 — homepage privacy subtitle
+
+Applied the requested temporary homepage copy correction. Chinese hero subtitle is now: 保护资料安全与企业隐私，由你决定向谁披露，按授权范围交付。 English and Italian equivalents emphasize sensitive information, business privacy, recipient choice and authorised scope. Hero title and eyebrow remain unchanged. No claim of absolute security, independent verification or activated sharing is introduced.
+
+This round is a focused copy change. No backend, schema, pricing, permissions or PACI compatibility changes. Official domain/abuse email remain deferred; no production verification activation. Validation: 27 existing workflow/newsletter tests PASS, TypeScript and diff checks PASS. The earlier 559-test suite is historical and was not rerun or counted as this round’s result. No new tests for this reversible text-only edit. Browser responsive layout remains unverified under the existing preview environment limitation. Four handoff documents updated; no public GitHub sync. Next resume remaining signed-share issuance/export integration and other previously documented acceptance gaps. Publication receipt follows.
+
+Round 48 published as Site v130. Runtime commit 55620e6403fa70d04f2c0d35a385dd58866b29c4; deployment appgdep_6aef5a715b5c8191814045304c08203e succeeded. URL https://dossivo-outcome-workbench.xugv.chatgpt.site/zh . Copy-only update; browser layout unverified. Public GitHub unchanged.
+
+
+## Round 49 — recoverable verification issuance (2026-11-07)
+
+Internal owner-bound issuance now recovers the same verification code, signed token, fingerprint and verification URL after a lost response, process restart or concurrent retry. The original random registry ID is retained. A domain-separated HMAC derivation produces the code with rejection sampling; plaintext codes and signing secrets are not stored in the database. Migration 0043 adds immutable receipts containing registry ID, original key ID, region and domain only. Registry, binding and receipt are committed atomically.
+
+Every retry rechecks source ownership, frozen snapshot integrity, registry/source revocation, expiry and remaining visits. No visit allowance is reset. Retaining the original key permits recovery after active-key rotation; missing/replaced keys or changed domain/region fail closed. Older bindings without receipts cannot silently receive replacement codes. No public issuance endpoint or new sharing entitlement is enabled. Official domain and abuse mailbox remain deferred by the founder; production signing configuration remains absent. PACI kernel/protocol and disclosure policy are unchanged.
+
+Validation: 564 unit/integration tests PASS, including 5 new recovery groups; 13 local workerd/WebCrypto/D1 checks PASS, including retry and restart recovery; TypeScript and diff checks PASS. Logs: evidence/round49-*. These are synthetic checks, not production user or buyer acceptance. Browser/mobile/print verification remains pending due to the previously recorded managed preview conflict. Actual share modal/export integration and production activation remain outstanding.
+
+GitHub synchronization is explicitly requested this round. Source, migrations, tests, validation evidence and development handoff documents are included; secrets, runtime data, real customer/personal records and uploaded confidential contracts/specification attachments are excluded. Publication and GitHub receipts follow after confirmed completion.
+
+Round 49 published as Site v131. Runtime commit f6b1022e7d33f22065391aba6a930f8192ba48f6; deployment appgdep_6aef5c87bf348191b20eb36bb25e7da9 succeeded. URL https://dossivo-outcome-workbench.xugv.chatgpt.site . Source recovery is internal only; production signing remains disabled. Browser acceptance pending. Public GitHub synchronization in progress.

@@ -1,0 +1,35 @@
+✔ the founding briefing is complete and aligned across three languages (1.623629ms)
+✔ briefing actions tell businesses what to do without presenting Dossivo tasks (0.295188ms)
+✔ an issue cannot be published when a language version is missing (0.300024ms)
+✔ newsletter language and email display are deterministic (0.140182ms)
+✔ subscription remains separate from registration and delivery (0.379695ms)
+✔ home and sidebar expose a working trilingual briefing entry (0.597274ms)
+✔ workflow advances only when each result artifact exists (1.35993ms)
+✔ risk score increases for evidence gaps but remains bounded (0.192021ms)
+✔ upstream evidence-chain answer creates a visible remediation finding (0.241415ms)
+✔ multilingual cards preserve critical numbers and disclaimer (0.37615ms)
+✔ expert records are explicitly non-production demo profiles (0.133983ms)
+✔ Brussels readiness targets use the specified CET and CEST instants (0.782214ms)
+✔ deadline ticker cleanup clears its interval (0.550784ms)
+✔ quick check waits for all four answers and includes company governance (0.169697ms)
+✔ regulatory readiness answers create traceable remediation findings (0.216298ms)
+✔ full readiness check covers scope, due diligence, evidence continuity and response (0.25814ms)
+✔ time-point evidence query handles overlap, expiry and dates before first evidence (0.279954ms)
+✔ continuity timeline highlights a coverage gap (0.64652ms)
+✔ expiry reminders and supplier messages are deterministic and trilingual (0.602402ms)
+✔ home copy preserves the legal distinction between suspicion and a prohibition decision (0.451204ms)
+✔ the trilingual task launcher routes urgent intent into the urgent workflow (0.172772ms)
+✔ the hero presents an honest trilingual intelligent-workflow prototype (0.357682ms)
+✔ attachment copy is precise and aligned across all three languages (0.225211ms)
+✔ supplier follow-up copy promises reviewable drafts, not automatic outreach (0.327526ms)
+✔ language controls use local flag artwork rather than regional-indicator emoji (0.550334ms)
+✔ the hero quick check can collapse and remembers the user's choice (0.324171ms)
+✔ a multilingual accessible back-to-top control appears after the hero (0.300044ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 135.039849

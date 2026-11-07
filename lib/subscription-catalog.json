@@ -1,0 +1,69 @@
+{
+  "version": "2026-11-07.1",
+  "currency": "EUR",
+  "checkout_enabled": false,
+  "plans": [
+    {
+      "id": "free",
+      "annual": 0,
+      "monthly": null,
+      "factories": 0,
+      "active_buyer_organizations": 0,
+      "supplier_relationships": 0,
+      "quote_required": false
+    },
+    {
+      "id": "starter",
+      "annual": 490,
+      "monthly": 49,
+      "factories": 1,
+      "active_buyer_organizations": 3,
+      "supplier_relationships": 0,
+      "quote_required": false
+    },
+    {
+      "id": "business",
+      "annual": 1490,
+      "monthly": 149,
+      "factories": 3,
+      "active_buyer_organizations": null,
+      "supplier_relationships": 0,
+      "quote_required": false
+    },
+    {
+      "id": "export",
+      "annual": 3900,
+      "monthly": 390,
+      "factories": null,
+      "active_buyer_organizations": null,
+      "supplier_relationships": 20,
+      "quote_required": true
+    },
+    {
+      "id": "enterprise",
+      "annual": 9800,
+      "monthly": null,
+      "factories": null,
+      "active_buyer_organizations": null,
+      "supplier_relationships": 50,
+      "quote_required": true
+    }
+  ],
+  "founder": {
+    "eligible": [
+      "starter",
+      "business",
+      "export"
+    ],
+    "annual_discount": 0.5,
+    "paid_independent_companies": 100,
+    "deadline": "2027-06-30",
+    "renewal": "Years 2 and 3: original undiscounted contracted annual price"
+  },
+  "cn_reference_annual": {
+    "starter": 3800,
+    "business": 11800,
+    "export": 29800
+  },
+  "cn_checkout_enabled": false
+}

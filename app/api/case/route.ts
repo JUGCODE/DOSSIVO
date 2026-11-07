@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { and, desc, eq, or } from "drizzle-orm";
-import { getChatGPTUser } from "@/app/chatgpt-auth";
+import { getCurrentUser } from "@/app/auth";
 import { getDb } from "@/db";
 import { agentRuns, evidenceVersions, outcomeCases, proofAccessLogs, proofLinks, workflowSteps } from "@/db/schema";
 import { readDemoCommand, resolveDemoSession } from "@/lib/demo-session";
@@ -66,7 +66,7 @@ async function loadOrCreate(tenantId: string) {
 export async function GET(request: Request) {
   let sessionCookie: string | null = null;
   try {
-    const user = await getChatGPTUser();
+    const user = await getCurrentUser();
     const session = resolveDemoSession(request, user?.userId ?? null, true);
     if (!session) throw new BridgeError("DEMO_SESSION_REQUIRED", "Open the demo workspace before making changes", 401);
     sessionCookie = session.setCookie;
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
       data?: Record<string, unknown>;
       idempotencyKey: string;
     };
-    const user = await getChatGPTUser();
+    const user = await getCurrentUser();
     const session = resolveDemoSession(request, user?.userId ?? null);
     if (!session) throw new BridgeError("DEMO_SESSION_REQUIRED", "Open the demo workspace before making changes", 401);
     const { row, state } = await loadOrCreate(session.tenantId);

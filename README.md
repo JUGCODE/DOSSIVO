@@ -2,17 +2,17 @@
 
 [Live application](https://dossivo-outcome-workbench.xugv.chatgpt.site)
 
-Current source includes private versioned synthetic evidence tasks, source/copy/translation lineage, all repeated field candidates, confirmation history, conservative ambiguity checks, private frozen cards, tiered buyer access, contact consent and structured evidence messaging, account contact preferences, and approval-gated partner applications/contracts.
+Current source includes private versioned synthetic evidence tasks, source/copy/translation lineage, all repeated field candidates and private conflict comparison, confirmation history, conservative ambiguity checks, private frozen cards, tiered buyer access, contact consent and structured evidence messaging, account contact preferences, and approval-gated partner applications/contracts.
 
 ## Verification and handoff
 
-Latest local suite: **287 passed, 0 failed**. TypeScript passed. See [release evidence](docs/RELEASE_EVIDENCE.json) for the exact deployed version, build status and limitations. Historical counts are not current results.
+Latest local suite: **314 passed, 0 failed**. TypeScript passed. See [release evidence](docs/RELEASE_EVIDENCE.json) for the exact deployed version, build status and limitations. Historical counts are not current results.
 
 - [Development status](docs/DOSSIVO_STATUS.md)
 - [Compatibility matrix](docs/PACI_COMPATIBILITY.md)
 - [Acceptance report](docs/ACCEPTANCE_REPORT.md)
 - [Handoff](docs/HANDOFF_DOSSIVO.md)
-- [Latest test log](docs/evidence/repeated-field-tests.log)
+- [Latest test log](docs/evidence/field-review-tests.log)
 - [Material lineage](docs/MATERIAL_LINEAGE.md)
 - [Build and runtime](docs/BUILD_AND_RUNTIME.md)
 

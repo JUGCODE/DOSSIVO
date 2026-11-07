@@ -1,0 +1,7 @@
+PASS D1 migrations and organisation creation
+PASS transactional invitation and explicit acceptance
+PASS member cannot read private membership roster
+PASS revocation and stale acceptance guard
+PASS failed mutation adds no event
+PASS restart preserves organisation, revocation and idempotency
+{"checks":6,"result":"PASS","runtime":"local Miniflare/workerd D1","production":false,"customer_data":false}

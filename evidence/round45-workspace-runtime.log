@@ -1,0 +1,21 @@
+PASS all migrations including workspace triggers apply in D1
+PASS HTTP workspace request persists private task and result
+PASS D1 idempotent replay
+PASS cross actor snapshot denied
+PASS caller cannot fabricate paid sharing entitlement
+PASS task messages and fixed result survive runtime restart
+PASS D1 protects immutable result against deletion
+PASS export reauthorizes and returns exact immutable snapshot
+PASS owner audit exposes bounded event metadata only
+PASS cross actor audit denied
+PASS D1 audit rows resist deletion
+PASS human note revision commits through HTTP and D1
+PASS stale revision rejected without overwriting newer result
+PASS revised export preserves snapshot and identifies human note lineage
+PASS historical cited material read verifies snapshot and returns exact synthetic text
+PASS cited source cannot be read by another actor
+PASS old result cannot cite material added after its snapshot
+PASS synthetic text intake commits through existing private task command
+PASS synthetic intake retry reuses original saved material
+PASS new result reflects matching intake without claiming company confirmation
+{"checks":20,"result":"PASS","runtime":"local HTTP Miniflare/workerd + D1","production_auth":false,"real_data":false}

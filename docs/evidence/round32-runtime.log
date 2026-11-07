@@ -1,0 +1,7 @@
+PASS D1 migrations and organisation creation
+PASS server-priced draft saved in D1
+PASS other account denied
+PASS stale save rolls back
+PASS previous price snapshot preserved
+PASS restart retains versions and safe replay
+{"checks":6,"result":"PASS","runtime":"local Miniflare/workerd D1","production":false,"customer_data":false}

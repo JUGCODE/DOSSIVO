@@ -317,3 +317,77 @@ export const dossivoPartnerApplications=sqliteTable('dossivo_partner_application
 export const dossivoPartnerApplicationEvents=sqliteTable('dossivo_partner_application_events',{
  operationId:text('operation_id').primaryKey().notNull(),ownerId:text('owner_id').notNull(),partnerType:text('partner_type').notNull(),revision:integer('revision').notNull(),actorId:text('actor_id').notNull(),action:text('action').notNull(),status:text('status').notNull(),reason:text('reason').notNull(),createdAt:text('created_at').notNull(),
 },t=>[uniqueIndex('partner_application_event_revision').on(t.ownerId,t.partnerType,t.revision)]);
+
+// Private staging only; not a verified material or a buyer disclosure.
+export const dossivoPrivateFiles=sqliteTable('dossivo_private_files',{
+ id:text('id').primaryKey().notNull(),ownerId:text('owner_id').notNull(),taskId:text('task_id').notNull(),requestKey:text('request_key').notNull(),
+ objectKey:text('object_key').notNull(),filename:text('filename').notNull(),mediaType:text('media_type').notNull(),sizeBytes:integer('size_bytes').notNull(),sha256:text('sha256').notNull(),
+ state:text('state').notNull(),createdAt:text('created_at').notNull(),updatedAt:text('updated_at').notNull(),
+},t=>[uniqueIndex('private_file_request').on(t.ownerId,t.requestKey),index('private_file_owner_task').on(t.ownerId,t.taskId),check('private_file_state',sql`${t.state} in ('UPLOADING','STORED_UNREVIEWED','DELETING','DELETED')`)]);
+
+// State history is private operational metadata, not a PACI or chain proof.
+export const dossivoPrivateFileEvents=sqliteTable('dossivo_private_file_events',{
+ sequence:integer('sequence').primaryKey({autoIncrement:true}),fileId:text('file_id').notNull(),ownerId:text('owner_id').notNull(),taskId:text('task_id').notNull(),
+ fromState:text('from_state'),toState:text('to_state').notNull(),recordedAt:text('recorded_at').notNull(),
+},t=>[index('private_file_events_owner_task_sequence').on(t.ownerId,t.taskId,t.sequence)]);
+
+export const dossivoOrganizations=sqliteTable('dossivo_organizations',{
+ id:text('id').primaryKey().notNull(),ownerId:text('owner_id').notNull().unique(),name:text('name').notNull(),country:text('country').notNull(),createdAt:text('created_at').notNull(),
+});
+export const dossivoOrganizationMembers=sqliteTable('dossivo_organization_members',{
+ organizationId:text('organization_id').notNull(),actorId:text('actor_id').notNull(),status:text('status').notNull(),version:integer('version').notNull(),updatedAt:text('updated_at').notNull(),
+},t=>[primaryKey({columns:[t.organizationId,t.actorId]}),index('org_member_actor').on(t.actorId,t.status),check('org_member_status',sql`${t.status} in ('INVITED','ACTIVE','REVOKED')`)]);
+export const dossivoOrganizationEvents=sqliteTable('dossivo_organization_events',{
+ id:text('id').primaryKey().notNull(),organizationId:text('organization_id').notNull(),actorId:text('actor_id').notNull(),subjectId:text('subject_id').notNull(),action:text('action').notNull(),createdAt:text('created_at').notNull(),
+},t=>[index('organization_event_history').on(t.organizationId,t.createdAt,t.id)]);
+export const dossivoOrganizationOperations=sqliteTable('dossivo_organization_operations',{
+ actorId:text('actor_id').notNull(),requestKey:text('request_key').notNull(),commandHash:text('command_hash').notNull(),organizationId:text('organization_id').notNull(),
+},t=>[primaryKey({columns:[t.actorId,t.requestKey]})]);
+
+export const dossivoSubscriptionDrafts=sqliteTable('dossivo_subscription_drafts',{
+ organizationId:text('organization_id').notNull(),version:integer('version').notNull(),actorId:text('actor_id').notNull(),requestKey:text('request_key').notNull(),commandHash:text('command_hash').notNull(),quoteJson:text('quote_json').notNull(),createdAt:text('created_at').notNull(),
+},t=>[primaryKey({columns:[t.organizationId,t.version]}),uniqueIndex('subscription_draft_request').on(t.actorId,t.requestKey)]);
+
+// Verified test-event receipts; test correlation only, never entitlement.
+export const dossivoPaymentTestReceipts=sqliteTable('dossivo_payment_test_receipts',{
+ checkoutSnapshotJson:text('checkout_snapshot_json'),eventId:text('event_id').primaryKey().notNull(),eventType:text('event_type').notNull(),objectId:text('object_id').notNull(),payloadHash:text('payload_hash').notNull(),eventCreated:integer('event_created').notNull(),receivedAt:text('received_at').notNull(),
+},t=>[index('payment_receipt_session').on(t.objectId,t.eventCreated,t.eventId)]);
+
+export const dossivoTestCheckoutOrders=sqliteTable('dossivo_test_checkout_orders',{
+ id:text('id').primaryKey().notNull(),organizationId:text('organization_id').notNull(),actorId:text('actor_id').notNull(),draftVersion:integer('draft_version').notNull(),requestKey:text('request_key').notNull(),commandHash:text('command_hash').notNull(),quoteJson:text('quote_json').notNull(),requestBody:text('request_body').notNull(),createdAt:text('created_at').notNull(),expiresAt:integer('expires_at').notNull(),sessionId:text('session_id'),checkoutUrl:text('checkout_url'),cancelRequestedAt:text('cancel_requested_at'),cancelResolvedAt:text('cancel_resolved_at'),cancelOutcome:text('cancel_outcome'),retryAttempts:integer('retry_attempts').notNull().default(0),retryNextAt:integer('retry_next_at').notNull().default(0),retryLeaseUntil:integer('retry_lease_until').notNull().default(0),retryLeaseToken:text('retry_lease_token'),retryLastCode:text('retry_last_code'),retryReview:integer('retry_review').notNull().default(0),
+},t=>[uniqueIndex('test_checkout_draft').on(t.organizationId,t.draftVersion),uniqueIndex('test_checkout_request').on(t.actorId,t.requestKey),uniqueIndex('test_checkout_session').on(t.sessionId)]);
+
+export const dossivoTestStopAttempts=sqliteTable('dossivo_test_stop_attempts',{
+ id:text('id').primaryKey().notNull(),orderId:text('order_id').notNull(),attempt:integer('attempt').notNull(),startedAt:integer('started_at').notNull(),finishedAt:integer('finished_at'),outcome:text('outcome').notNull(),
+},t=>[uniqueIndex('test_stop_attempt_number').on(t.orderId,t.attempt)]);
+
+export const dossivoWorkspaceTasks=sqliteTable('dossivo_workspace_tasks',{
+ taskId:text('task_id').primaryKey().notNull(),actorId:text('actor_id').notNull(),title:text('title').notNull(),titleSource:text('title_source').notNull(),pinned:integer('pinned').notNull().default(0),archivedAt:text('archived_at'),deletedAt:text('deleted_at'),updatedAt:text('updated_at').notNull(),
+});
+export const dossivoWorkspaceMessages=sqliteTable('dossivo_workspace_messages',{
+ id:text('id').primaryKey().notNull(),taskId:text('task_id').notNull(),actorId:text('actor_id').notNull(),role:text('role').notNull(),content:text('content').notNull(),resultId:text('result_id'),createdAt:text('created_at').notNull(),
+});
+export const dossivoWorkspaceResults=sqliteTable('dossivo_workspace_results',{
+ id:text('id').primaryKey().notNull(),taskId:text('task_id').notNull(),actorId:text('actor_id').notNull(),type:text('type').notNull(),title:text('title').notNull(),version:integer('version').notNull(),bodyJson:text('body_json').notNull(),bodyHash:text('body_hash').notNull(),createdAt:text('created_at').notNull(),
+},t=>[uniqueIndex('workspace_result_version').on(t.taskId,t.type,t.version)]);
+export const dossivoWorkspaceUi=sqliteTable('dossivo_workspace_ui',{
+ actorId:text('actor_id').primaryKey().notNull(),collapsed:integer('collapsed').notNull().default(0),rightWidth:integer('right_width').notNull().default(480),autoOpen:integer('auto_open').notNull().default(1),
+});
+export const dossivoWorkspaceEvents=sqliteTable('dossivo_workspace_events',{
+ id:text('id').primaryKey().notNull(),actorId:text('actor_id').notNull(),taskId:text('task_id').notNull(),action:text('action').notNull(),createdAt:text('created_at').notNull(),
+},t=>[index('workspace_event_page').on(t.actorId,t.taskId,t.createdAt,t.id)]);
+
+export const dossivoProofVerifications=sqliteTable('dossivo_proof_verifications',{
+ id:text('id').primaryKey().notNull(),shareId:text('share_id').notNull().unique(),codeHash:text('code_hash').notNull().unique(),snapshotHash:text('snapshot_hash').notNull(),layer:text('layer').notNull(),createdAt:text('created_at').notNull(),expiresAt:text('expires_at').notNull(),revokedAt:text('revoked_at'),
+});
+export const dossivoVerifyLimits=sqliteTable('dossivo_verify_limits',{
+ bucket:text('bucket').primaryKey().notNull(),count:integer('count').notNull(),expiresAt:integer('expires_at').notNull(),
+},t=>[index('verify_limit_expiry').on(t.expiresAt)]);
+
+export const dossivoProofVerificationBindings=sqliteTable('dossivo_proof_verification_bindings',{
+ registryId:text('registry_id').primaryKey().notNull(),proofToken:text('proof_token').notNull().unique(),
+});
+
+export const dossivoProofIssuanceReceipts=sqliteTable('dossivo_proof_issuance_receipts',{
+ registryId:text('registry_id').primaryKey().notNull(),keyId:text('key_id').notNull(),region:text('region').notNull(),domain:text('domain').notNull(),
+});

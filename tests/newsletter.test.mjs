@@ -51,7 +51,7 @@ test("newsletter language and email display are deterministic", () => {
 test("subscription remains separate from registration and delivery", () => {
   const api = readFileSync(new URL("../app/api/newsletter-preferences/route.ts", import.meta.url), "utf8");
   const client = readFileSync(new URL("../app/briefings/briefing-center.tsx", import.meta.url), "utf8");
-  assert.match(api, /getChatGPTUser/);
+  assert.match(api, /getCurrentUser/);
   assert.match(api, /payload\.consent !== true/);
   assert.match(api, /status: "pending_delivery"/);
   assert.match(api, /status: "unsubscribed"/);

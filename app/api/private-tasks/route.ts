@@ -1,5 +1,7 @@
+import {cardDownloadName} from '@/lib/card-download-name';
+import {fieldReviewSummary} from '@/lib/field-review-summary';
 import { env } from 'cloudflare:workers';
-import { getChatGPTUser } from '@/app/chatgpt-auth';
+import { getCurrentUser } from '@/app/auth';
 import { BridgeError } from '@/lib/paci-bridge-core';
 import { PrivateTaskStore } from '@/lib/private-task-store';
 import { TaskRegistrationStore } from '@/lib/task-registration-store';
@@ -11,15 +13,17 @@ export const dynamic='force-dynamic';
 const headers={'cache-control':'private, no-store','x-content-type-options':'nosniff'};
 function fail(e:unknown){return Response.json({code:e instanceof BridgeError?e.code:'TASK_UNAVAILABLE',error:e instanceof BridgeError?e.message:'Task unavailable'},{status:e instanceof BridgeError?e.status:503,headers});}
 export async function GET(req:Request){try{
-  const user=await getChatGPTUser();if(!user)throw new BridgeError('AUTH_REQUIRED','Sign in to open private tasks',401);
+  const user=await getCurrentUser();if(!user)throw new BridgeError('AUTH_REQUIRED','Sign in to open private tasks',401);
   const store=new PrivateTaskStore(env.DB),url=new URL(req.url),id=url.searchParams.get('task');
   if(!id&&url.searchParams.has('period'))return Response.json(await store.matching(user.userId,url.searchParams.get('period'),url.searchParams.get('before')??''),{headers});
-  if(!id)return Response.json({tasks:await store.list(user.userId)},{headers});
-  const card=url.searchParams.get('card');if(card){const saved=await store.exportCard(user.userId,id,card);if(url.searchParams.get('format')==='html')return new Response(cardHtml(basicProjection(saved,{fields:BASIC_FIELD_CODES,categories:MATERIAL_CATALOG.map(c=>c.code)}),url.searchParams.get("lang")??"en"),{headers:{...headers,'content-type':'text/html; charset=utf-8','content-disposition':'attachment; filename="DOSSIVO_Evidence_Card.html"','content-security-policy':"sandbox; default-src 'none'; style-src 'unsafe-inline'"}});return Response.json(saved,{headers});}
-  const state=await store.read(user.userId,id);return Response.json({state,coverage:coverageFor(state),outbox:await store.outbox(user.userId,id)},{headers});
+  if(!id)return Response.json(await store.listPage(user.userId,url.searchParams.get('before')??'',url.searchParams.get('q')??''),{headers});
+  if(url.searchParams.has('field_changes'))return Response.json(await store.fieldChanges(user.userId,id,url.searchParams.get('field_changes')),{headers});
+  if(url.searchParams.get('history')==='1')return Response.json(await store.history(user.userId,id,url.searchParams.get('before')??''),{headers});
+  const card=url.searchParams.get('card');if(card){const saved=await store.exportCard(user.userId,id,card);if(url.searchParams.get('format')==='html')return new Response(cardHtml(basicProjection(saved,{fields:BASIC_FIELD_CODES,categories:MATERIAL_CATALOG.map(c=>c.code)}),url.searchParams.get("lang")??"en"),{headers:{...headers,'content-type':'text/html; charset=utf-8','content-disposition':'attachment; filename="'+cardDownloadName(saved,url.searchParams.get('lang')??'en')+'"','content-security-policy':"sandbox; default-src 'none'; style-src 'unsafe-inline'"}});return Response.json(saved,{headers});}
+  const state=await store.read(user.userId,id);if(url.searchParams.get('review')==='1')return Response.json(fieldReviewSummary(state),{headers});return Response.json({state,coverage:coverageFor(state),outbox:await store.outbox(user.userId,id)},{headers});
 }catch(e){return fail(e);}}
 export async function POST(req:Request){try{
-  const user=await getChatGPTUser();if(!user)throw new BridgeError('AUTH_REQUIRED','Sign in to save private tasks',401);
+  const user=await getCurrentUser();if(!user)throw new BridgeError('AUTH_REQUIRED','Sign in to save private tasks',401);
   // Bounded, same-origin JSON reading. Route-specific fields are validated below.
   const input=await readDemoCommand(req);
   const data=input.data??{};

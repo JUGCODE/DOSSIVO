@@ -1,0 +1,8 @@
+PASS D1 migrations and organisation creation
+PASS server-priced draft saved in D1
+PASS upgrade preserves earlier saved amounts
+PASS D1 rejects all ordinary history overwrite paths
+PASS withdrawal appends without destroying preparation
+PASS owner-only history boundaries
+PASS restart retains withdrawal and replay
+{"checks":7,"result":"PASS","runtime":"local Miniflare/workerd D1","production":false,"customer_data":false}

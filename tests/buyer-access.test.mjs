@@ -220,6 +220,7 @@ test('published follow: historical and new downloads recheck revocation; tampere
  const f=await followFixture(t),s=await updatedCard(f,f.s);await f.access.publishSummary('exporter',await publication(f,s),'p');
  await assert.rejects(f.access.buyerRead('buyer-b',f.g.grant.id,'VIEWED',0),{code:'ACCESS_UNAVAILABLE'});
  for(const seq of [-1,9,0.5])await assert.rejects(f.access.buyerRead('buyer-a',f.g.grant.id,'VIEWED',seq),{code:'ACCESS_UNAVAILABLE'});
+ f.sqlite.exec('DROP TRIGGER summary_publications_no_update'); // Privileged corruption fixture retains read-integrity coverage.
  f.sqlite.prepare("UPDATE dossivo_summary_publications SET previous_hash='tampered'").run();
  await assert.rejects(f.access.buyerRead('buyer-a',f.g.grant.id),{code:'INTEGRITY_FAILED'});
  await f.access.revoke('exporter',f.g.grant.id,'rev');
@@ -289,3 +290,107 @@ test('buyer overview: filter precedes pagination, totals span pages and ownershi
  assert.deepEqual((await f.access.buyerOverview('buyer-b','ALL',a.next_before)).counts,{ALL:0,ACTIVE:0,EXPIRED:0,REVOKED:0});assert.equal((await f.access.buyerOverview('exporter','ALL')).grants.length,0);
 });
 test('buyer overview rejects invalid filters and cursors without widening scope',async t=>{const f=setup(t);for(const [status,cursor] of [['UNKNOWN',null],['ALL',''],['ALL','x'.repeat(129)],['ALL',42]])await assert.rejects(f.access.buyerOverview('buyer-a',status,cursor),{code:'INVALID_INPUT'});});
+test('Italian buyer download preserves selected disclosure and download event',async t=>{
+ const f=setup(t),s=await card(f),g=await f.access.createGrant('exporter',grantData(s),'italian-grant');await f.access.redeem('buyer-a',g.code,'italian-redeem');
+ const view=await f.access.buyerRead('buyer-a',g.grant.id,'DOWNLOADED'),before=structuredClone(view),html=cardHtml(view,'it');
+ assert.match(html,/Scheda delle evidenze di base/);assert.match(html,/Consumo elettrico mensile/);assert.doesNotMatch(html,/PRIVATE_COMPLAINT|PRICE_123|NOTE_123|SECRET_123/);assert.deepEqual(view,before);assert.equal(f.sqlite.prepare("SELECT count(*) n FROM dossivo_access_events WHERE kind='DOWNLOADED'").get().n,1);
+});
+test('buyer HTML response names the authorized card rather than the grant',async t=>{
+ const f=setup(t),s=await card(f),g=await f.access.createGrant('exporter',grantData(s),'filename-grant');await f.access.redeem('buyer-a',g.code,'filename-redeem');
+ const ts=(await import('typescript')).default,{createRequire}=await import('node:module'),require=createRequire(import.meta.url);
+ const output=ts.transpileModule(readFileSync(new URL('../app/api/basic-access/route.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+ const module={exports:{}};new Function('require','module','exports',output)(name=>{if(name==='cloudflare:workers')return {env:{DB:f.store.db}};if(name==='@/app/auth')return {getCurrentUser:async()=>({userId:'buyer-a'})};if(name==='@/lib/buyer-access-store')return {BuyerAccessStore:class{async buyerRead(...args){return f.access.buyerRead(...args);}}};if(name.startsWith('@/lib/'))return require('../lib/'+name.slice(6)+'.js');return require(name);},module,module.exports);
+ const r=await module.exports.GET(new Request('https://test.example/api/basic-access?'+new URLSearchParams({grant:g.grant.id,format:'html',lang:'zh'})));
+ assert.equal(r.status,200);const name=r.headers.get('content-disposition');assert.ok(name.includes(s.cards[0].id));assert.ok(!name.includes(g.grant.id));assert.match(name,/_zh.html/);assert.match(r.headers.get('cache-control'),/no-store/);
+});
+test('published history rejects updates deletes and both replacement conflict paths',async t=>{
+ const f=await followFixture(t),s=await updatedCard(f,f.s);await f.access.publishSummary('exporter',await publication(f,s),'protected-publish');
+ const original=f.sqlite.prepare('SELECT * FROM dossivo_summary_publications').all();
+ for(const recursive of [0,1]){f.sqlite.exec('PRAGMA recursive_triggers='+recursive);
+  for(const sql of ["UPDATE dossivo_summary_publications SET snapshot_json='{}'","DELETE FROM dossivo_summary_publications","INSERT OR REPLACE INTO dossivo_summary_publications SELECT id,grant_id,sequence+100,card_id,snapshot_json,snapshot_hash,previous_hash,created_at FROM dossivo_summary_publications","INSERT OR REPLACE INTO dossivo_summary_publications SELECT id||'new',grant_id,sequence,card_id,snapshot_json,snapshot_hash,previous_hash,created_at FROM dossivo_summary_publications"]){assert.throws(()=>f.sqlite.exec(sql),/PUBLICATION_HISTORY_APPEND_ONLY/);assert.deepEqual(f.sqlite.prepare('SELECT * FROM dossivo_summary_publications').all(),original);}
+ }
+ assert.equal((await f.access.buyerRead('buyer-a',f.g.grant.id)).publication_sequence,1);
+});
+test('grant original snapshot scope and identity stay fixed while redemption publication and revocation work',async t=>{
+ const f=setup(t);const s=await card(f),g=await f.access.createGrant('exporter',{...continuous(s),version_policy:'FOLLOW_PUBLISHED'},'protected-grant');f.g=g;
+ const original=f.sqlite.prepare('SELECT * FROM dossivo_basic_grants').get();
+ for(const col of ['id','owner_id','task_id','card_id','code_hash','snapshot_json','snapshot_hash','choice_json','created_at','expires_at','access_mode','purpose','version_policy'])assert.throws(()=>f.sqlite.prepare('UPDATE dossivo_basic_grants SET '+col+'=? WHERE id=?').run('changed',g.grant.id),/GRANT_SNAPSHOT_IMMUTABLE/);
+ assert.throws(()=>f.sqlite.exec('DELETE FROM dossivo_basic_grants'),/GRANT_SNAPSHOT_IMMUTABLE/);
+ assert.throws(()=>f.sqlite.exec('INSERT OR REPLACE INTO dossivo_basic_grants SELECT * FROM dossivo_basic_grants'),/GRANT_SNAPSHOT_IMMUTABLE/);
+ assert.deepEqual(f.sqlite.prepare('SELECT * FROM dossivo_basic_grants').get(),original);
+ await f.access.redeem('buyer-a',g.code,'protected-redeem');const updated=await updatedCard(f,s),preview=await publication(f,updated);await f.access.publishSummary('exporter',preview,'protected-p');await f.access.publishSummary('exporter',preview,'protected-p');
+ assert.equal((await f.access.buyerRead('buyer-a',g.grant.id,'DOWNLOADED',0)).publication_sequence,0);assert.equal((await f.access.buyerRead('buyer-a',g.grant.id)).publication_sequence,1);
+ await f.access.revoke('exporter',g.grant.id,'protected-revoke');await assert.rejects(f.access.buyerRead('buyer-a',g.grant.id),{code:'ACCESS_UNAVAILABLE'});assert.equal(f.sqlite.prepare('SELECT snapshot_json FROM dossivo_basic_grants').get().snapshot_json,original.snapshot_json);
+});
+test('access history blocks rewriting deletion replacement and upsert without altering saved events',async t=>{
+ const f=setup(t),s=await card(f),g=await f.access.createGrant('exporter',continuous(s),'audit-grant');await f.access.redeem('buyer-a',g.code,'audit-redeem');await f.access.buyerRead('buyer-a',g.grant.id,'DOWNLOADED');
+ const before=f.sqlite.prepare('SELECT * FROM dossivo_access_events ORDER BY id').all();
+ for(const recursive of [0,1]){f.sqlite.exec('PRAGMA recursive_triggers='+recursive);for(const sql of ["UPDATE dossivo_access_events SET kind='REVOKED'","DELETE FROM dossivo_access_events","INSERT OR REPLACE INTO dossivo_access_events SELECT * FROM dossivo_access_events","INSERT INTO dossivo_access_events SELECT * FROM dossivo_access_events WHERE 1 ON CONFLICT(id) DO UPDATE SET kind='VIEWED'"]){assert.throws(()=>f.sqlite.exec(sql),/ACCESS_HISTORY_APPEND_ONLY/);assert.deepEqual(f.sqlite.prepare('SELECT * FROM dossivo_access_events ORDER BY id').all(),before);}}
+ const afterRead=await f.access.buyerRead('buyer-a',g.grant.id);assert.ok(afterRead.snapshot);assert.equal(f.sqlite.prepare('SELECT count(*) n FROM dossivo_access_events').get().n,before.length+1);
+});
+test('protected access history preserves revoke workflow and adds no download event for denied access',async t=>{
+ const f=setup(t),s=await card(f),g=await f.access.createGrant('exporter',continuous(s),'audit-revoke-grant');await f.access.redeem('buyer-a',g.code,'audit-revoke-redeem');
+ await f.access.revoke('exporter',g.grant.id,'audit-revoke');const before=f.sqlite.prepare('SELECT * FROM dossivo_access_events ORDER BY id').all();
+ await assert.rejects(f.access.buyerRead('buyer-a',g.grant.id,'DOWNLOADED'),{code:'ACCESS_UNAVAILABLE'});await f.access.revoke('exporter',g.grant.id,'audit-revoke');assert.deepEqual(f.sqlite.prepare('SELECT * FROM dossivo_access_events ORDER BY id').all(),before);
+ assert.equal(before.filter(e=>e.kind==='REVOKED').length,1);assert.equal(before.filter(e=>e.kind==='DOWNLOADED').length,0);
+});
+test('redeemed grant cannot be rebound reset or retimestamped and still revokes normally',async t=>{
+ const f=setup(t),s=await card(f),g=await f.access.createGrant('exporter',continuous(s),'binding-guard');await f.access.redeem('buyer-a',g.code,'binding-redeem');
+ const original=f.sqlite.prepare('SELECT * FROM dossivo_basic_grants WHERE id=?').get(g.grant.id);
+ for(const sql of ["UPDATE dossivo_basic_grants SET redeemed_by='buyer-b' WHERE id=?","UPDATE dossivo_basic_grants SET redeemed_by=NULL,redeemed_at=NULL WHERE id=?","UPDATE dossivo_basic_grants SET redeemed_at='different' WHERE id=?"]){assert.throws(()=>f.sqlite.prepare(sql).run(g.grant.id),/GRANT_REDEMPTION_FIXED/);assert.deepEqual(f.sqlite.prepare('SELECT * FROM dossivo_basic_grants WHERE id=?').get(g.grant.id),original);}
+ await f.access.redeem('buyer-a',g.code,'binding-redeem');assert.ok((await f.access.buyerRead('buyer-a',g.grant.id)).snapshot);await f.access.revoke('exporter',g.grant.id,'binding-revoke');await assert.rejects(f.access.buyerRead('buyer-a',g.grant.id),{code:'ACCESS_UNAVAILABLE'});
+});
+test('revocation timestamp cannot be cleared or changed and fresh grants remain possible',async t=>{
+ const f=setup(t),s=await card(f),g=await f.access.createGrant('exporter',continuous(s),'final-revoke-grant');await f.access.revoke('exporter',g.grant.id,'final-revoke');
+ const original=f.sqlite.prepare('SELECT * FROM dossivo_basic_grants WHERE id=?').get(g.grant.id);
+ for(const value of [null,'','2027-01-01'])assert.throws(()=>f.sqlite.prepare('UPDATE dossivo_basic_grants SET revoked_at=? WHERE id=?').run(value,g.grant.id),/GRANT_REVOCATION_FINAL/);
+ assert.throws(()=>f.sqlite.prepare("UPDATE dossivo_basic_grants SET redeemed_by='buyer-a',redeemed_at='2026-11-07' WHERE id=?").run(g.grant.id),/GRANT_REDEMPTION_FIXED/);
+ await f.access.revoke('exporter',g.grant.id,'final-revoke');assert.deepEqual(f.sqlite.prepare('SELECT * FROM dossivo_basic_grants WHERE id=?').get(g.grant.id),original);
+ const fresh=await f.access.createGrant('exporter',continuous(s),'new-after-revocation');assert.notEqual(fresh.grant.id,g.grant.id);await f.access.redeem('buyer-a',fresh.code,'new-redeem');assert.ok((await f.access.buyerRead('buyer-a',fresh.grant.id)).snapshot);
+});
+test('partial redemption writes fail without preventing valid first redemption',async t=>{
+ const f=setup(t),s=await card(f),g=await f.access.createGrant('exporter',continuous(s),'partial-redemption');
+ for(const sql of ["UPDATE dossivo_basic_grants SET redeemed_by='buyer-a' WHERE id=?","UPDATE dossivo_basic_grants SET redeemed_at='time' WHERE id=?","UPDATE dossivo_basic_grants SET redeemed_by='',redeemed_at='time' WHERE id=?"] )assert.throws(()=>f.sqlite.prepare(sql).run(g.grant.id),/GRANT_REDEMPTION_FIXED/);
+ assert.equal(f.sqlite.prepare('SELECT redeemed_by FROM dossivo_basic_grants WHERE id=?').get(g.grant.id).redeemed_by,null);await f.access.redeem('buyer-a',g.code,'valid-first-redemption');assert.ok((await f.access.buyerRead('buyer-a',g.grant.id)).snapshot);
+});
+
+test('new grants exclude confirmed same-code fields outside the fixed card scope',async t=>{
+ const f=setup(t);let s=await card(f);const original=structuredClone(s.cards[0]);
+ for(const [facility,period] of [['Other factory','2026-10'],['合成工厂A','2026-09']]){
+  s=await command(f.store,s,'import_text',{synthetic_only:true,title:'Other scoped synthetic',text:'用电量：999999kWh',categories:['electricity'],facility,period});
+  s=await command(f.store,s,'locate_fields',{material_id:s.materials.at(-1).id});
+  s=await command(f.store,s,'confirm_field',{field_id:s.fields.at(-1).id,value:999999,reason:'Synthetic scope test'});
+ }
+ s=await command(f.store,s,'assess');s=await command(f.store,s,'freeze_card');
+ assert.deepEqual(s.cards[0],original);
+ const g=await f.access.createGrant('exporter',{...grantData(s),fields:['kwh_monthly']},'scoped-grant');
+ await f.access.redeem('buyer-a',g.code,'scoped-redeem');
+ const {snapshot}=await f.access.buyerRead('buyer-a',g.grant.id);
+ assert.equal(snapshot.parameters.length,1);assert.equal(snapshot.parameters[0].value,2000);
+ assert.equal(snapshot.assessment.insufficient,true); // Filtering must not clear the underlying ambiguity.
+ assert.doesNotMatch(JSON.stringify(snapshot),/999999|Other factory|2026-09/);
+ for(const lang of ['zh','en','it'])assert.doesNotMatch(cardHtml(snapshot,lang),/999999|Other factory|2026-09/);
+ await assert.rejects(f.access.buyerRead('buyer-b',g.grant.id),{code:'ACCESS_UNAVAILABLE'});
+ const continuous=await f.access.createGrant('exporter',{...grantData(s),fields:[],access_mode:'CONTINUOUS_SUMMARY'},'scoped-summary');
+ await f.access.redeem('buyer-a',continuous.code,'scoped-summary-redeem');
+ assert.deepEqual((await f.access.buyerRead('buyer-a',continuous.grant.id)).snapshot.parameters,[]);
+});
+
+test('owner access log: account, time and exact card; no other-owner access or confidential bodies; survives revoke',async t=>{
+ const f=setup(t),s=await card(f),g=await f.access.createGrant('exporter',grantData(s),'audit-g');
+ await f.access.redeem('buyer-a',g.code,'audit-r');await f.access.buyerRead('buyer-a',g.grant.id,'DOWNLOADED');
+ await f.access.revoke('exporter',g.grant.id,'audit-revoke');
+ const log=await f.access.ownerAccessLog('exporter',s.task_id);
+ assert.equal(log.events.length,5);const e=log.events.find(e=>e.kind==='DOWNLOADED');assert.equal(e.actor_id,'buyer-a');assert.equal(e.created_at,f.clock());assert.equal(e.card_id,s.cards.at(-1).id);
+ for(const secret of [g.code,'PRIVATE_COMPLAINT','NOTE_123','PRICE_123','snapshot_json','code_hash'])assert.ok(!JSON.stringify(log).includes(secret));
+ for(const who of ['buyer-a','buyer-b','other-owner'])await assert.rejects(f.access.ownerAccessLog(who,s.task_id),{code:'TASK_NOT_FOUND'});
+ const other=await card(f);assert.equal((await f.access.ownerAccessLog('exporter',other.task_id)).events.length,0);
+ await assert.rejects(f.access.ownerAccessLog('exporter',s.task_id,'{}'),{code:'INVALID_INPUT'});
+});
+
+test('owner access log: stable pagination across identical timestamps without lost or duplicate events',async t=>{
+ const f=setup(t),s=await card(f),g=await f.access.createGrant('exporter',grantData(s),'page-g');await f.access.redeem('buyer-a',g.code,'page-r');
+ for(let i=0;i<60;i++)await f.access.buyerRead('buyer-a',g.grant.id);
+ const a=await f.access.ownerAccessLog('exporter',s.task_id);assert.equal(a.events.length,50);assert.ok(a.next_before);
+ const b=await f.access.ownerAccessLog('exporter',s.task_id,a.next_before);assert.equal(b.events.length,13);assert.equal(b.next_before,null);assert.equal(new Set([...a.events,...b.events].map(e=>e.id)).size,63);
+});

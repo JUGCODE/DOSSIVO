@@ -42,7 +42,7 @@ function fixture(context) {
   const replacements = {
     "@/db": { getDb: () => database },
     "@/db/schema": schema,
-    "@/app/chatgpt-auth": { getChatGPTUser: async () => activeUser },
+    "@/app/auth": { getCurrentUser: async () => activeUser },
     "@/lib/workflow-core": workflow,
     "@/lib/demo-session": demoSession,
     "@/lib/paci-bridge-core": bridgeCore,

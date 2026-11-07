@@ -1,0 +1,19 @@
+PASS all migrations applied in D1
+PASS workerd rejects forged HMAC
+PASS workerd WebCrypto verifies request and persists receipt
+PASS D1 deduplicates redelivery
+PASS live events denied
+PASS metadata minimization and no subscription activation
+PASS restart retains deduplication
+PASS signed checkout snapshot matches persisted test order in workerd/D1 without activation
+PASS test status denies unrelated actor (local service fixture)
+PASS reconciliation survives runtime restart
+PASS conflicting signed receipts require review
+PASS test stop records request and provider expiry in D1 (synthetic outbound fixture)
+PASS confirmed stop survives restart without granting access
+PASS unbound test order recovers and expires without exposing a checkout URL (synthetic provider)
+PASS recovered binding and stop confirmation survive restart
+PASS background service denies requests without dedicated credential
+PASS authenticated worker claims, expires and records a stop atomically (synthetic provider)
+PASS worker state survives restart and terminal stop is not repeated
+{"checks":18,"result":"PASS","runtime":"local HTTP Miniflare/workerd WebCrypto + D1","production":false,"real_stripe":false}
