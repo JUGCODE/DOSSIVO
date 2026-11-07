@@ -44,7 +44,7 @@
     "typecheck": "PASS",
     "worker_build": "PASS",
     "browser_signed_in": "NOT VERIFIED",
-    "github_sync": "pending"
+    "github_sync": "verified main source snapshot 8fee53cc6d5916bb9214c82b6838ec556a283954"
   },
   "release_history": [
     {
@@ -291,7 +291,7 @@
     "test_log": "docs/evidence/repeated-field-tests.log",
     "typecheck": "PASS",
     "publication": "succeeded: v73",
-    "github_sync": "pending",
+    "github_sync": "verified main source snapshot 8fee53cc6d5916bb9214c82b6838ec556a283954",
     "browser_signed_in": "NOT VERIFIED",
     "worker_build": "PASS"
   },
@@ -661,5 +661,14 @@
     "browser_qa": "Authenticated workflow NOT VERIFIED",
     "scope": "D1/DS07 same-task synthetic material lineage",
     "github_sync": "Not performed"
+  },
+  "github_latest_sync": {
+    "source_commit": "8fee53cc6d5916bb9214c82b6838ec556a283954",
+    "tree": "3ada05f77cf9fe90505c702452da1e3a1f8f3a2c",
+    "files": 399,
+    "branch": "main",
+    "repository": "JUGCODE/DOSSIVO",
+    "method": "Current sanitized source tree, parented only to existing GitHub history",
+    "verified": true
   }
 }

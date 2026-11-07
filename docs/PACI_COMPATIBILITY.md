@@ -1,6 +1,10 @@
+## GitHub 同步回执 · v73 · 2026-11-07
+
+公开仓库 JUGCODE/DOSSIVO 的 main 已核验包含源码提交 `8fee53cc6d5916bb9214c82b6838ec556a283954`，树 `3ada05f77cf9fe90505c702452da1e3a1f8f3a2c`，399个当前跟踪文件；此后仅追加本文档回执。不导入Sites历史，无保密合同正文、真实个人资料、运行数据库或密钥。运行版本v73及287项本地测试结果见下。源码同步不表示真实账号浏览器流程、正式PACI链上证明或真实数据处理已经验收。
+
 ## 上线回执 · v73
 
-运行源码 `1aea6e58f06eb6d139bf3cb93c6d44cc2a954342`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_34e6c42a27e4819199ea40b1aff956a3`；部署 `appgdep_6aee6c5c91bc8191b19e15e5d90ea307`，succeeded。287项测试、类型检查、生产构建通过；真实登录浏览器闭环未验收。GitHub当前快照同步正在执行，回执另记；不包含Sites历史提交。
+运行源码 `1aea6e58f06eb6d139bf3cb93c6d44cc2a954342`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_34e6c42a27e4819199ea40b1aff956a3`；部署 `appgdep_6aee6c5c91bc8191b19e15e5d90ea307`，succeeded。287项测试、类型检查、生产构建通过；真实登录浏览器闭环未验收。GitHub当前快照已同步；不包含Sites历史提交。
 
 ## 2026-11-07 · D1 重复字段候选保留（本轮）
 
