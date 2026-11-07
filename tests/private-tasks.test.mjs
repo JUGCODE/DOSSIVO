@@ -31,3 +31,53 @@ test('D3 text correspondence: web and Markdown share the same application specif
  assert.equal(readFileSync(new URL('../docs/DOSSIVO_PROTOCOL.md',import.meta.url),'utf8'),protocolMarkdown());
  assert.match(readFileSync(new URL('../app/protocol/page.tsx',import.meta.url),'utf8'),/PROTOCOL_SECTIONS\.map/);
 });
+const imported=(patch={})=>({synthetic_only:true,title:'Synthetic source',text:'用电量：2000kWh',facility:'合成工厂A',period:'2026-10',categories:['electricity'],...patch});
+test('DS07: identical text in the same task and scope shares one root without overwriting source versions',async t=>{
+ const {store}=setup(t);let s=(await store.command('alice',create())).state;s=await run(store,s,'import_text',imported());const first=s.materials[0],version=s.version;
+ s=await run(store,s,'import_text',imported({title:'Second filename',root_id:'forged'}));assert.equal(s.materials.length,2);assert.equal(s.materials[1].root_id,first.root_id);assert.equal(s.materials[1].lineage.method,'EXACT_TEXT_SCOPE_MATCH');assert.equal(s.materials[1].lineage.parent_material_id,first.id);assert.deepEqual((await store.read('alice',s.task_id,version)).materials,[first]);
+ const a=await assessTask(s);assert.equal(a.source_lineage.source_group_count,1);assert.equal(a.source_lineage.readable_material_count,2);assert.equal(a.independent_source_count,null);assert.equal(a.summary.no_anomaly,false);
+});
+test('DS07: translation and summary chains retain the original root with declared basis and actor',async t=>{
+ const {store}=setup(t);let s=(await store.command('alice',create())).state;s=await run(store,s,'import_text',imported());const first=s.materials[0];
+ s=await run(store,s,'import_text',imported({text:'Electricity: 2000 kWh',source_material_id:first.id,source_relation:'translation',source_reason:'Synthetic translation'}));const translated=s.materials[1];
+ s=await run(store,s,'import_text',imported({text:'Monthly consumption summary',source_material_id:translated.id,source_relation:'summary',source_reason:'Synthetic summary'}));
+ for(const m of s.materials){assert.equal(m.root_id,first.root_id);assert.equal(m.lineage.provenance_status,'NOT_INDEPENDENTLY_VERIFIED');assert.equal(m.original_seen,false);}
+ assert.equal(s.materials[2].lineage.parent_material_id,translated.id);assert.equal(s.materials[2].lineage.recorded_by,'alice');assert.equal(s.materials[2].lineage.basis,'Synthetic summary');
+});
+test('DS02/07: scope differences never auto-merge and cannot be disguised as related copies',async t=>{
+ const {store}=setup(t);let s=(await store.command('alice',create())).state;s=await run(store,s,'import_text',imported());const first=s.materials[0];
+ for(const patch of [{facility:'相似名称工厂'},{period:'2026-11'}]){s=await run(store,s,'import_text',imported(patch));assert.notEqual(s.materials.at(-1).root_id,first.root_id);await assert.rejects(run(store,s,'import_text',imported({...patch,source_material_id:first.id,source_relation:'summary',source_reason:'Cannot bridge scope'})),{code:'SOURCE_SCOPE_MISMATCH'});}
+});
+test('DS07/10: directory entries, other tasks and forged relationships are rejected without saving',async t=>{
+ const {store}=setup(t);let s=(await store.command('alice',create())).state;s=await run(store,s,'add_material',{mode:'DIRECTORY',title:'Synthetic unavailable source',custodian:'Synthetic custodian'});const directory=s.materials[0];let other=(await store.command('alice',create())).state;other=await run(store,other,'import_text',imported());
+ for(const source_material_id of [directory.id,other.materials[0].id,'foreign-material'])await assert.rejects(run(store,s,'import_text',imported({source_material_id,source_relation:'translation',source_reason:'Synthetic'})),{code:'SOURCE_RELATION_INVALID'});
+ assert.equal((await store.read('alice',s.task_id)).version,s.version);
+});
+test('DS07: exact-copy assertions require identical text, recognised relation and a nonempty basis',async t=>{
+ const {store}=setup(t);let s=(await store.command('alice',create())).state;s=await run(store,s,'import_text',imported());const id=s.materials[0].id;
+ for(const patch of [{source_material_id:id,source_relation:'copy',text:'changed',source_reason:'Synthetic'},{source_material_id:id,source_relation:'translation',source_reason:''},{source_material_id:id,source_relation:'independent',source_reason:'Synthetic'},{source_relation:'summary',source_reason:'Synthetic'}])await assert.rejects(run(store,s,'import_text',imported(patch)),{code:'SOURCE_RELATION_INVALID'});
+ s=await run(store,s,'import_text',imported({text:'  用电量：2000kWh\n'}));assert.equal(s.materials[1].text,'  用电量：2000kWh\n');assert.notEqual(s.materials[0].root_id,s.materials[1].root_id);
+});
+test('DS07/15: duplicate samples share roots but ambiguous confirmed fields do not become extra corroboration',async t=>{
+ const {store}=setup(t);let s=await located(store);s=await run(store,s,'add_material',{sample:'normal'});s=await run(store,s,'locate_fields',{material_id:s.materials[1].id});s=await confirmed(store,s);
+ assert.equal(new Set(s.fields.map(f=>f.root_id)).size,1);const a=await assessTask(s);assert.ok(a.metrics.every(m=>m.value===null));assert.ok(a.missing.every(m=>m.reason==='AMBIGUOUS_INPUT'));assert.equal(a.source_lineage.source_group_count,1);assert.equal(a.independent_source_count,null);
+ s=await run(store,s,'assess');s=await run(store,s,'freeze_card');assert.equal(s.cards.at(-1).body.assessment.source_lineage.source_group_count,1);assert.equal(s.cards.at(-1).body.formal_card,false);
+});
+
+
+test('DS15: repeated metric occurrences retain every source locator and cannot be selectively confirmed',async t=>{
+ const {store}=setup(t);let s=(await store.command('alice',create())).state;
+ const text='合成😀\n名册人数：10人\n参保人数：10人\n参保人数：7人';
+ s=await run(store,s,'import_text',imported({text}));s=await run(store,s,'locate_fields',{material_id:s.materials[0].id});
+ const fields=s.fields.filter(f=>f.code==='si_headcount');assert.equal(fields.length,2);assert.deepEqual(fields.map(f=>f.raw_value),[10,7]);assert.deepEqual(fields.map(f=>f.locator.line),[3,4]);
+ for(const f of s.fields)assert.equal(text.slice(f.locator.start_utf16,f.locator.end_utf16),f.locator.quote);
+ for(const f of [s.fields.find(f=>f.code==='roster_headcount'),fields[0]])s=await run(store,s,'confirm_field',{field_id:f.id,value:f.extracted_value,reason:'Synthetic review'});
+ let a=await assessTask(s);assert.equal(a.metrics.find(m=>m.code==='R1').value,null);assert.equal(a.missing.find(m=>m.code==='si_headcount').reason,'AMBIGUOUS_INPUT');
+ s=await run(store,s,'confirm_field',{field_id:fields[1].id,value:7,reason:'Second occurrence'});a=await assessTask(s);assert.equal(a.metrics.find(m=>m.code==='R1').value,null);assert.equal(a.summary.no_anomaly,false);
+});
+test('DS07/15: identical repeated values remain separate candidates, not independent corroboration',async t=>{
+ const {store}=setup(t);let s=(await store.command('alice',create())).state;s=await run(store,s,'import_text',imported({text:'用电量：20kWh\n用电量：20kWh'}));s=await run(store,s,'locate_fields',{material_id:s.materials[0].id});assert.equal(s.fields.length,2);assert.equal(s.fields[0].root_id,s.fields[1].root_id);assert.notEqual(s.fields[0].locator.start_utf16,s.fields[1].locator.start_utf16);assert.equal((await assessTask(s)).independent_source_count,null);
+});
+test('DS15: candidate overflow is atomic and leaves the original task intact',async t=>{
+ const {store}=setup(t);let s=(await store.command('alice',create())).state;s=await run(store,s,'import_text',imported({text:'用电量：1kWh\n'.repeat(501)}));const previous=structuredClone(s);await assert.rejects(run(store,s,'locate_fields',{material_id:s.materials[0].id}),{code:'TASK_LIMIT'});assert.deepEqual(await store.read('alice',s.task_id),previous);
+});

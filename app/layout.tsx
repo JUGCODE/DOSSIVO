@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import {UILanguageProvider} from "./ui-language";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://dossivo-outcome-workbench.xugv.chatgpt.site"),
   alternates: { canonical: "/", languages: { zh: "/zh/", en: "/en/", it: "/it/", "x-default": "/" } },
-  title: "Dossivo 合规结果平台 | Piattaforma risultati di conformità",
-  description: "把复杂合规要求转化为买方可核查的结果。Trasforma requisiti complessi in risultati verificabili dai buyer.",
+  title: "DOSSIVO",
+  description: "DOSSIVO",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
@@ -19,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased"><UILanguageProvider>{children}</UILanguageProvider></body>
     </html>
   );
 }

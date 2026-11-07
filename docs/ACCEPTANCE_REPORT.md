@@ -1,3 +1,141 @@
+## 上线回执 · v73
+
+运行源码 `1aea6e58f06eb6d139bf3cb93c6d44cc2a954342`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_34e6c42a27e4819199ea40b1aff956a3`；部署 `appgdep_6aee6c5c91bc8191b19e15e5d90ea307`，succeeded。287项测试、类型检查、生产构建通过；真实登录浏览器闭环未验收。GitHub当前快照同步正在执行，回执另记；不包含Sites历史提交。
+
+## 2026-11-07 · D1 重复字段候选保留（本轮）
+
+合成文字解析由仅取首个匹配改为保留全部匹配，每条保留原文引句、行号、UTF-16位置、单位换算和同源编号。重复相同数字也不被当作独立佐证。同一指标只要存在多个候选，即使仅确认其中一个，也不进入确定计算；不自动选择有利数字。界面解释此边界，中文、英文、意大利语提示分开。
+
+解析器标识更新为 dossivo-preparation/0.3；任务 schema 0.2、数据库迁移至0022、PACIscan/Protocol接口均不变。已有快照/冻结卡不重写；历史已定位材料不自动重跑，需要新建合成任务重新导入。达到500个字段上限时整次解析拒绝，原任务不发生部分写入。尚无候选排除/裁定功能，歧义不能通过隐藏候选消除；真实OCR、AI解析、正式链上证明仍未启用。
+
+实际验证：287项测试通过、0失败、0跳过（本轮新增3项：冲突与部分确认、相同重复值、容量溢出回滚）；日志 docs/evidence/repeated-field-tests.log。TypeScript通过；生产构建/发布回执后补。真实登录浏览器流程未验收。本轮用户要求GitHub同步，采用当前源码快照追加至GitHub现有历史，不导入包含保密草案的Sites历史。
+
+## 上线回执 · v72
+
+运行源码 `4f5210ced609caadd9ae5a5054b10f53847e6614`；保存版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_6d3eb332b4148191842d6ff40767ac2b`；部署 `appgdep_6aee6a23f990819199b005624cefbb93`，succeeded。284 项测试通过，类型检查与生产构建通过。真实登录浏览器闭环未验收；本轮仅完成同任务合成文字来源关联。GitHub 未同步。此回执不改变 v72 运行代码。
+
+## 2026-11-07 · D1 / DS07 材料来源追溯基础（本轮）
+
+根据主指令第19章回到D1私密证据任务，补DS07同源关联基础，而不是继续扩展合作伙伴外围功能。核查原实现每次导入/加入样本都会产生独立root_id；虽然 independent_source_count 一直为null，没有实际计入独立佐证，但缺少原文/副本/译文/摘要的对应关系。
+
+新导入的合成文字可选择同一任务内可读原文，并声明译文、摘要或相同文字副本，必须填写依据。新材料保存父材料编号、来源组root_id、关系类型、声明/匹配方法、操作者、时间及未独立核验状态。译文和摘要继续沿父材料的根编号追溯；同任务、同场所、同月份且全文完全相同的导入/内置样本自动归组。相同文字匹配仅用于保守去重，不证明来源真实或独立性。不同场所/月份不自动合并；显式跨范围关联拒绝。目录、其他任务、其他账号材料不能充当此处原文。相同文字副本必须确实保留相同文字。
+
+界面新增材料来源与副本关系面板，以及导入时选择原文、关系、依据。原文标题/依据原样显示并转义；系统提示中英意分开。新文字导入保留首尾空白，避免为去重修改原文；原字段位置仍绑定保存的文字。原有历史任务、卡片及摘要不回填、不重算hash。当前只对新导入建立关系，不能声称历史已完成去重。
+
+检查结果新增 source_lineage 可读材料数/来源组数摘要，但 independent_source_count 仍为null，所有来源仍 SELF_REPORTED / 未独立核验。多个已确认同码字段继续判AMBIGUOUS_INPUT，不自动选出有利数值或把多个指标当独立佐证。私密冻结卡保留来源关系；买方基本投影仍采用原白名单，不新增原文、来源组编号或关联说明披露。材料覆盖率、正式卡门槛、PACI链上状态均不改变。
+
+实际验证：284 项测试通过，0失败、0跳过。新增6项后端DS07/02/10/15测试和1项中英文/转义渲染测试。覆盖重复同根、译文摘要链、跨范围隔离、目录/跨任务拒绝、关系依据校验、原文空白保留、重复字段歧义、冻结卡关系与旧版不变。日志 `docs/evidence/material-lineage-tests.log`。TypeScript/diff通过；构建与发布回执随后补入。真实登录浏览器闭环未验收。
+
+兼容边界：沿用任务schema 0.2的可选附加字段，material.lineage 自带 dossivo-material-lineage/0.1 标记；无数据库迁移，PACIscan内核/HTTP契约/Protocol版本不变，无新外发接口。D3正式证明依赖仍未完成。DS07仅完成合成文字、同任务路径；真实PDF/OCR、模型副本自动识别、跨任务来源复用、稳定企业/工厂ID与历史关系回填均待继续，不把本轮当作56场景整体验收。
+
+GitHub未同步；未接收真实劳工原件、配置管理员或发放真实合同。
+
+## 上线回执 · v71
+
+运行源码 `94cf0c443758d968e07da5971902d819b61634c6`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_dc95792e8c148191b17237f42f5d4edf`；部署 `appgdep_6aee66fbebe48191b082634b8b92a7d2`，succeeded。277 项测试通过，类型检查与生产构建通过。线上匿名合作伙伴页已打开，未呈现私密历史记录。真实登录后的展开/翻页及双账号流程未做浏览器验收；管理员配置及真实申请收集状态未改变。此文档回执不改变 v71 运行代码。
+
+## 2026-11-07 · 合作申请审核时间线（本轮）
+
+申请页和管理员队列新增可展开的审核进度/历史记录。展示修订号、提交/资格审核/撤回、处理后的状态、固定类别的补充提示和时间。中文/英文/意大利语系统文案分离；时间按浏览器当地显示。申请人只看到申请人/审核员角色，不返回审核员账号、操作编号或申请/合同正文；管理员专用接口才可核对实际操作账号。
+
+复用既有申请事件表，GET `partner-applications?history=<type>` 始终从真实登录身份确定所有者，忽略用户伪造 recipientId。管理员 GET `partner-applications/admin?history=<type>&recipientId=<account>` 仍需精确管理员白名单。每页25条，以修订号游标读取更早记录，新增事件不挤乱旧页。展开才读取，可刷新最新/加载更早；新请求取消并替代旧请求，卸载/身份目标切换取消未完成读取，401/403清空已显示记录。
+
+明确边界：历史批准不是当前访问权；每次合同读取仍走现有资格及版本授权校验。此处没有邮件/推送、自动核验、合同变更历史或链上证明。当前管理员未配置、真实申请收集关闭；本轮不创建测试生产资料、不扩大权限。无新数据库迁移，沿用0022事件表和索引，PACI Protocol/PACIscan接口、证据分享和存储边界不变。
+
+实际测试：277 项通过、0失败、0跳过。新增5项历史API测试（身份与管理员门禁、账号隔离/投影、管理员操作账号、游标稳定性、输入校验与审核员移除后的本人读取）及1项语言/转义渲染测试。日志 `docs/evidence/partner-history-tests.log`。类型检查通过；生产构建/发布回执随后记录。真实双账号浏览器验收仍待管理员配置，不以本地测试代替。GitHub 未同步。
+
+## 上线回执 · v70
+
+运行源码 `3818df3b61f1e36af6e4f4cae7c6c7ea1cd801e4`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_b0f0af03c5c481918edbb156e8dee87e`；部署 `appgdep_6aee657a0690819194af6808bae74e87`，succeeded。271 项测试通过，类型检查与生产构建通过。线上匿名实测指定版本链接：英文切中文后保留版本，登录返回链接保留版本，未显示合同内容或获批版本列表。真实管理员/收件人多版本流程未验收；管理员配置、真实合同和申请开放均未改变。此文档回执不改变 v70 运行代码。
+
+## 2026-11-07 · 合同多版本隔离（本轮）
+
+合同不再限定单个硬编码草案版本。上传、审批、撤销、读取与下载均带明确版本编号；文件内容必须匹配请求指定的类别/版本/语言。版本标识限定为 `partners-draft/主版本.次版本[.修订]-YYYY-MM-DD`，它只是草案标识，不代表已签署、发布时间或法律效力。相同类别/版本/语言仍禁止覆盖；新版本不会继承旧授权，旧版仍保留。
+
+管理员界面支持填写版本、从已上传文件选择版本、查看带版本的授权和审计记录、按单个版本撤销。上传文件自动读取其版本标识并检查选定合作类别。切换类别或版本后清除已勾选的发放确认。收件人只看到自己当前有效、已获批且该语言文件存在的版本入口；语言切换、登录返回、下载链接保留明确版本。未提供版本参数的历史链接仍指向初始草案版本，不自动跳转最新版。下载文件名包含版本，防止不同草案互相覆盖。
+
+合同正文直接显示审定原文，不经过界面词典翻译；按钮/状态仍按页面语言。缺少审定语言时不回退到其他语言。合作资格撤回/退回/拒绝继续撤销该类别全部版本；版本授权仍依赖资格批准。列表当前最多100条，超出后需凭明确版本编号操作；批量撤回、完整分页和签约尚未实现。
+
+实际验证：271 项测试通过、0失败、0跳过；本轮新增6项多版本后端测试和1项版本导航渲染测试。日志 `docs/evidence/partner-contract-version-tests.log`。覆盖新版本无继承、禁止覆盖、按版本撤销、全类别撤回、账号/语言/过期过滤、下载内容与文件名、历史默认链接及登录/切换语言保留版本。类型检查通过，生产构建与发布回执随后记录。真实管理员/收件人多版本浏览器流程未验收。
+
+无新数据库迁移：沿用既有类别/版本/语言复合键及逐账号版本授权表（迁移至0022）。PACIscan桥接、链上协议、证据披露和存储边界不变；本轮合同版本号不属于PACI Protocol版本号。没有上传真实合同、批准真实账号或同步GitHub。管理员配置仍待核对本站登录账户编号，申请收集仍默认关闭。
+
+## 上线回执 · v69
+
+运行源码 `8bf23d44ebcda20563ff2273db491f89ac23c1a3`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_0891f5fc3b648191bbe5e7b8664c75d6`；部署 `appgdep_6aee6300cc4881918e18578fa04d4ea6`，succeeded。264 项测试通过，类型检查与生产构建通过。线上匿名中英文合作伙伴页及英文隐私说明已核查，未呈现合同或申请资料。审核管理员仍未配置，申请收集关闭；真实申请人/审核员双账号验收待完成。此回执提交不改变 v69 运行代码。
+
+## 2026-11-07 · 合作申请与资格审核（本轮）
+
+新增登录后的按类别合作申请：机构/业务名称、业务联系人、业务邮箱、国家地区、服务范围与经验、专业资格说明；律师及专业咨询类别必须填写资格说明。仅必要业务文本，无附件、身份证或员工/客户材料上传。资料按登录账号隔离；提交者不能指定其他账号或自授状态。申请不公开，仅本人及配置的审核管理员可读取。未配置审核员时，页面明确暂未开放，POST 拒绝新申请（503），不收集资料。
+
+管理员分页审核队列（每页25条）支持待审核、待补充、已批准、暂未通过和已撤回；人工确认身份/业务/所需资格后才能批准，禁止自审。退回/拒绝使用固定说明类别，用户看到对应语言提示，可修改重提。每次提交/审核/撤回增加修订号并写入不含申请正文的操作记录；唯一操作编号与账号/类别/修订号防止重放和并发覆盖。撤回不是删除，界面和隐私说明已明确，完整保留/删除制度仍待正式运营准备。
+
+合同发放现在必须已有该账号/类别的有效资格批准，并继续要求独立合同版本授权。资格批准本身不发放合同。申请撤回、退回或拒绝，原子撤销该类别所有合同版本访问；重新申请及重新批准不会恢复旧授权。发放操作在事务提交时再次检查资格修订号，下载每次检查资格状态，覆盖撤回与发放并发的边界。历史已下载副本不能收回。不自动发邮件、不自动核实执业资格、不产生签署或佣金承诺。
+
+数据库迁移 `0022_worthless_firestar.sql` 新增申请和修订事件表及索引；迁移不含用户资料。生产无审核管理员配置，未创建实际申请/审批/合同。未把草案或比例放回源码、公开页面、迁移或夹具，GitHub 不同步。
+
+本轮实际验证：264 项测试通过，0失败、0跳过；新增10项申请权限/状态/并发/分页测试、1项中英文渲染测试；已有合同测试补入资格前置条件。日志 `docs/evidence/partner-application-tests.log`。TypeScript 与 diff 检查通过。管理员/申请人双账号线上端到端浏览器验收尚未完成；不能以本地测试代替真实验收。
+
+PACI 兼容矩阵：本轮仅DOSSIVO合作伙伴业务流程；PACIscan桥接、协议/链上承诺、证据分级披露、存储边界均无变动。本站申请与审核日志不是链上证明。旧数据库中的合同授权若没有对应已批准申请将拒绝读取，不能自动把历史账号迁移为合格。当前生产未发放实际合同，不受数据回填影响。
+
+下一步：核对本站实际管理员账号并配置后，用两名非同账号操作者完成申请→退回→重提→批准→独立发放→撤回实测；完成正式运营隐私与保留安排后再接收真实申请。多合同版本管理、电子签约和通知仍未实现。发布回执随后记录。
+
+## 上线回执 · v68
+
+运行源码 `d01c14f8173bce4db98a35e472054eac84fb74e5`；版本 `appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_7276468ff9c481919b77f09a31039517`；部署 `appgdep_6aee5fcc52008191a23f0fd965dda128`，succeeded。253 项测试通过，类型检查与生产构建通过。线上匿名访问中英文管理页，均显示对应语言的管理员门禁，未呈现文件或授权记录。管理员仍未配置；真实获批交付的浏览器流程待验收。此文档回执不改变 v68 运行代码。
+
+## 2026-11-07 · 合同审核与发放后台（本轮）
+
+已实现 `/partners/admin?lang=zh|en` 管理界面与 `/api/partner-contracts/admin` 后台。以运行时 `PARTNER_CONTRACT_ADMIN_IDS` JSON 字符串数组配置本站真实登录账户编号；未配置、无效配置、匿名或普通用户均拒绝。本站编号不同于邮箱及其他站点编号，不能从项目所有者身份推定。仅已配置管理员在合作伙伴页看到入口；登录用户可看到自己的账户编号供核对。
+
+管理员可上传单份已审定 JSON 草案（256 KB 上限、类别/语言/版本校验、必须确认审阅），按收件账号逐一批准并设有效期、撤销访问。相同类别/版本/语言禁止覆盖。当前仅支持既定草案版本；新增合同版本管理和正式签署仍待开发。授权覆盖所选类别和版本的全部审定语言文件，界面明确说明。账户归属和合作资格由管理员人工核实，系统不声称自动资格认证。
+
+所有写请求校验真实登录身份、管理员名单、同源 Origin 与 JSON 类型。D1 原子批次同时提交操作记录与变更，操作编号唯一，重复请求回滚，旧授权重放不会恢复已撤销权限。操作记录及列表只含元数据，不含合同正文/分成；不发送邮件。正文仍只在运行时数据库，未加入源码、测试夹具或迁移。撤销不收回已下载副本。
+
+本轮实际验证：253 项测试通过，0 失败；新增 6 项权限/数据库回归和 1 项中英文渲染测试。日志 `docs/evidence/partner-admin-tests.log`；TypeScript 和 diff 检查通过。迁移 `0021_keen_steve_rogers.sql` 仅新增审计表。已确认生产环境没有管理员配置；不添加猜测账户、不上传真实合同、不批准真实收件人。真实管理员登录与收件人双账号浏览器流程未验收。
+
+PACI 兼容性：无内核、证明格式、证据授权、链上协议或计费策略变化。合同操作记录是本站数据库记录，不是 PACI 链上证明。GitHub 不同步；禁止将含历史保密草案的 Git 历史推至公开仓库。生产发布回执随后记录。
+
+## 最终上线回执 · v67
+
+- 线上地址：https://dossivo-outcome-workbench.xugv.chatgpt.site
+- 运行源码：`28f2ea93ddd44830a98a64f87d7eb0d9b4ac1dc2`。
+- 版本：`appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_338063c348088191a83bb242cc1b2a31`。
+- 部署：`appgdep_6aee57f3cc348191997cbd6540de8af3`，succeeded。
+- 246 项测试通过；类型检查及构建通过。对 19 段完整保密条款扫描当前跟踪源码与构建产物，命中 0。
+- 实际生产数据库已确认存在合同审批表及运行时文档表；未批准收件人，未上传生产合同。
+- 线上浏览器实测：英文首页→通信→协议→关闭返回；英文合作伙伴标题、简报；中文欧盟入口与合作伙伴页。真实获批账号交付及双账号登录场景未做浏览器验收。
+- 合同保密原件已独立保存供负责人审阅，不在可复制的当前发布源码内。此回执后的文档提交不改变 v67 运行代码。
+
+## 最终保密边界补强（v67）
+
+发现站点允许源码复制（remix）。合同正文写在服务端源码里仍不满足保密要求，因此已从当前发布源码、内部状态摘录及测试样本移走真实草案和分成，另存负责人保密审阅包。没有把草案同步公开 GitHub。
+
+- 新增 0020 合同正文运行时表，按类型、版本、语言存放；源码和迁移均不包含正文或条款种子。复制项目不会复制运行时数据库内容。
+- 网页及下载必须同时具备有效的逐人审批记录和对应的审定语言文件。缺文件、语言不匹配、无效文档均不交付。读取文档前先验审批。
+- 当前未向生产库上传合同正文，也未批准任何合作方，因此所有合同默认不发放。管理员审核、上传、通知和电子签约操作台尚未开通。
+- 不得直接把此源仓库及其历史提交推到公开 GitHub；旧提交仍含历史草案。任何未来公开源码交付须使用经审查的干净导出。不得直接回滚 v61–v66，否则可能重新暴露打包草案。
+- 旧版本已被他人获取的独立副本无法远程收回；本轮没有证据证明是否已有复制或下载。
+- 最终全套实测 246 项通过、0 失败；语言测试 8 项，合同模式/权限/运行时文件测试 7 项。此前 245 项和 v66 均为本轮中间结果。
+
+### 线上复查追补
+
+v64 线上已实测英文首页→直接通信→协议→关闭返回，语言保留。合作伙伴公开页未提供合同或比例。复查发现浏览器标签标题及简报旧语言偏好遗漏，v65 补修并新增标题测试。英文/中文证据内容不自动改写用户原文。
+
+## 当前优先状态：合同保密与中英界面修复（2026-11-06，发布收尾 v66）
+
+本节覆盖下方历史记录中的旧权限及语言描述。
+
+- 合同默认拒绝。普通登录不授权；后台审批记录必须绑定接收账号、合作类型、指定合同版本、审批人、有效期，未撤销且未过期才可读取。网页和下载接口同时检查。新表默认无授权，没有用户自行批准的接口。
+- 管理员审批操作台、资格审核、电子签约、自动通知尚未实现；本轮没有批准任何实际合作方。不能把本次访问控制当作完整签约系统。
+- 中英界面统一使用明确语言 URL、共用翻译目录与渲染边界；内部导航、登录返回、联系人分享、证据卡及请求记录下载保持所选语言。用户消息和证据原文不自动翻译，结构化系统消息按当前语言呈现。
+- 共用页面实际渲染测试覆盖：首页、通信、欧盟用户入口、协议、隐私、合作伙伴、账号，以及材料、授权、联系人、请求待办等面板。新增语言测试 8 项；新增保密权限测试 2 项。全套实跑 245 项通过、0 失败；类型检查及生产构建通过。
+- 意大利语已有翻译继续保留；新增共用文案缺少意大利语译文时显示英文，不声称本轮完成意大利语全译。原始 JSON 导出保持机器字段及用户原文，不篡改历史数据。
+- 合同内容、分成及包含这些内容的内部文档禁止同步公开 GitHub。v61 后的合同草案未同步公开 JUGCODE/DOSSIVO；公开仓库仍是 v57。今后公开导出须先排除并审查保密材料，不能沿用过去“完整源码公开”的授权来覆盖新保密要求。
+- 尚未做双账号真实登录、实际批准收件人下载及全量浏览器交互验收；自动化验证不等于这些人工场景已验收。
+
+测试原始记录：`docs/evidence/contract-privacy-language-final-tests.log`。
+
 # 本轮验收报告 · 2026-11-05
 
 输入：完整开发主指令第19/20章及原宪章T01–T17；不是全部功能发布通过报告。仅合成数据。
@@ -429,3 +567,68 @@ UI: direct contact conversation → evidence request tracker → incoming reques
 Validation: 221 PASS / 0 FAIL, including five cross-contact workflow/security tests. Initial legacy reference-shape regression was fixed by preserving optional-field compatibility. TypeScript/diff checks passed; log evidence/cross-contact-card-tests.log. Authenticated browser acceptance remains pending. Build/deployment receipt follows in RELEASE_EVIDENCE.json.
 
 Published Site v57 successfully: runtime 36ea9c4579e0f715bdc4b7fc0ac32c8e050e8a3d; deployment appgdep_6aee2181a8688191bc44afed768fe3c3. Worker build passed. No GitHub synchronization this round. Next: buyer-side request record export and consolidated browser acceptance.
+
+
+## 2026-11-06 · Single-request record export
+
+Implemented authenticated GET /api/conversations?grant=...&view=request_export&request=...&format=html|json (optional lang=zh|en|it for HTML). Each request tracker entry now offers printable HTML and JSON downloads. Both conversation participants may export their own conversation's request record. Export includes the request, complete ordered structured response history, latest response status, fixed card/version identifiers and reference grant access status at export. No free-text messages, raw materials, card bodies, private contact details or tokens are included. Request identifiers from other conversations and non-request messages are rejected. A single response-history query reads grant status; more than 500 responses fails explicitly with HTTP 413 rather than silently truncating. This implementation limit is not evidence policy.
+
+Export is a historical record, not a compliance assessment, signature, integrity proof or PACI chain receipt. Existing downloads cannot be recalled. Expiry/revocation retains historical references but does not restore evidence access. ACTIVE describes the grant at export, not card verification or content sufficiency. No evidence VIEWED/DOWNLOADED event or read marker is generated by exporting metadata. HTML uses escaped text, no external resources/scripts and a sandbox CSP; users may print it to PDF. JSON uses schema dossivo/request-record/1 with explicit limitations. No new database migration or PACI interface change.
+
+Validation: 226 PASS / 0 FAIL / 0 SKIP, including five new export tests; TypeScript and diff checks passed. Log: evidence/request-record-export-tests.log. Managed preview failed because an existing vinext server PID 14 in /site occupies the environment; status reports stopped. Authenticated dual-account browser acceptance remains NOT VERIFIED. Build/publication receipt follows in RELEASE_EVIDENCE.json.
+
+GitHub synchronization immediately before this round: v57 at 39e355bc821858a983909204b50389a2529f7c55 (main). This round is not yet synchronized to GitHub. Next: consolidated acceptance of contact request → fixed card response → export → revocation, including signed-in dual-account browser checks when infrastructure permits. Multi-request portfolio export, signed reports and real-data processing remain outside this delivery.
+
+Published Site v58 successfully: runtime a625440053025762a628db8c66c883e32d909839; deployment appgdep_6aee2e5b5f8881919169a82a6eb3ead7. Worker build passed. GitHub remains at the preceding v57 sync.
+
+
+## 2026-11-06 · Collaboration workflow acceptance and download recovery
+
+Added a real backend integration test covering contact request → PREPARING → fixed card 0 download → explicit publication/card 1 response → complete record export → revoke → both referenced downloads denied while history and prior copies remain. This is a store/database integration test using synthetic actors, not a signed-in browser test.
+
+Download UI now fetches authenticated attachments without leaving the conversation, rejects auth redirects and wrong/missing attachment responses, shows in-flight state, prevents duplicate clicks, and provides retry/login guidance for 401/403/404/413/network/server errors. Abort on component disposal prevents late downloads from a previous view. Browser handoff wording does not assert that the user saved a file. Printable export language is selectable Chinese/English/Italian with localized topic/status labels; JSON remains stable machine codes. API now rejects an export without a conversation instead of falling back to the inbox. Card preview in request tracker is keyed by response ID, so a new latest response cannot retain the prior response's open card.
+
+Validation: 230 PASS / 0 FAIL / 0 SKIP; TypeScript and diff checks passed. Four new tests: complete backend workflow plus attachment success/cancellation contract, HTTP failure mapping, invalid attachments/auth pages. Log: evidence/collaboration-acceptance-tests.log. No new migration, no grants or PACI interface changes. Managed preview status remains stopped; previous /site vinext infrastructure conflict has no demonstrated recovery, so no repeated restart or alternative browser/auth bypass was attempted. Authenticated dual-account browser acceptance and download/print visual verification remain NOT VERIFIED.
+
+Next acceptance work: legitimate dual-account UI walkthrough once preview/auth access is available; validate actual file download and PDF print layout. External email/SMS identity, production real data, AI execution, enterprise storage connector and PACI chain receipts remain separate pending capabilities. This round does not claim production readiness. GitHub remains at v57 (39e355bc821858a983909204b50389a2529f7c55).
+
+Published Site v59 successfully: runtime 8cb24a7d49cbcf0e5606048263b034ae1161b2c4; deployment appgdep_6aee345e98d8819198929db6ae60c64c. Worker build passed. GitHub remains at v57.
+
+
+## 2026-11-06 · Contact-consent workflow and inbox recovery
+
+Inbox refresh now aborts superseded requests and ignores late responses. HTTP 401 clears loaded conversations, selection, unread totals and return-contact state, unmounts the private panels, and shows a sign-in link returning to /conversations. Failed refresh keeps prior data with an explicit stale-data warning rather than claiming an empty inbox. Opening a different contact clears the old return-contact destination. Explicitly opened accepted contacts without a first message remain open across refreshes; they legitimately have no inbox row yet. No polling, new grant behavior or new messaging scope was introduced.
+
+New complete synthetic store/database acceptance test uses ContactStore.ensureProfile/request/respond (not manual accepted-contact insertion): third-party acceptance denied; consent creates no evidence grants; accepted empty thread opens; request appears unread; supplier's task remains private; unredeemed card response denied; separate buyer redemption enables explicit card response; contact block denies messages but does not silently revoke evidence; separate grant revoke denies downloads while history/export survive. Communication blocking and evidence revocation remain independent controls.
+
+Validation: 231 PASS / 0 FAIL / 0 SKIP, TypeScript/diff checks passed. Log: evidence/contact-consent-workflow-tests.log. This is backend integration acceptance, not browser acceptance. UI race/session changes were reviewed and typechecked; no authenticated browser result is claimed. Prior managed-preview and dual-account login blockers remain unresolved, so the previous failed preview was not repeatedly restarted. No new migration/PACI change, no real data or provider activation. Build/release receipt follows in RELEASE_EVIDENCE.json. GitHub stays at v57 until another sync.
+
+Milestone boundary: core synthetic direct-contact → consent → request → private preparation → separate authorization → fixed-card response → export → block/revoke backend path is now covered. Do not continue adding miscellaneous messaging features to postpone acceptance. Remaining communication milestone gate is legitimate dual-account browser walkthrough, file download/print UX and fixes found there. External real identity/email/SMS/production evidence/AI/PACI/enterprise-host connectors remain separate work, not implied complete by these tests.
+
+Published Site v60 successfully: runtime 1408344a81c3b0c76aebbb680e9bbeac4891a792; deployment appgdep_6aee35e709d48191a541cd167f02d6cf. Worker build passed. GitHub remains at v57.
+
+
+## 2026-11-06 · Partner entry and three draft agreements
+
+Added prominent localized Sidebar “成为合作伙伴 / Become a partner / Diventa partner” beneath pricing, linking to /partners?lang=zh|en|it. Public overview has three tracks: promotion (creators/local promoters/HR), local delivery/training, and law firms/compliance specialists in EU and non-EU countries. Authenticated server page renders the selected Chinese agreement draft; sign-in return retains track/language. GET /api/partner-contracts?type=promotion|delivery|professional&format=html|md independently requires the hosted authenticated user; no-store attachments include print sandbox protections. Public catalog contains descriptions, not full contract terms. Site login gate is not DRM: downloaded/source-controlled drafts can be copied.
+
+[Confidential draft content removed from published source; retained separately for owner review.]
+
+No application submission, verification workflow, e-signature, referral tracking, commission engine, assignments or payment implementation. Signed-in account does not verify business identity, signatory authority or professional credentials. No new personal data is collected. No database migration, evidence permissions or PACI core change. Current evidence restrictions remain unchanged. Agreement download is not a signed contract. English/Italian UI available; contract bodies intentionally Chinese drafts pending reviewed translations.
+
+Validation: 235 PASS / 0 FAIL / 0 SKIP; 4 new tests for track/draft terms, unauthenticated/invalid access, attachments/no actor leakage, HTML escaping. Log: evidence/partner-entry-tests.log. TypeScript/diff passed. Authenticated browser gate remains pending; publication/anonymous visual check receipt follows. GitHub still at v57 pending separate synchronization.
+
+Published Site v61 successfully: runtime c4921e1cdc922c9af70d47f8fea1bf631949d41c; deployment appgdep_6aee4609bd948191893916f63c49e887. Browser opened production /partners?lang=zh anonymously and verified all three tracks, draft notices and sign-in gate through the accessibility tree. No sign-in or professional verification attempted; signed-in downloads, sidebar/mobile/print visual acceptance remain pending. Cloud browser public navigation now works; do not carry forward a blanket claim that all browser access is unavailable. GitHub remains at v57.
+
+
+## 2026-11-06 · Adaptive Sidebar work layout
+
+Initial desktop sidebar now opens at full width. Intro shortcuts default expanded. Persistent user choice (localStorage dossivo-sidebar-intro-layout-v1, current browser only) switches expanded/compact, independent of the existing whole-sidebar width toggle. Compact full-width layout is 2×2: benefits, pricing, partnerships, Protocol; direct messaging remains a full-width row below. Whole-sidebar narrow mode uses a single-column adaptation; choosing compact while narrow expands width to show the grid. All labels/icons and destinations retained. Small-height viewports can scroll the whole sidebar so work navigation is not inaccessible.
+
+Successful private-task creation/add_material, or authenticated loading of existing tasks, signals evidence work started. Only users without an explicit layout choice see a nonmodal prompt. Either “switch to work layout” or “keep expanded” is remembered; no automatic layout switch, login counting or repeated prompts after selection. Manual switch remains available; storage-disabled users retain choice for current mount only. Cross-tab preference updates supported. No task IDs or evidence contents enter preference storage. Existing synthetic-only material policy preserved.
+
+Direct messaging shows unread badge when authenticated unread_total is positive, refreshed on mount and visible window focus/visibility return. Failed/unauthenticated reads hide the badge rather than claiming a fresh zero. No polling, auto-read marking or notification delivery. Data accessed through existing authorization only.
+
+Validation: existing 235 tests passed; TypeScript/diff checks passed. Log evidence/sidebar-work-layout-tests.log. No new tests added for reversible layout styling. No schema/migration, contractual policy or PACI permission change. Browser verification receipt follows. GitHub remains at v57 pending requested sync.
+
+Published Site v62 successfully: runtime e29f3ae4670d77aeb7109f5f7c88950b8fef4774; deployment appgdep_6aee49834f608191b016d524c8d75d38. Anonymous production browser at /zh: default expanded observed; clicked compact toggle; screenshot confirmed 2x2 and wide direct-message row with work tools visible; reload retained compact. Signed-in trigger/unread, narrow/mobile interaction remain unverified. GitHub remains v57.

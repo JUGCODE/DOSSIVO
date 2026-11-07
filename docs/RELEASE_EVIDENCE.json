@@ -30,22 +30,21 @@
   "browser_public_production": "PASS: existing workflow, anonymous task login protection and Protocol page visible",
   "documentation_source": "Post-deployment documentation commit in same source repository; runtime remains site v20 / ded2beb207be95ad980fa5734f76c4ebea548044",
   "latest_release": {
-    "version": 57,
-    "runtime_commit": "36ea9c4579e0f715bdc4b7fc0ac32c8e050e8a3d",
-    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_f157a22e44448191af0f6c61b3dcb4a4",
-    "deployment_id": "appgdep_6aee2181a8688191bc44afed768fe3c3",
+    "version": 73,
+    "runtime_commit": "1aea6e58f06eb6d139bf3cb93c6d44cc2a954342",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_34e6c42a27e4819199ea40b1aff956a3",
+    "deployment_id": "appgdep_6aee6c5c91bc8191b19e15e5d90ea307",
     "deployment_status": "succeeded",
     "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
     "unit_tests": {
-      "pass": 221,
+      "pass": 287,
       "fail": 0
     },
-    "test_log": "docs/evidence/cross-contact-card-tests.log",
+    "test_log": "docs/evidence/repeated-field-tests.log",
     "typecheck": "PASS",
     "worker_build": "PASS",
-    "migration": "0018_overjoyed_domino.sql",
-    "browser_qa": "NOT_VERIFIED: managed preview unavailable; authenticated acceptance pending",
-    "scope": "Explicit original contact-request responses referencing separately redeemed authorised fixed cards; no automatic sharing"
+    "browser_signed_in": "NOT VERIFIED",
+    "github_sync": "pending"
   },
   "release_history": [
     {
@@ -284,11 +283,17 @@
     }
   ],
   "current_validation": {
-    "tests_passed": 202,
-    "tests_failed": 0,
-    "log": "docs/evidence/complete-contact-flow-tests.log",
-    "browser_acceptance": "blocked_not_executed",
-    "runtime_changed": false
+    "scope": "D1 all repeated field candidates and conservative ambiguity handling",
+    "unit_tests": {
+      "pass": 287,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/repeated-field-tests.log",
+    "typecheck": "PASS",
+    "publication": "succeeded: v73",
+    "github_sync": "pending",
+    "browser_signed_in": "NOT VERIFIED",
+    "worker_build": "PASS"
   },
   "previous_latest_release_receipts": [
     {
@@ -425,5 +430,236 @@
     "migration": "0017_ambiguous_mulholland_black.sql",
     "browser_qa": "NOT_VERIFIED: managed preview unavailable; authenticated acceptance pending",
     "scope": "Contact storage confirmation enforced server-side with version/time and explicit recovery UX; no OTP/authentication provider"
+  },
+  "previous_release_v57": {
+    "version": 57,
+    "runtime_commit": "36ea9c4579e0f715bdc4b7fc0ac32c8e050e8a3d",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_f157a22e44448191af0f6c61b3dcb4a4",
+    "deployment_id": "appgdep_6aee2181a8688191bc44afed768fe3c3",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 221,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/cross-contact-card-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "0018_overjoyed_domino.sql",
+    "browser_qa": "NOT_VERIFIED: managed preview unavailable; authenticated acceptance pending",
+    "scope": "Explicit original contact-request responses referencing separately redeemed authorised fixed cards; no automatic sharing"
+  },
+  "previous_release_v58": {
+    "version": 58,
+    "runtime_commit": "a625440053025762a628db8c66c883e32d909839",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_0077205c99dc819187209ea7c10c3cd6",
+    "deployment_id": "appgdep_6aee2e5b5f8881919169a82a6eb3ead7",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 226,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/request-record-export-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "No new migration; schema through 0018",
+    "browser_qa": "NOT_VERIFIED: existing vinext process in /site prevents managed preview; authenticated dual-account acceptance pending",
+    "scope": "Authenticated single-request structured history export in printable HTML and JSON, without evidence content"
+  },
+  "previous_release_v59": {
+    "version": 59,
+    "runtime_commit": "8cb24a7d49cbcf0e5606048263b034ae1161b2c4",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_96f65448756481919341a8e6c3cd7bae",
+    "deployment_id": "appgdep_6aee345e98d8819198929db6ae60c64c",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 230,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/collaboration-acceptance-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "No new migration; schema through 0018",
+    "browser_qa": "NOT_VERIFIED: managed preview stopped; previous /site conflict unresolved; signed-in dual-account acceptance pending",
+    "scope": "Download recovery, localized printable export, latest-card view reset and full synthetic backend collaboration acceptance"
+  },
+  "previous_release_v60": {
+    "version": 60,
+    "runtime_commit": "1408344a81c3b0c76aebbb680e9bbeac4891a792",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_29eab583470081919ef0e008a1aa3c4f",
+    "deployment_id": "appgdep_6aee35e709d48191a541cd167f02d6cf",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 231,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/contact-consent-workflow-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "No new migration; schema through 0018",
+    "browser_qa": "NOT_VERIFIED: prior preview/authentication blockers unresolved; no dual-account browser acceptance claimed",
+    "scope": "Inbox refresh race/session recovery and full synthetic contact-consent/request/redemption/card/block/revoke store integration"
+  },
+  "previous_release_v61": {
+    "version": 61,
+    "runtime_commit": "c4921e1cdc922c9af70d47f8fea1bf631949d41c",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_65277929b0b481919ef4216c225f1df8",
+    "deployment_id": "appgdep_6aee4609bd948191893916f63c49e887",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 235,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/partner-entry-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "No new migration; schema through 0018",
+    "browser_qa": "Anonymous production /partners?lang=zh verified through browser accessibility tree: 3 tracks, draft notice and sign-in gate. Authenticated contract download, sidebar visual layout, mobile/print and dual-account messaging acceptance NOT VERIFIED.",
+    "scope": "Prominent partner Sidebar entry, three public tracks, authenticated Chinese draft agreements and protected HTML/Markdown downloads; proposed rates not effective"
+  },
+  "previous_release_v62": {
+    "version": 62,
+    "runtime_commit": "e29f3ae4670d77aeb7109f5f7c88950b8fef4774",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_00fc796e9cf08191b5328f4267d1829f",
+    "deployment_id": "appgdep_6aee49834f608191b016d524c8d75d38",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 235,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/sidebar-work-layout-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "No new migration; schema through 0018",
+    "browser_qa": "PASS anonymous desktop: default expanded, clicked compact, screenshot confirmed 2x2 shortcuts and full-width messaging, reload retained compact. Signed-in task prompt, unread count, mobile and narrow sidebar remain unverified.",
+    "scope": "Adaptive Sidebar intro shortcuts, explicit prompted/user preference, browser-local persistence and existing authorized unread badge"
+  },
+  "previous_release_v67": {
+    "version": 67,
+    "runtime_commit": "28f2ea93ddd44830a98a64f87d7eb0d9b4ac1dc2",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_338063c348088191a83bb242cc1b2a31",
+    "deployment_id": "appgdep_6aee57f3cc348191997cbd6540de8af3",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 246,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/contract-privacy-language-final-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "0019 recipient approvals; 0020 private runtime document storage; both tables confirmed in live D1",
+    "browser_qa": "PASS anonymous desktop: English home -> conversations -> protocol -> close retains en; English partner browser title and briefings; Chinese EU buyer and partner pages. UI unchanged after v65; v67 adds backend runtime document separation. Actual approved-user browser delivery and dual-account signed-in flows not exercised.",
+    "confidential_source_scan": {
+      "long_clauses_checked": 19,
+      "current_source_and_build_matches": 0
+    },
+    "scope": "Confidential contract approval and runtime-only documents; Chinese/English UI, navigation, titles and HTML export language",
+    "github_sync": "Not performed. Do not push existing source history publicly; historical revisions contain private drafts.",
+    "admin_release_workflow": "Not implemented; no production documents or approvals provisioned."
+  },
+  "previous_release_v68": {
+    "version": 68,
+    "runtime_commit": "d01c14f8173bce4db98a35e472054eac84fb74e5",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_7276468ff9c481919b77f09a31039517",
+    "deployment_id": "appgdep_6aee5fcc52008191a23f0fd965dda128",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 253,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/partner-admin-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "0021 contract operation audit table; deployment succeeded",
+    "browser_qa": "Production anonymous zh/en admin pages render localized denial and titles. Authenticated administrator and recipient end-to-end browser flow NOT VERIFIED.",
+    "scope": "Runtime-only immutable confidential documents, explicit admin allowlist, reviewed upload, recipient approval/expiry/revocation, atomic metadata audit and replay rejection",
+    "admin_runtime_config": "Absent; default closed; no real documents uploaded or recipients approved",
+    "github_sync": "Not performed; do not push confidential source history publicly"
+  },
+  "previous_release_v69": {
+    "version": 69,
+    "runtime_commit": "8bf23d44ebcda20563ff2273db491f89ac23c1a3",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_0891f5fc3b648191bbe5e7b8664c75d6",
+    "deployment_id": "appgdep_6aee6300cc4881918e18578fa04d4ea6",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 264,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/partner-application-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "0022 applications and application revision events; deployment succeeded",
+    "browser_qa": "Anonymous production zh/en partner pages and English privacy notice verified. Authenticated applicant/reviewer flow NOT VERIFIED.",
+    "scope": "Account-isolated applications, manual review queue, revision concurrency, eligibility-gated contracts, withdrawal revocation",
+    "admin_runtime_config": "Absent; intake remains closed; no real application/approval/contract provisioned",
+    "github_sync": "Not performed; confidential source history must not be pushed publicly"
+  },
+  "previous_release_v70": {
+    "version": 70,
+    "runtime_commit": "3818df3b61f1e36af6e4f4cae7c6c7ea1cd801e4",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_b0f0af03c5c481918edbb156e8dee87e",
+    "deployment_id": "appgdep_6aee657a0690819194af6808bae74e87",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 271,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/partner-contract-version-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "None; schema remains through 0022",
+    "browser_qa": "Anonymous production explicit version link inspected; English-to-Chinese navigation and sign-in return retain version. No terms or authorized-version list exposed. Authenticated multiversion workflow NOT VERIFIED.",
+    "scope": "Immutable per-language contract versions, independent grants and revocation, authorized version selection, pinned downloads and original approved text",
+    "admin_runtime_config": "Not changed; no accounts or real documents provisioned",
+    "github_sync": "Not performed; do not push existing confidential source history publicly"
+  },
+  "previous_release_v71": {
+    "version": 71,
+    "runtime_commit": "94cf0c443758d968e07da5971902d819b61634c6",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_dc95792e8c148191b17237f42f5d4edf",
+    "deployment_id": "appgdep_6aee66fbebe48191b082634b8b92a7d2",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 277,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/partner-history-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "None; schema remains through 0022",
+    "browser_qa": "Anonymous partner page opened; private history is not rendered. Authenticated history expansion/paging and dual-account workflow NOT VERIFIED.",
+    "scope": "Private applicant/reviewer history with role-aware projection, revision cursor pagination and localized timeline",
+    "admin_runtime_config": "Unchanged; no real accounts or records provisioned",
+    "github_sync": "Not performed"
+  },
+  "previous_release_v72": {
+    "version": 72,
+    "runtime_commit": "4f5210ced609caadd9ae5a5054b10f53847e6614",
+    "saved_version_id": "appgprj_6aadb2f67df081918266b82e3fc373fb~appgver_6d3eb332b4148191842d6ff40767ac2b",
+    "deployment_id": "appgdep_6aee6a23f990819199b005624cefbb93",
+    "deployment_status": "succeeded",
+    "url": "https://dossivo-outcome-workbench.xugv.chatgpt.site",
+    "unit_tests": {
+      "pass": 284,
+      "fail": 0
+    },
+    "test_log": "docs/evidence/material-lineage-tests.log",
+    "typecheck": "PASS",
+    "worker_build": "PASS",
+    "migration": "None; schema through 0022",
+    "browser_qa": "Authenticated workflow NOT VERIFIED",
+    "scope": "D1/DS07 same-task synthetic material lineage",
+    "github_sync": "Not performed"
   }
 }

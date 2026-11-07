@@ -1,9 +1,9 @@
 'use client';
-
+import {UINav,LocaleLink,UIText} from '@/app/ui-language';
 import { useEffect, useState, type MouseEvent } from 'react';
 
 export default function ProtocolNavigation() {
-  const [returnTo, setReturnTo] = useState('/zh/');
+  const [returnTo, setReturnTo] = useState('/');
   const [canGoBack, setCanGoBack] = useState(false);
 
   useEffect(() => {
@@ -26,11 +26,11 @@ export default function ProtocolNavigation() {
     }
   }
 
-  return <nav className="protocol-toolbar" aria-label="Protocol 导航">
+  return <UINav className="protocol-toolbar" aria-label="协议 导航">
     <div className="protocol-toolbar-inner">
-      <a className="protocol-back" href={returnTo} onClick={returnToDossivo}>← 返回 / Back</a>
-      <span className="protocol-toolbar-title">DOSSIVO · PROTOCOL</span>
-      <a className="protocol-close" href={returnTo} onClick={returnToDossivo} aria-label="关闭 Protocol 并返回 / Close Protocol" title="关闭并返回 / Close and return">×</a>
+      <LocaleLink className="protocol-back" href={returnTo} onClick={returnToDossivo}><UIText>{"← 返回 / Back"}</UIText></LocaleLink>
+      <span className="protocol-toolbar-title"><UIText>{"DOSSIVO · PROTOCOL"}</UIText></span>
+      <LocaleLink className="protocol-close" href={returnTo} onClick={returnToDossivo} aria-label="关闭 协议 并返回 / Close 协议" title="关闭并返回 / Close and return">×</LocaleLink>
     </div>
-  </nav>;
+  </UINav>;
 }

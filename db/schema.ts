@@ -293,3 +293,27 @@ export const dossivoStoragePreferences=sqliteTable('dossivo_storage_preferences'
 export const dossivoAccountContacts=sqliteTable('dossivo_account_contacts',{
  actorId:text('actor_id').primaryKey().notNull(),email:text('email').notNull(),phone:text('phone').notNull(),version:integer('version').notNull(),updatedAt:text('updated_at').notNull(),consentVersion:text('consent_version'),confirmedAt:text('confirmed_at'),
 });
+
+// Explicit recipient/version approvals; ordinary authentication never grants access.
+export const dossivoPartnerContractAccess=sqliteTable('dossivo_partner_contract_access',{
+ recipientId:text('recipient_id').notNull(),contractType:text('contract_type').notNull(),contractVersion:text('contract_version').notNull(),approvedBy:text('approved_by').notNull(),approvedAt:text('approved_at').notNull(),expiresAt:text('expires_at').notNull(),revokedAt:text('revoked_at'),
+},t=>[primaryKey({columns:[t.recipientId,t.contractType,t.contractVersion]})]);
+
+export const dossivoPartnerContractDocuments=sqliteTable('dossivo_partner_contract_documents',{
+ contractType:text('contract_type').notNull(),
+ contractVersion:text('contract_version').notNull(),
+ language:text('language').notNull(),
+ bodyJson:text('body_json').notNull(),
+},t=>[primaryKey({columns:[t.contractType,t.contractVersion,t.language]})]);
+
+// Metadata only: never store contract bodies in the audit trail.
+export const dossivoPartnerContractAudit=sqliteTable('dossivo_partner_contract_audit',{
+ operationId:text('operation_id').primaryKey().notNull(),actorId:text('actor_id').notNull(),action:text('action').notNull(),contractType:text('contract_type').notNull(),contractVersion:text('contract_version').notNull(),language:text('language').notNull(),recipientId:text('recipient_id').notNull(),createdAt:text('created_at').notNull(),
+});
+
+export const dossivoPartnerApplications=sqliteTable('dossivo_partner_applications',{
+ actorId:text('actor_id').notNull(),partnerType:text('partner_type').notNull(),revision:integer('revision').notNull(),status:text('status').notNull(),profileJson:text('profile_json').notNull(),reason:text('reason').notNull(),createdAt:text('created_at').notNull(),updatedAt:text('updated_at').notNull(),
+},t=>[primaryKey({columns:[t.actorId,t.partnerType]}),index('partner_application_queue').on(t.status,t.updatedAt)]);
+export const dossivoPartnerApplicationEvents=sqliteTable('dossivo_partner_application_events',{
+ operationId:text('operation_id').primaryKey().notNull(),ownerId:text('owner_id').notNull(),partnerType:text('partner_type').notNull(),revision:integer('revision').notNull(),actorId:text('actor_id').notNull(),action:text('action').notNull(),status:text('status').notNull(),reason:text('reason').notNull(),createdAt:text('created_at').notNull(),
+},t=>[uniqueIndex('partner_application_event_revision').on(t.ownerId,t.partnerType,t.revision)]);

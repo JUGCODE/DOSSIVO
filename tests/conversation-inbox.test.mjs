@@ -389,3 +389,105 @@ test('cross-card response: blocked contact and expired temporary grants cannot b
  f.sqlite.prepare('UPDATE dossivo_contacts SET owner_blocked=1 WHERE id=?').run('dm_linked');await assert.rejects(f.chat.send('supplier',data,'cross-block'),{code:'CONVERSATION_READ_ONLY'});
  f.sqlite.prepare('UPDATE dossivo_contacts SET owner_blocked=0 WHERE id=?').run('dm_linked');f.setNow(f.g.grant.expires_at);await assert.rejects(f.chat.send('supplier',data,'cross-expire'),{code:'ACCESS_UNAVAILABLE'});
 });
+
+test('request export: complete ordered structured history, no free text/evidence and no read side effects',async t=>{
+ const f=await fixture(t);const q=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'audit',period:'2026-10'})).messages.at(-1);
+ await structuredSend(f,'supplier',{type:'RESPONSE',status:'PREPARING'},{reply_to:q.id});
+ await send(f,'supplier','PRIVATE_CHAT_NOT_FOR_REPORT',{reply_to:q.id});
+ await structuredSend(f,'supplier',{type:'RESPONSE',status:'CARD_SHARED'},{reply_to:q.id,evidence_sequence:0});
+ const unread=(await f.chat.inbox('buyer-a')).unread_total,events=f.sqlite.prepare('SELECT count(*) n FROM dossivo_access_events').get().n;
+ const record=await f.chat.requestRecord('buyer-a',f.g.grant.id,q.id);
+ assert.equal(record.complete,true);assert.equal(record.request.mine,true);assert.equal(record.latest_status,'CARD_SHARED');
+ assert.deepEqual(record.responses.map(r=>r.status),['PREPARING','CARD_SHARED']);assert.ok(record.responses[0].sequence<record.responses[1].sequence);
+ assert.equal(record.responses[1].reference.card_id,f.s.cards.at(-1).id);assert.equal(record.responses[1].reference.access_status,'ACTIVE');
+ for(const secret of ['PRIVATE_CHAT_NOT_FOR_REPORT','SECRET_ORDER_PURPOSE','snapshot','code_hash','supplier','buyer-a'])assert.ok(!JSON.stringify(record).includes(secret),secret);
+ assert.equal((await f.chat.inbox('buyer-a')).unread_total,unread);assert.equal(f.sqlite.prepare('SELECT count(*) n FROM dossivo_access_events').get().n,events);
+ assert.equal((await f.chat.requestRecord('supplier',f.g.grant.id,q.id)).request.mine,false);
+});
+
+test('request export: outsider, foreign conversation, note and missing request rejected',async t=>{
+ const f=await fixture(t);const q=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'audit',period:'2026-10'})).messages.at(-1);
+ const note=(await send(f,'supplier','note')).messages.at(-1);linkPair(f);
+ for(const [actor,grant,id] of [['buyer-b',f.g.grant.id,q.id],['buyer-a','dm_linked',q.id],['buyer-a',f.g.grant.id,note.id],['buyer-a',f.g.grant.id,'missing']])await assert.rejects(f.chat.requestRecord(actor,grant,id),{code:'CONVERSATION_UNAVAILABLE'});
+});
+
+test('request export: cross-contact revoked/expired references retain history without evidence access',async t=>{
+ const f=await fixture(t,{mode:'TEMPORARY'}),q=await crossRequest(f);
+ await f.chat.send('supplier',crossResponse(f,q),'export-card');
+ f.setNow('2026-11-10T12:00:00.000Z');
+ let record=await f.chat.requestRecord('buyer-a','dm_linked',q.id);assert.equal(record.responses[0].reference.access_status,'EXPIRED');
+ await f.access.revoke('supplier',f.g.grant.id,'export-revoke');
+ record=await f.chat.requestRecord('buyer-a','dm_linked',q.id);assert.equal(record.responses[0].reference.access_status,'REVOKED');assert.equal(record.responses[0].reference.grant_id,f.g.grant.id);
+ await assert.rejects(f.chat.reference('buyer-a','dm_linked',record.responses[0].id));
+});
+
+test('request export: awaiting response and explicit overflow instead of partial report',async t=>{
+ const f=await fixture(t),q=(await structuredSend(f,'buyer-a',{type:'REQUEST',topic:'audit',period:'2026-10'})).messages.at(-1);
+ assert.equal((await f.chat.requestRecord('buyer-a',f.g.grant.id,q.id)).latest_status,'AWAITING_RESPONSE');
+ await structuredSend(f,'supplier',{type:'RESPONSE',status:'PREPARING'},{reply_to:q.id});
+ const r=f.sqlite.prepare('SELECT * FROM dossivo_conversation_messages WHERE reply_to=?').get(q.id);
+ const insert=f.sqlite.prepare('INSERT INTO dossivo_conversation_messages(id,conversation_id,actor_id,kind,body,reply_to,created_at,sequence,structured_json,idempotency_key,command_hash) VALUES(?,?,?,?,?,?,?,?,?,?,?)');
+ for(let i=0;i<500;i++)insert.run('bulk-'+i,r.conversation_id,r.actor_id,r.kind,r.body,q.id,r.created_at,i+3,r.structured_json,'bulk-key-'+i,'synthetic');
+ await assert.rejects(f.chat.requestRecord('buyer-a',f.g.grant.id,q.id),{code:'EXPORT_TOO_LARGE'});
+});
+
+test('request export HTML: escapes injected values and contains no active or external resources',async()=>{
+ const {requestRecordHtml}=await import('../lib/request-record-export.js');
+ const report={schema:'dossivo/request-record/1',generated_at:'now',request:{topic:'<script>alert(1)</script>',period:'2026-10',id:'" onerror="attack',sequence:1,created_at:'now'},latest_status:'PREPARING',responses:[]};
+ for(const lang of ['zh','en','it','bad']){const html=requestRecordHtml(report,lang);assert.ok(html.includes('&lt;script&gt;'));assert.ok(!/<script|<iframe|<img|href=|src=/i.test(html));assert.ok(html.includes('&quot; onerror=&quot;'));}
+});
+
+test('collaboration acceptance: cross-contact request, two fixed publications, download, export, revoke and history',async t=>{
+ const f=await fixture(t,{follow:true}),q=await crossRequest(f),original=f.s.cards.at(-1).id;
+ await f.chat.send('supplier',{grant_id:'dm_linked',reply_to:q.id,structured:{type:'RESPONSE',status:'PREPARING'},synthetic_only:true},'accept-preparing');
+ const first=(await f.chat.send('supplier',crossResponse(f,q),'accept-first')).messages.at(-1);
+ const snapshot=await f.chat.reference('buyer-a','dm_linked',first.id,'DOWNLOADED');assert.equal(snapshot.snapshot.source_card_id,original);
+ let state=await cmd(f,f.s,'assess');state=await cmd(f,state,'freeze_card');
+ const preview=await f.access.previewPublication('supplier',{grant_id:f.g.grant.id,card_id:state.cards.at(-1).id});await f.access.publishSummary('supplier',preview,'accept-publish');
+ await f.chat.send('supplier',{...crossResponse(f,q),evidence_sequence:1},'accept-second');
+ const before=await f.chat.requestRecord('buyer-a','dm_linked',q.id);
+ assert.deepEqual(before.responses.map(r=>r.status),['PREPARING','CARD_SHARED','CARD_SHARED']);assert.equal(before.responses[1].reference.card_id,original);assert.equal(before.responses[2].reference.card_id,state.cards.at(-1).id);
+ assert.equal((await f.chat.reference('buyer-a','dm_linked',first.id)).snapshot.source_card_id,original);
+ await f.access.revoke('supplier',f.g.grant.id,'accept-revoke');
+ const after=await f.chat.requestRecord('buyer-a','dm_linked',q.id);
+ assert.equal(after.responses.length,3);assert.deepEqual(after.responses.filter(r=>r.reference).map(r=>r.reference.access_status),['REVOKED','REVOKED']);
+ for(const r of after.responses.filter(r=>r.reference))await assert.rejects(f.chat.reference('buyer-a','dm_linked',r.id,'DOWNLOADED'),{code:'ACCESS_UNAVAILABLE'});
+ assert.equal(before.responses[1].reference.access_status,'ACTIVE');assert.equal(snapshot.snapshot.source_card_id,original);
+ await assert.rejects(f.chat.requestRecord('buyer-b','dm_linked',q.id),{code:'CONVERSATION_UNAVAILABLE'});
+});
+
+test('collaboration acceptance: real contact consent APIs, private request, separate grant redemption, block and revoke',async t=>{
+ const {ContactStore}=await import('../lib/contact-store.js');
+ const f=setup(t),contacts=new ContactStore(f.db,{clock:f.clock});
+ await contacts.ensureProfile('buyer-a',{display_name:'Synthetic buyer',discoverable:true,synthetic_only:true});
+ const supplier=await contacts.ensureProfile('supplier',{display_name:'Synthetic supplier',discoverable:true,synthetic_only:true});
+ await contacts.request('buyer-a',{public_id:supplier.public_id,synthetic_only:true},'flow-contact-request');
+ assert.equal((await contacts.requests('buyer-a')).contacts.length,0);
+ const incoming=(await contacts.requests('supplier')).incoming[0];
+ await assert.rejects(contacts.respond('buyer-b',{request_id:incoming.id,decision:'ACCEPT'},'flow-outsider'));
+ await contacts.respond('supplier',{request_id:incoming.id,decision:'ACCEPT'},'flow-accept');
+ const contact=(await contacts.requests('buyer-a')).contacts[0];
+ assert.equal((await f.chat.inbox('buyer-a')).conversations.length,0,'accepted contact without messages is not an inbox thread');
+ assert.equal((await f.chat.thread('buyer-a',contact.id)).status,'NOT_STARTED');
+ assert.equal(f.sqlite.prepare('SELECT count(*) n FROM dossivo_basic_grants').get().n,0);
+ const request=(await f.chat.send('buyer-a',{grant_id:contact.id,structured:{type:'REQUEST',topic:'electricity',period:'2026-10'},synthetic_only:true},'flow-material-request')).messages.at(-1);
+ assert.equal((await f.chat.inbox('supplier')).unread_total,1);
+ let state=(await f.task.command('supplier',{action:'create',idempotency_key:'flow-task',data:{synthetic_only:true,purpose:'PRIVATE_FLOW_PURPOSE',organization:'Synthetic company',facility:'Synthetic site',period:'2026-10'}})).state;
+ state=await cmd(f,state,'add_material',{sample:'normal'});state=await cmd(f,state,'assess');state=await cmd(f,state,'freeze_card');
+ await assert.rejects(f.task.read('buyer-a',state.task_id),{code:'TASK_NOT_FOUND'});
+ const grant=await f.access.createGrant('supplier',{task_id:state.task_id,card_id:state.cards.at(-1).id,hours:48,fields:[],categories:['electricity'],access_mode:'CONTINUOUS_SUMMARY',version_policy:'FIXED'},'flow-grant');
+ const response={grant_id:contact.id,reply_to:request.id,structured:{type:'RESPONSE',status:'CARD_SHARED'},evidence_grant_id:grant.grant.id,evidence_sequence:0,synthetic_only:true};
+ await assert.rejects(f.chat.send('supplier',response,'flow-unredeemed'),{code:'CONVERSATION_UNAVAILABLE'});
+ await f.access.redeem('buyer-a',grant.code,'flow-redeem');
+ const card=(await f.chat.send('supplier',response,'flow-card')).messages.at(-1);
+ assert.equal((await f.chat.reference('buyer-a',contact.id,card.id)).snapshot.source_card_id,state.cards.at(-1).id);
+ await contacts.block('supplier',{contact_id:contact.id,blocked:true},'flow-block');
+ await assert.rejects(f.chat.send('buyer-a',{grant_id:contact.id,kind:'NOTE',body:'blocked',synthetic_only:true},'flow-blocked-send'),{code:'CONVERSATION_READ_ONLY'});
+ const record=await f.chat.requestRecord('buyer-a',contact.id,request.id);
+ assert.equal(record.responses[0].reference.access_status,'ACTIVE','blocking communication does not silently revoke evidence');
+ await f.access.revoke('supplier',grant.grant.id,'flow-revoke');
+ assert.equal((await f.chat.requestRecord('buyer-a',contact.id,request.id)).responses[0].reference.access_status,'REVOKED');
+ await assert.rejects(f.chat.reference('buyer-a',contact.id,card.id,'DOWNLOADED'),{code:'ACCESS_UNAVAILABLE'});
+ assert.equal((await f.chat.thread('buyer-a',contact.id)).messages.length,2);
+ assert.ok(!JSON.stringify(record).includes('PRIVATE_FLOW_PURPOSE'));
+});

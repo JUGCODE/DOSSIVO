@@ -14,7 +14,7 @@ export async function GET(request:Request){try{
  if(task)return Response.json(url.searchParams.get('usage')==='1'?{usage:await store.ownerUsage(user.userId,task)}:{grants:await store.ownerList(user.userId,task)},{headers});
  if(!id)return Response.json({received:await store.buyerList(user.userId)},{headers});
  const html=url.searchParams.get('format')==='html',view=await store.buyerRead(user.userId,id,html?'DOWNLOADED':'VIEWED',url.searchParams.has('sequence')?Number(url.searchParams.get('sequence')):null);
- if(html)return new Response(cardHtml(view),{headers:{...headers,'content-type':'text/html; charset=utf-8','content-disposition':'attachment; filename="DOSSIVO_Basic_Evidence_Card.html"','content-security-policy':"sandbox; default-src 'none'; style-src 'unsafe-inline'"}});
+ if(html)return new Response(cardHtml(view,url.searchParams.get("lang")??"en"),{headers:{...headers,'content-type':'text/html; charset=utf-8','content-disposition':'attachment; filename="DOSSIVO_Basic_Evidence_Card.html"','content-security-policy':"sandbox; default-src 'none'; style-src 'unsafe-inline'"}});
  return Response.json(view,{headers});
 }catch(e){return fail(e);}}
 export async function POST(request:Request){try{

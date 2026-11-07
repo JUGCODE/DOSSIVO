@@ -1,4 +1,6 @@
 'use client';
+import {UIError} from '@/app/ui-language';
+import {UIText,UIInput,LocaleLink} from '@/app/ui-language';
 import {useEffect,useRef,useState} from 'react';
 import {CONTACT_CONSENT_VERSION} from '@/lib/account-contact-policy';
 type Profile={email:string;phone:string;version:number;updated_at:string|null;consent_version:string|null;confirmed_at:string|null};
@@ -15,10 +17,10 @@ export function AccountContactForm({language,signedIn}:{language:'zh'|'en'|'it';
   }catch(e){setError(e instanceof TypeError?(action==='read'?c.error:f.uncertain):(e as Error).message);}finally{lock.current=false;setBusy(false);}
  }
  useEffect(()=>{if(signedIn)void request('read');},[signedIn]);
- return <section id="account-contacts"><h2>{c.title}</h2><p>{c.privacy}</p>{!signedIn&&<p>{c.login}</p>}<form onSubmit={e=>{e.preventDefault();if(consent&&profile)void request('save');}}>
-  <label>{c.email}<input type="email" autoComplete="email" maxLength={254} value={email} disabled={busy||!profile} placeholder="name@company.com" onChange={e=>{setEmail(e.target.value);setMessage('');}}/></label>
-  <label>{c.phone}<input type="tel" autoComplete="tel" inputMode="tel" maxLength={40} value={phone} disabled={busy||!profile} placeholder="+39 … / +86 … / +1 …" onChange={e=>{setPhone(e.target.value);setMessage('');}}/></label><p>{c.hint}</p>
-  <label><input type="checkbox" checked={consent} disabled={busy||!profile} onChange={e=>setConsent(e.target.checked)}/>{c.confirm}</label>
-  <button type="submit" disabled={busy||!profile||!consent}>{busy?c.busy:c.save}</button> <button type="button" disabled={busy||!signedIn} onClick={()=>void request('read')}>{c.reload}</button> <button type="button" disabled={busy||!profile||(!profile.email&&!profile.phone)} onClick={()=>void request('clear')}>{c.clear}</button>
- </form>{dirty&&<p role="status">{f.dirty}</p>}{profile?.updated_at&&<p>{f.updated}: {new Date(profile.updated_at).toLocaleString(language)}</p>}{profile?.confirmed_at&&<p>{f.confirmed}: {new Date(profile.confirmed_at).toLocaleString(language)}</p>}{profile&&(profile.email||profile.phone)&&!profile.consent_version&&<p>{f.legacy}</p>}{authExpired&&<a target="_top" href={'/signin-with-chatgpt?return_to='+encodeURIComponent('/account?lang='+language)}>{f.login}</a>}<p>{c.pending}</p>{error&&<p role="alert">{error}</p>}{message&&<p role="status">{message}</p>}</section>;
+ return <section id="account-contacts"><h2><UIText>{c.title}</UIText></h2><p><UIText>{c.privacy}</UIText></p>{!signedIn&&<p><UIText>{c.login}</UIText></p>}<form onSubmit={e=>{e.preventDefault();if(consent&&profile)void request('save');}}>
+  <label>{c.email}<UIInput type="email" autoComplete="email" maxLength={254} value={email} disabled={busy||!profile} placeholder="name@company.com" onChange={e=>{setEmail(e.target.value);setMessage('');}}/></label>
+  <label>{c.phone}<UIInput type="tel" autoComplete="tel" inputMode="tel" maxLength={40} value={phone} disabled={busy||!profile} placeholder="+39 … / +86 … / +1 …" onChange={e=>{setPhone(e.target.value);setMessage('');}}/></label><p><UIText>{c.hint}</UIText></p>
+  <label><input type="checkbox" checked={consent} disabled={busy||!profile} onChange={e=>setConsent(e.target.checked)}/><UIText>{c.confirm}</UIText></label>
+  <button type="submit" disabled={busy||!profile||!consent}><UIText>{busy?c.busy:c.save}</UIText></button> <button type="button" disabled={busy||!signedIn} onClick={()=>void request('read')}><UIText>{c.reload}</UIText></button> <button type="button" disabled={busy||!profile||(!profile.email&&!profile.phone)} onClick={()=>void request('clear')}><UIText>{c.clear}</UIText></button>
+ </form>{dirty&&<p role="status"><UIText>{f.dirty}</UIText></p>}{profile?.updated_at&&<p><UIText>{f.updated}</UIText>: <UIText>{new Date(profile.updated_at).toLocaleString(language)}</UIText></p>}{profile?.confirmed_at&&<p><UIText>{f.confirmed}</UIText>: <UIText>{new Date(profile.confirmed_at).toLocaleString(language)}</UIText></p>}{profile&&(profile.email||profile.phone)&&!profile.consent_version&&<p><UIText>{f.legacy}</UIText></p>}{authExpired&&<LocaleLink target="_top" href={'/signin-with-chatgpt?return_to='+encodeURIComponent('/account?lang='+language)}><UIText>{f.login}</UIText></LocaleLink>}<p><UIText>{c.pending}</UIText></p>{error&&<p role="alert"><UIError>{error}</UIError></p>}{message&&<p role="status"><UIText>{message}</UIText></p>}</section>;
 }

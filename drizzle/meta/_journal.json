@@ -134,6 +134,34 @@
       "when": 1793990875110,
       "tag": "0018_overjoyed_domino",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1794003147008,
+      "tag": "0019_icy_wallflower",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "6",
+      "when": 1794004772003,
+      "tag": "0020_white_night_nurse",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1794006831180,
+      "tag": "0021_keen_steve_rogers",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "6",
+      "when": 1794007470277,
+      "tag": "0022_worthless_firestar",
+      "breakpoints": true
     }
   ]
 }

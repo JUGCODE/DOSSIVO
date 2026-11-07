@@ -1,0 +1,2626 @@
+{
+  "欧盟用户授权 / EU buyer access": {
+    "zh": "欧盟用户授权",
+    "en": "EU buyer access"
+  },
+  "使用注册／登录后的欧盟用户入口，代替发送专用材料链接。一次兑换绑定第一个成功兑换的账号。持续摘要的兑换码48或72小时有效；兑换后可不限业务查阅次数地访问，直到企业撤销。临时授权仍按生成时间到期。": {
+    "zh": "使用注册／登录后的欧盟用户入口，代替发送专用材料链接。一次兑换绑定第一个成功兑换的账号。持续摘要的兑换码48或72小时有效；兑换后可不限业务查阅次数地访问，直到企业撤销。临时授权仍按生成时间到期。",
+    "en": "Use the signed-in EU buyer portal instead of a dedicated document link. The first successful redemption binds the code to that account. Continuous-summary codes can be redeemed within 48 or 72 hours; after redemption, access continues until revoked. Temporary access still expires at its original deadline."
+  },
+  "基本授权固定包含企业、场所、期间、材料覆盖度和未解决事项数量。持续摘要只含所选材料状态，不含精确数值；临时授权的数值须逐项选择。不包含原件、OCR、其他买方信息或内部批注。此入口不认证买方国籍或企业代表身份，请只向指定接收人提供代码。": {
+    "zh": "基本授权固定包含企业、场所、期间、材料覆盖度和未解决事项数量。持续摘要只含所选材料状态，不含精确数值；临时授权的数值须逐项选择。不包含原件、OCR、其他买方信息或内部批注。此入口不认证买方国籍或企业代表身份，请只向指定接收人提供代码。",
+    "en": "Basic access always includes company, facility, period, material coverage and unresolved issue counts. Continuous summaries include selected material statuses, without exact values. Temporary numeric access requires each parameter to be selected. Originals, extracted text, other buyers and internal notes are excluded. This portal does not verify nationality or company authority. Give the code only to the intended recipient."
+  },
+  "授权方式": {
+    "zh": "授权方式",
+    "en": "Access mode"
+  },
+  "持续授权摘要 · 直到撤销": {
+    "zh": "持续授权摘要 · 直到撤销",
+    "en": "Continuous summary · Until revoked"
+  },
+  "临时基本参数 · 到期停止访问": {
+    "zh": "临时基本参数 · 到期停止访问",
+    "en": "Temporary parameters · Until expiry"
+  },
+  "用途：合规评估。后续更新仅限原主体、场所、期间和所选材料类别；其他范围或用途须另行授权。": {
+    "zh": "用途：合规评估。后续更新仅限原主体、场所、期间和所选材料类别；其他范围或用途须另行授权。",
+    "en": "Purpose: compliance assessment. Updates are limited to the original company, facility, period and selected material categories. Other scopes or purposes require separate permission."
+  },
+  "版本授权": {
+    "zh": "版本授权",
+    "en": "Version access"
+  },
+  "仅此固定版本": {
+    "zh": "仅此固定版本",
+    "en": "This fixed version only"
+  },
+  "跟随后续明确发布的同范围摘要": {
+    "zh": "跟随后续明确发布的同范围摘要",
+    "en": "Follow explicitly published summaries within the same scope"
+  },
+  "固定卡片版本": {
+    "zh": "固定卡片版本",
+    "en": "Fixed card version"
+  },
+  "先检查并固定一张私密准备卡，再生成授权码。": {
+    "zh": "先检查并固定一张私密准备卡，再生成授权码。",
+    "en": "Check and freeze a private preparation card before creating a code."
+  },
+  "48小时 / hours": {
+    "zh": "48小时",
+    "en": "48 hours"
+  },
+  "72小时 / hours": {
+    "zh": "72小时",
+    "en": "72 hours"
+  },
+  "获准材料状态 / Material status": {
+    "zh": "获准材料状态",
+    "en": "Authorised material status"
+  },
+  "获准数值 / Numeric parameters": {
+    "zh": "获准数值",
+    "en": "Authorised numeric parameters"
+  },
+  "生成一次性兑换码 / Create code": {
+    "zh": "生成一次性兑换码",
+    "en": "Create one-time code"
+  },
+  "仅本次展示，请保存并交给指定接收人": {
+    "zh": "仅本次展示，请保存并交给指定接收人",
+    "en": "Shown only once. Save it and give it to the intended recipient."
+  },
+  "兑换截止 / Redeem by:": {
+    "zh": "兑换截止",
+    "en": "Redeem by:"
+  },
+  "接收方入口：": {
+    "zh": "接收方入口：",
+    "en": "Recipient portal:"
+  },
+  "欧盟用户入口 / EU buyer": {
+    "zh": "欧盟用户入口",
+    "en": "EU buyer portal"
+  },
+  "。代码不放入网址或公开页面。": {
+    "zh": "。代码不放入网址或公开页面。",
+    "en": ". The code is not included in URLs or public pages."
+  },
+  "已有授权 / Existing grants": {
+    "zh": "已有授权",
+    "en": "Existing grants"
+  },
+  "刷新授权状态": {
+    "zh": "刷新授权状态",
+    "en": "Refresh access status"
+  },
+  "Card": {
+    "zh": "卡片",
+    "en": "Card"
+  },
+  "撤销未来访问 / Revoke": {
+    "zh": "撤销未来访问",
+    "en": "Revoke future access"
+  },
+  "每次查看、刷新、下载都重新鉴权。已合法下载的历史副本无法远程收回；只有选择跟随更新且企业明确发布后，新摘要才对该接收人可见；历史版本继续保留。": {
+    "zh": "每次查看、刷新、下载都重新鉴权。已合法下载的历史副本无法远程收回；只有选择跟随更新且企业明确发布后，新摘要才对该接收人可见；历史版本继续保留。",
+    "en": "Every view, refresh and download checks permission again. Lawfully downloaded copies cannot be recalled remotely. New summaries become available only when follow-up access was granted and the company explicitly publishes them. Historical versions remain recorded."
+  },
+  "我的授权总览 / My access overview": {
+    "zh": "我的授权总览",
+    "en": "My access overview"
+  },
+  "按授权记录统计，不代表独立供应商数量或合规评分。状态随刷新更新；打开卡片时再次核验权限。": {
+    "zh": "按授权记录统计，不代表独立供应商数量或合规评分。状态随刷新更新；打开卡片时再次核验权限。",
+    "en": "Counts are per access grant, not unique suppliers or compliance scores. Refresh updates the status; opening a card checks permission again."
+  },
+  "授权状态 / Access status": {
+    "zh": "授权状态",
+    "en": "Access status"
+  },
+  "刷新总览 / Refresh": {
+    "zh": "刷新总览",
+    "en": "Refresh overview"
+  },
+  "查询时间 / Checked:": {
+    "zh": "查询时间",
+    "en": "Checked:"
+  },
+  "授权编号 / Grant ID:": {
+    "zh": "授权编号",
+    "en": "Grant ID:"
+  },
+  "撤销时间 / Revoked:": {
+    "zh": "撤销时间",
+    "en": "Revoked:"
+  },
+  "查看授权证据 / View evidence": {
+    "zh": "查看授权证据",
+    "en": "View authorised evidence"
+  },
+  "在线材料不可读取；已下载副本不在此处重新提供。历史通信仍可从“直接通信”查看。 / Online evidence unavailable; existing downloads are not reissued here.": {
+    "zh": "在线材料不可读取；已下载副本不在此处重新提供。历史通信仍可从“直接通信”查看。",
+    "en": "Online evidence is unavailable. Existing downloads are not reissued here. Historical messages remain in Direct messaging."
+  },
+  "此筛选下没有授权 / No access records for this filter.": {
+    "zh": "此筛选下没有授权",
+    "en": "No access records for this filter."
+  },
+  "返回第一页 / First page": {
+    "zh": "返回第一页",
+    "en": "First page"
+  },
+  "下一页 / Next page": {
+    "zh": "下一页",
+    "en": "Next page"
+  },
+  "读取中 / Loading…": {
+    "zh": "读取中",
+    "en": "Loading…"
+  },
+  "开发测试版": {
+    "zh": "开发测试版",
+    "en": "Development test version"
+  },
+  "开发期间暂不按地区限制，中文可正常使用。": {
+    "zh": "开发期间暂不按地区限制，中文可正常使用。",
+    "en": "Regional restrictions are disabled during development. Chinese remains supported."
+  },
+  "国际测试版已开放": {
+    "zh": "国际测试版已开放",
+    "en": "International test version available"
+  },
+  "中国大陆用户暂未开通，待完成相关手续。": {
+    "zh": "中国大陆用户暂未开通，待完成相关手续。",
+    "en": "Free-text messaging in mainland China is not yet available, pending the required arrangements."
+  },
+  "通信服务地区": {
+    "zh": "通信服务地区",
+    "en": "Messaging service region"
+  },
+  "请按你实际使用通信服务的所在地选择。": {
+    "zh": "请按你实际使用通信服务的所在地选择。",
+    "en": "Select where you actually use the messaging service."
+  },
+  "选择使用地区": {
+    "zh": "选择使用地区",
+    "en": "Choose service region"
+  },
+  "中国大陆以外": {
+    "zh": "中国大陆以外",
+    "en": "Outside mainland China"
+  },
+  "中国大陆": {
+    "zh": "中国大陆",
+    "en": "Mainland China"
+  },
+  "我确认这是实际使用所在地；当前只使用合成测试内容。": {
+    "zh": "我确认这是实际使用所在地；当前只使用合成测试内容。",
+    "en": "I confirm this is my actual location and I am using synthetic test content only."
+  },
+  "所在地由你本人声明，尚未经核验；不代表企业身份认证。材料授权仍单独管理。": {
+    "zh": "所在地由你本人声明，尚未经核验；不代表企业身份认证。材料授权仍单独管理。",
+    "en": "Location is self-declared and unverified. This does not verify company identity. Evidence access is managed separately."
+  },
+  "正在读取通信服务状态…": {
+    "zh": "正在读取通信服务状态…",
+    "en": "Loading messaging availability…"
+  },
+  "当前：国际测试版 · 地区为本人声明": {
+    "zh": "当前：国际测试版 · 地区为本人声明",
+    "en": "Current: international test version · Self-declared location"
+  },
+  "更改通信服务地区": {
+    "zh": "更改通信服务地区",
+    "en": "Change messaging region"
+  },
+  "待完成相关手续后再开放。已有材料与授权可继续在工作台管理。": {
+    "zh": "待完成相关手续后再开放。已有材料与授权可继续在工作台管理。",
+    "en": "Messaging will open after the required arrangements. Existing evidence and permissions remain manageable in the workspace."
+  },
+  "Protocol": {
+    "zh": "协议",
+    "en": "Protocol"
+  },
+  "用另行授权的卡片回应": {
+    "zh": "用另行授权的卡片回应",
+    "en": "Respond with a separately authorised card"
+  },
+  "只可选你已向此联系人授权、对方已兑换且仍有效的同月份卡片。发送不新增授权，不表示请求已满足或核验通过。": {
+    "zh": "只可选你已向此联系人授权、对方已兑换且仍有效的同月份卡片。发送不新增授权，不表示请求已满足或核验通过。",
+    "en": "Only same-month cards already granted to this contact, redeemed and still accessible can be selected. Sending creates no new permission and does not establish that the request is satisfied or verified."
+  },
+  "刷新可用授权": {
+    "zh": "刷新可用授权",
+    "en": "Refresh available grants"
+  },
+  "选择授权": {
+    "zh": "选择授权",
+    "en": "Select grant"
+  },
+  "请明确选择": {
+    "zh": "请明确选择",
+    "en": "Make an explicit selection"
+  },
+  "查找更多授权": {
+    "zh": "查找更多授权",
+    "en": "Find more grants"
+  },
+  "当前页没有可用授权。可继续查找；尚未授权时，请先在材料工作台创建授权，并让对方兑换。": {
+    "zh": "当前页没有可用授权。可继续查找；尚未授权时，请先在材料工作台创建授权，并让对方兑换。",
+    "en": "No available grants on this page. Keep searching or create a grant in the evidence workspace and have the recipient redeem it first."
+  },
+  "固定版本": {
+    "zh": "固定版本",
+    "en": "Fixed version"
+  },
+  "请选择版本": {
+    "zh": "请选择版本",
+    "en": "Select a version"
+  },
+  "· 发布 #": {
+    "zh": "· 发布 #",
+    "en": "· Publication #"
+  },
+  "确认以此卡回应原请求": {
+    "zh": "确认以此卡回应原请求",
+    "en": "Confirm response with this card"
+  },
+  "正在核对授权…": {
+    "zh": "正在核对授权…",
+    "en": "Checking permission…"
+  },
+  "我的 DOSSIVO ID": {
+    "zh": "我的 DOSSIVO ID",
+    "en": "My DOSSIVO ID"
+  },
+  "通过联系链接或ID添加对方，对方接受后即可通信。材料仍需单独授权。": {
+    "zh": "通过联系链接或ID添加对方，对方接受后即可通信。材料仍需单独授权。",
+    "en": "Add a contact through their link or ID. Messaging starts after acceptance. Evidence requires separate permission."
+  },
+  "测试显示名称": {
+    "zh": "测试显示名称",
+    "en": "Test display name"
+  },
+  "允许通过我的ID或联系链接查看此名称并申请联系": {
+    "zh": "允许通过我的ID或联系链接查看此名称并申请联系",
+    "en": "Allow people with my ID or contact link to see this name and request contact"
+  },
+  "当前为测试环境，我使用测试名称及合成通信内容": {
+    "zh": "当前为测试环境，我使用测试名称及合成通信内容",
+    "en": "This is a test environment. I use a test name and synthetic messages."
+  },
+  "复制ID": {
+    "zh": "复制ID",
+    "en": "Copy ID"
+  },
+  "复制联系链接与二维码": {
+    "zh": "复制联系链接与二维码",
+    "en": "Copy contact link and QR code"
+  },
+  "联系链接": {
+    "zh": "联系链接",
+    "en": "Contact link"
+  },
+  "复制": {
+    "zh": "复制",
+    "en": "Copy"
+  },
+  "收起": {
+    "zh": "收起",
+    "en": "Collapse"
+  },
+  "添加联系人": {
+    "zh": "添加联系人",
+    "en": "Add a contact"
+  },
+  "DOSSIVO ID": {
+    "zh": "DOSSIVO 联系编号",
+    "en": "DOSSIVO ID"
+  },
+  "查找": {
+    "zh": "查找",
+    "en": "Find"
+  },
+  "由": {
+    "zh": "由",
+    "en": "Shared by"
+  },
+  "分享此联系人": {
+    "zh": "分享此联系人",
+    "en": "Share this contact"
+  },
+  "显示名称由用户设置，不代表已核实企业身份。": {
+    "zh": "显示名称由用户设置，不代表已核实企业身份。",
+    "en": "The display name is user-provided and does not verify company identity."
+  },
+  "发送联系申请": {
+    "zh": "发送联系申请",
+    "en": "Send contact request"
+  },
+  "请先创建并开放自己的联系ID，让对方知道是谁申请。": {
+    "zh": "请先创建并开放自己的联系ID，让对方知道是谁申请。",
+    "en": "Create and enable your own contact ID first so the recipient can identify the requester."
+  },
+  "联系申请": {
+    "zh": "联系申请",
+    "en": "Contact requests"
+  },
+  "刷新申请与联系人": {
+    "zh": "刷新申请与联系人",
+    "en": "Refresh requests and contacts"
+  },
+  "暂无联系申请。": {
+    "zh": "暂无联系申请。",
+    "en": "No contact requests yet."
+  },
+  "收到：": {
+    "zh": "收到：",
+    "en": "Received:"
+  },
+  "接受": {
+    "zh": "接受",
+    "en": "Accept"
+  },
+  "拒绝": {
+    "zh": "拒绝",
+    "en": "Decline"
+  },
+  "已发出：": {
+    "zh": "已发出：",
+    "en": "Sent:"
+  },
+  "我的联系人": {
+    "zh": "我的联系人",
+    "en": "My contacts"
+  },
+  "对方接受申请后会显示在这里。": {
+    "zh": "对方接受申请后会显示在这里。",
+    "en": "Contacts appear here after accepting your request."
+  },
+  "打开通信": {
+    "zh": "打开通信",
+    "en": "Open conversation"
+  },
+  "分享联系人（显示我为推荐人）": {
+    "zh": "分享联系人（显示我为推荐人）",
+    "en": "Share contact (show me as referrer)"
+  },
+  "与": {
+    "zh": "与",
+    "en": "With"
+  },
+  "通信": {
+    "zh": "通信",
+    "en": "Conversation"
+  },
+  "引用已发布版本 #": {
+    "zh": "引用已发布版本 #",
+    "en": "Referenced publication #"
+  },
+  "· Card": {
+    "zh": "· 卡片",
+    "en": "· Card"
+  },
+  "核对权限并查看卡片": {
+    "zh": "核对权限并查看卡片",
+    "en": "Check permission and view card"
+  },
+  "下载该版本": {
+    "zh": "下载该版本",
+    "en": "Download this version"
+  },
+  "材料覆盖": {
+    "zh": "材料覆盖",
+    "en": "Material coverage"
+  },
+  "% · 企业确认": {
+    "zh": "% · 企业确认",
+    "en": "% · Company-confirmed"
+  },
+  "· 已检查": {
+    "zh": "· 已检查",
+    "en": "· Checked"
+  },
+  "本卡未解决事项": {
+    "zh": "本卡未解决事项",
+    "en": "Unresolved issues on this card"
+  },
+  "（红色": {
+    "zh": "（红色",
+    "en": "(red:"
+  },
+  "）。覆盖度不是真实性评分；同行比较未评估。": {
+    "zh": "）。覆盖度不是真实性评分；同行比较未评估。",
+    "en": "). Coverage is not a truth score. Peer comparison has not been assessed."
+  },
+  "这是引用的固定版本；后续发布不会替换它。在线授权": {
+    "zh": "这是引用的固定版本；后续发布不会替换它。在线授权",
+    "en": "This is a fixed reference; later publications do not replace it. Online access"
+  },
+  "，核对时间": {
+    "zh": "，核对时间",
+    "en": ", checked at"
+  },
+  "收起卡片": {
+    "zh": "收起卡片",
+    "en": "Collapse card"
+  },
+  "，引用记录保留，但不会恢复已撤销的材料权限。": {
+    "zh": "，引用记录保留，但不会恢复已撤销的材料权限。",
+    "en": ". The reference remains recorded, but revoked evidence access is not restored."
+  },
+  "直接通信 / Direct messaging": {
+    "zh": "直接通信",
+    "en": "Direct messaging"
+  },
+  "仅限合成测试文字，勿输入真实个人或商业资料。消息不授予证据权限，也不代表事项已解决。": {
+    "zh": "仅限合成测试文字，勿输入真实个人或商业资料。消息不授予证据权限，也不代表事项已解决。",
+    "en": "Synthetic test text only. Do not enter real personal or commercial information. Messages do not grant evidence access or resolve issues."
+  },
+  "全部会话与未读提醒 ↗": {
+    "zh": "全部会话与未读提醒 ↗",
+    "en": "All conversations and unread messages ↗"
+  },
+  "刷新消息": {
+    "zh": "刷新消息",
+    "en": "Refresh messages"
+  },
+  "将已加载消息及此前标为已读": {
+    "zh": "将已加载消息及此前标为已读",
+    "en": "Mark loaded and earlier messages as read"
+  },
+  "加载更早消息": {
+    "zh": "加载更早消息",
+    "en": "Load earlier messages"
+  },
+  "快捷证据请求与回应": {
+    "zh": "快捷证据请求与回应",
+    "en": "Quick evidence requests and responses"
+  },
+  "确认仅使用合成测试资料": {
+    "zh": "确认仅使用合成测试资料",
+    "en": "I confirm that I use synthetic test data only"
+  },
+  "请求项目": {
+    "zh": "请求项目",
+    "en": "Requested item"
+  },
+  "材料月份": {
+    "zh": "材料月份",
+    "en": "Evidence month"
+  },
+  "发送证据请求": {
+    "zh": "发送证据请求",
+    "en": "Send evidence request"
+  },
+  "回应使用的已授权卡片": {
+    "zh": "回应使用的已授权卡片",
+    "en": "Authorised card for response"
+  },
+  "这是材料请求，不是合规结论。联系人请求可通过“用另行授权的卡片回应”关联同月份卡片；须先单独授权并由对方兑换，不能通过聊天绕过授权。": {
+    "zh": "这是材料请求，不是合规结论。联系人请求可通过“用另行授权的卡片回应”关联同月份卡片；须先单独授权并由对方兑换，不能通过聊天绕过授权。",
+    "en": "This is a document request, not a compliance finding. A contact request can be linked to a same-month card through a separately authorised card response. Permission must be granted and redeemed first. Messaging cannot bypass access controls."
+  },
+  "回应消息": {
+    "zh": "回应消息",
+    "en": "In reply to message"
+  },
+  "回复此条": {
+    "zh": "回复此条",
+    "en": "Reply to this message"
+  },
+  "当前会话只可查看历史记录。请在直接通信入口核对通信服务地区与联系人状态。": {
+    "zh": "当前会话只可查看历史记录。请在直接通信入口核对通信服务地区与联系人状态。",
+    "en": "This conversation is read-only. Check your messaging region and contact status in Direct messaging."
+  },
+  "消息类型": {
+    "zh": "消息类型",
+    "en": "Message type"
+  },
+  "请求补充材料": {
+    "zh": "请求补充材料",
+    "en": "Request additional evidence"
+  },
+  "普通沟通": {
+    "zh": "普通沟通",
+    "en": "General message"
+  },
+  "回应所选消息": {
+    "zh": "回应所选消息",
+    "en": "Reply to selected message"
+  },
+  "确认收到所选消息": {
+    "zh": "确认收到所选消息",
+    "en": "Acknowledge selected message"
+  },
+  "回应": {
+    "zh": "回应",
+    "en": "Reply"
+  },
+  "取消关联": {
+    "zh": "取消关联",
+    "en": "Remove reply link"
+  },
+  "未发送文字仅保留在当前会话窗口；切换会话或离开页面会清除，请先发送或自行复制。": {
+    "zh": "未发送文字仅保留在当前会话窗口；切换会话或离开页面会清除，请先发送或自行复制。",
+    "en": "Unsent text remains only in this conversation window. Switching conversations or leaving clears it. Send or copy it first."
+  },
+  "文字": {
+    "zh": "文字",
+    "en": "Text"
+  },
+  "引用此授权的固定卡版本": {
+    "zh": "引用此授权的固定卡版本",
+    "en": "Reference a fixed card covered by this grant"
+  },
+  "选择已获准卡片": {
+    "zh": "选择已获准卡片",
+    "en": "Select an authorised card"
+  },
+  "仅显示此授权已有的固定版本。发送引用不代表接收人已查看；材料授权停止后不能新增引用。": {
+    "zh": "仅显示此授权已有的固定版本。发送引用不代表接收人已查看；材料授权停止后不能新增引用。",
+    "en": "Only fixed versions covered by this grant are listed. Sending a reference does not mean the recipient viewed it. New references are blocked when evidence access ends."
+  },
+  "我确认内容仅为合成测试资料": {
+    "zh": "我确认内容仅为合成测试资料",
+    "en": "I confirm this contains synthetic test data only"
+  },
+  "发送": {
+    "zh": "发送",
+    "en": "Send"
+  },
+  "已读只表示本站的消息状态。确认收到不是合规认证。撤权停止新的材料读取，历史消息与已有合法副本分别保留。": {
+    "zh": "已读只表示本站的消息状态。确认收到不是合规认证。撤权停止新的材料读取，历史消息与已有合法副本分别保留。",
+    "en": "Read status only describes messages on this site. Acknowledgement is not compliance certification. Revocation blocks new evidence reads; historical messages and lawful existing copies remain separate."
+  },
+  "。发送失败时文字会保留；内容不变时再次发送会复用同一请求标识，避免重复保存。": {
+    "zh": "。发送失败时文字会保留；内容不变时再次发送会复用同一请求标识，避免重复保存。",
+    "en": ". Text is preserved after a failed send. Retrying unchanged content reuses the same request identifier to avoid duplicates."
+  },
+  "材料覆盖进度 / Material coverage": {
+    "zh": "材料覆盖进度",
+    "en": "Material coverage"
+  },
+  "自选清单：": {
+    "zh": "自选清单：",
+    "en": "Selected checklist:"
+  },
+  "；完整参考清单：": {
+    "zh": "；完整参考清单：",
+    "en": "; full reference checklist:"
+  },
+  "。L1基础、L2汇总、L3生产与外部材料表示覆盖范围。": {
+    "zh": "。L1基础、L2汇总、L3生产与外部材料表示覆盖范围。",
+    "en": ". L1 basic, L2 aggregate, and L3 production and external materials indicate coverage scope."
+  },
+  "% 材料已提交 ·": {
+    "zh": "% 材料已提交 ·",
+    "en": "% submitted ·"
+  },
+  "项企业已确认 ·": {
+    "zh": "项企业已确认 ·",
+    "en": "company-confirmed ·"
+  },
+  "项已检查": {
+    "zh": "项已检查",
+    "en": "checked"
+  },
+  "更全面的材料可支持更多交叉核查，但不是可信分数。用电、产量、人数须匹配场所、期间与口径；当前同行基准未接入，不推导“无强迫劳动”或欧盟保障。": {
+    "zh": "更全面的材料可支持更多交叉核查，但不是可信分数。用电、产量、人数须匹配场所、期间与口径；当前同行基准未接入，不推导“无强迫劳动”或欧盟保障。",
+    "en": "More complete materials support more cross-checks, not a trust score. Electricity, production and headcount must match facility, period and methodology. No peer benchmark is connected. No forced-labour-free finding or EU assurance is inferred."
+  },
+  "选择准备清单与查看材料状态 / Choose preparation checklist": {
+    "zh": "选择准备清单与查看材料状态",
+    "en": "Choose preparation checklist and view material status"
+  },
+  "自选项目": {
+    "zh": "自选项目",
+    "en": "Selected items"
+  },
+  "材料": {
+    "zh": "材料",
+    "en": "Material"
+  },
+  "提交／确认／检查": {
+    "zh": "提交／确认／检查",
+    "en": "Submitted / Confirmed / Checked"
+  },
+  "/ 未检查": {
+    "zh": "/ 未检查",
+    "en": "/ Not checked"
+  },
+  "保存自选清单 / Save checklist": {
+    "zh": "保存自选清单",
+    "en": "Save checklist"
+  },
+  "取消勾选只调整自己的准备计划；不会把其他范围自动标记正常，也不会改变完整参考清单的分母。": {
+    "zh": "取消勾选只调整自己的准备计划；不会把其他范围自动标记正常，也不会改变完整参考清单的分母。",
+    "en": "Deselecting only changes your preparation plan. It does not mark other scopes as normal or change the full reference checklist denominator."
+  },
+  "提交分类材料（合成文字） / Add categorised synthetic text": {
+    "zh": "提交分类材料（合成文字）",
+    "en": "Add categorised synthetic text"
+  },
+  "正式用电单、社保凭证、PDF/OCR与真实敏感材料路径仍待验收。这里可上传自制合成TXT测试，或粘贴合成文本，不保存政府／银行登录密码。": {
+    "zh": "正式用电单、社保凭证、PDF/OCR与真实敏感材料路径仍待验收。这里可上传自制合成TXT测试，或粘贴合成文本，不保存政府／银行登录密码。",
+    "en": "Real electricity bills, social-insurance records, PDF/text extraction and sensitive-material intake are not approved yet. Upload a self-made synthetic text file or paste synthetic text. Do not submit government or bank passwords."
+  },
+  "材料类别（可多选）": {
+    "zh": "材料类别（可多选）",
+    "en": "Material categories (multiple allowed)"
+  },
+  "合成TXT文件（≤10KB）": {
+    "zh": "合成TXT文件（≤10KB）",
+    "en": "Synthetic text file (≤10 KB)"
+  },
+  "材料名称": {
+    "zh": "材料名称",
+    "en": "Material name"
+  },
+  "材料实际场所": {
+    "zh": "材料实际场所",
+    "en": "Actual facility covered"
+  },
+  "材料覆盖月 YYYY-MM": {
+    "zh": "材料覆盖月 YYYY-MM",
+    "en": "Coverage month YYYY-MM"
+  },
+  "合成原文": {
+    "zh": "合成原文",
+    "en": "Synthetic source text"
+  },
+  "我确认只使用合成资料，不包含真实个人或企业秘密。": {
+    "zh": "我确认只使用合成资料，不包含真实个人或企业秘密。",
+    "en": "I confirm this is synthetic data without real personal information or company secrets."
+  },
+  "保存分类材料 / Save material": {
+    "zh": "保存分类材料",
+    "en": "Save material"
+  },
+  "证据请求跟进": {
+    "zh": "证据请求跟进",
+    "en": "Evidence request tracking"
+  },
+  "刷新请求状态": {
+    "zh": "刷新请求状态",
+    "en": "Refresh request status"
+  },
+  "按请求时间排列，展示最新结构化回应。下载包含这条请求的全部结构化回应，不含聊天正文或材料。普通文字回复不自动改变状态；已发送卡片不代表已查看、验证通过或事项解决。": {
+    "zh": "按请求时间排列，展示最新结构化回应。下载包含这条请求的全部结构化回应，不含聊天正文或材料。普通文字回复不自动改变状态；已发送卡片不代表已查看、验证通过或事项解决。",
+    "en": "Requests are ordered by time and show the latest structured response. A download includes every structured response to that request, excluding chat text and evidence. Free-text replies do not change status. Sending a card does not establish viewing, verification or resolution."
+  },
+  "正在加载请求…": {
+    "zh": "正在加载请求…",
+    "en": "Loading requests…"
+  },
+  "，请刷新请求状态后重试。": {
+    "zh": "，请刷新请求状态后重试。",
+    "en": ". Refresh request status and try again."
+  },
+  "暂无证据请求。": {
+    "zh": "暂无证据请求。",
+    "en": "No evidence requests yet."
+  },
+  "最新回应 #": {
+    "zh": "最新回应 #",
+    "en": "Latest response #"
+  },
+  "正在准备": {
+    "zh": "正在准备",
+    "en": "Preparing"
+  },
+  "暂无法提供": {
+    "zh": "暂无法提供",
+    "en": "Unable to provide for now"
+  },
+  "上一页": {
+    "zh": "上一页",
+    "en": "Previous page"
+  },
+  "更早请求": {
+    "zh": "更早请求",
+    "en": "Earlier requests"
+  },
+  "证据复用记录 / Evidence reuse": {
+    "zh": "证据复用记录",
+    "en": "Evidence reuse"
+  },
+  "同一固定版本可分别授权多个接收人，每人使用独立授权码。以下仅统计本任务的合成流程，不作为真实客户或采购采用数据。": {
+    "zh": "同一固定版本可分别授权多个接收人，每人使用独立授权码。以下仅统计本任务的合成流程，不作为真实客户或采购采用数据。",
+    "en": "A fixed version can be authorised separately to multiple recipients, each with an independent code. These counts cover synthetic workflows for this task only, not actual customers or procurement adoption."
+  },
+  "当前企业与场所信息为自报；企业身份和签字权限核实、跨任务材料复用、买方明确接受、可比行业基准及正式链上核验仍待完成。": {
+    "zh": "当前企业与场所信息为自报；企业身份和签字权限核实、跨任务材料复用、买方明确接受、可比行业基准及正式链上核验仍待完成。",
+    "en": "Company and facility details are self-declared. Company identity, signing authority, cross-task reuse, explicit buyer acceptance, comparable industry benchmarks and formal on-chain verification remain pending."
+  },
+  "刷新复用记录 / Refresh usage": {
+    "zh": "刷新复用记录",
+    "en": "Refresh reuse records"
+  },
+  "正在读取记录 / Loading usage…": {
+    "zh": "正在读取记录",
+    "en": "Loading reuse records…"
+  },
+  "独立读取账号 / Reader accounts": {
+    "zh": "独立读取账号",
+    "en": "Distinct reader accounts"
+  },
+  "多人复用版本 / Reused versions": {
+    "zh": "多人复用版本",
+    "en": "Versions reused by multiple accounts"
+  },
+  "成功读取请求 / Read requests": {
+    "zh": "成功读取请求",
+    "en": "Successful read requests"
+  },
+  "卡片下载请求 / Download requests": {
+    "zh": "卡片下载请求",
+    "en": "Card download requests"
+  },
+  "授权创建": {
+    "zh": "授权创建",
+    "en": "Grants created"
+  },
+  "· 已兑换": {
+    "zh": "· 已兑换",
+    "en": "· Redeemed"
+  },
+  "· 当前有效": {
+    "zh": "· 当前有效",
+    "en": "· Currently active"
+  },
+  "（含待兑换）· 已撤销": {
+    "zh": "（含待兑换）· 已撤销",
+    "en": "(including unredeemed) · Revoked"
+  },
+  "“多人复用版本”指同一固定卡被至少两个不同接收账号成功读取或请求下载。重复刷新和重复发码不会增加独立账号数；累计使用保留已到期、已撤销授权的历史。账号不等于已核实的买方企业，读取和下载不等于采购接受。": {
+    "zh": "“多人复用版本”指同一固定卡被至少两个不同接收账号成功读取或请求下载。重复刷新和重复发码不会增加独立账号数；累计使用保留已到期、已撤销授权的历史。账号不等于已核实的买方企业，读取和下载不等于采购接受。",
+    "en": "A reused version has been read or requested for download by at least two distinct recipient accounts. Repeated refreshes or codes do not increase distinct reader counts. History includes expired and revoked grants. Accounts are not verified buyer companies; reads and downloads are not procurement acceptance."
+  },
+  "按固定卡片版本 / By fixed card version": {
+    "zh": "按固定卡片版本",
+    "en": "By fixed card version"
+  },
+  "版本": {
+    "zh": "版本",
+    "en": "Version"
+  },
+  "授权 / 已兑换": {
+    "zh": "授权 / 已兑换",
+    "en": "Grants / Redeemed"
+  },
+  "独立账号": {
+    "zh": "独立账号",
+    "en": "Distinct accounts"
+  },
+  "读取 / 下载请求": {
+    "zh": "读取 / 下载请求",
+    "en": "Read / Download requests"
+  },
+  "最近请求": {
+    "zh": "最近请求",
+    "en": "Latest request"
+  },
+  "尚无固定卡片 / No fixed cards yet.": {
+    "zh": "尚无固定卡片",
+    "en": "No fixed cards yet."
+  },
+  "统计时间 / Measured:": {
+    "zh": "统计时间",
+    "en": "Measured at:"
+  },
+  "· 最近成功请求 / Latest:": {
+    "zh": "· 最近成功请求",
+    "en": "· Latest successful request:"
+  },
+  "已核实买方企业、明确采购接受、真实商业复用：尚未采集，不能以 0 或本页合成计数代替。": {
+    "zh": "已核实买方企业、明确采购接受、真实商业复用：尚未采集，不能以 0 或本页合成计数代替。",
+    "en": "Verified buyer companies, explicit procurement acceptance and actual commercial reuse are not collected. Neither zero nor synthetic counts can stand in for them."
+  },
+  "查找 / 刷新": {
+    "zh": "查找 / 刷新",
+    "en": "Find / Refresh"
+  },
+  "的任务": {
+    "zh": "的任务",
+    "en": " tasks"
+  },
+  "选择同月份任务": {
+    "zh": "选择同月份任务",
+    "en": "Select a same-month task"
+  },
+  "请选择任务": {
+    "zh": "请选择任务",
+    "en": "Select a task"
+  },
+  "该月份暂无任务，请在下方新建后刷新。": {
+    "zh": "该月份暂无任务，请在下方新建后刷新。",
+    "en": "No task for this month. Create one below and refresh."
+  },
+  "加载更多同月份任务": {
+    "zh": "加载更多同月份任务",
+    "en": "Load more same-month tasks"
+  },
+  "查找中…": {
+    "zh": "查找中…",
+    "en": "Searching…"
+  },
+  "404 · 页面未找到 / Page not found": {
+    "zh": "404 · 页面未找到",
+    "en": "404 · Page not found"
+  },
+  "这个地址不存在。请返回首页继续。": {
+    "zh": "这个地址不存在。请返回首页继续。",
+    "en": "This address does not exist. Return home to continue."
+  },
+  "返回 DOSSIVO 首页 / Back to home →": {
+    "zh": "返回 DOSSIVO 首页",
+    "en": "Back to DOSSIVO home →"
+  },
+  "Protocol ↗": {
+    "zh": "协议 ↗",
+    "en": "Protocol ↗"
+  },
+  "来自请求 #": {
+    "zh": "来自请求 #",
+    "en": "From request #"
+  },
+  "。请确认企业、场所和月份后保存；保存不会自动关联或共享材料。": {
+    "zh": "。请确认企业、场所和月份后保存；保存不会自动关联或共享材料。",
+    "en": ". Confirm company, facility and month before saving. Saving does not automatically link or share evidence."
+  },
+  "取消请求上下文（保留表单内容）": {
+    "zh": "取消请求上下文（保留表单内容）",
+    "en": "Remove request context (keep form values)"
+  },
+  "保存任务后，返回待办刷新同月份任务并明确确认关联。": {
+    "zh": "保存任务后，返回待办刷新同月份任务并明确确认关联。",
+    "en": "After saving, return to requests, refresh same-month tasks and explicitly confirm the link."
+  },
+  "返回请求待办": {
+    "zh": "返回请求待办",
+    "en": "Back to request queue"
+  },
+  "· PRIVATE": {
+    "zh": "· 私密",
+    "en": "· PRIVATE"
+  },
+  "Ratio": {
+    "zh": "比率",
+    "en": "Ratio"
+  },
+  "Value": {
+    "zh": "数值",
+    "en": "Value"
+  },
+  "Status / reason": {
+    "zh": "状态与原因",
+    "en": "Status / reason"
+  },
+  "· 企业确认": {
+    "zh": "· 企业确认",
+    "en": "· Company-confirmed"
+  },
+  "NOT_REGISTERED · NOT_CONNECTED ·": {
+    "zh": "未登记 · 未连接 ·",
+    "en": "Not registered · Not connected ·"
+  },
+  "下载可读证据卡 HTML": {
+    "zh": "下载可读证据卡 HTML",
+    "en": "Download readable evidence card"
+  },
+  "双方已有的材料授权": {
+    "zh": "双方已有的材料授权",
+    "en": "Existing evidence grants between both parties"
+  },
+  "这里只列出已由对方账号兑换的授权。添加联系人不会自动共享材料。切换会话不会发送消息或标记已读。": {
+    "zh": "这里只列出已由对方账号兑换的授权。添加联系人不会自动共享材料。切换会话不会发送消息或标记已读。",
+    "en": "Only grants already redeemed by the other account are listed. Adding a contact does not share evidence. Switching conversations sends no message and marks nothing as read."
+  },
+  "刷新授权列表": {
+    "zh": "刷新授权列表",
+    "en": "Refresh grant list"
+  },
+  "尚无双方已兑换的材料授权。供应方可在材料工作台选择披露范围并生成授权码，再由接收方登录兑换。": {
+    "zh": "尚无双方已兑换的材料授权。供应方可在材料工作台选择披露范围并生成授权码，再由接收方登录兑换。",
+    "en": "No mutually redeemed evidence grants yet. The supplier can select disclosure scope in the evidence workspace, create a code and ask the recipient to redeem it after signing in."
+  },
+  "进入此授权会话": {
+    "zh": "进入此授权会话",
+    "en": "Open this grant conversation"
+  },
+  "下一页": {
+    "zh": "下一页",
+    "en": "Next page"
+  },
+  "前往材料工作台": {
+    "zh": "前往材料工作台",
+    "en": "Open evidence workspace"
+  },
+  "兑换企业提供的授权码": {
+    "zh": "兑换企业提供的授权码",
+    "en": "Redeem the company's access code"
+  },
+  "停止授权后不能读取卡片；已下载副本无法通过撤权收回。这里不自动生成新授权。": {
+    "zh": "停止授权后不能读取卡片；已下载副本无法通过撤权收回。这里不自动生成新授权。",
+    "en": "Cards cannot be read after access ends. Revocation cannot recall downloaded copies. No new grant is created here."
+  },
+  "导出语言 / Language": {
+    "zh": "导出语言",
+    "en": "Export language"
+  },
+  "下载请求记录（可打印）": {
+    "zh": "下载请求记录（可打印）",
+    "en": "Download request record (printable)"
+  },
+  "下载 JSON": {
+    "zh": "下载 JSON",
+    "en": "Download JSON"
+  },
+  "正在生成记录…": {
+    "zh": "正在生成记录…",
+    "en": "Generating record…"
+  },
+  "已交给浏览器下载，请检查下载列表。记录仅反映导出时状态。": {
+    "zh": "已交给浏览器下载，请检查下载列表。记录仅反映导出时状态。",
+    "en": "Download handed to your browser. Check its download list. The record reflects the status at export time only."
+  },
+  "前往登录": {
+    "zh": "前往登录",
+    "en": "Go to sign in"
+  },
+  "发布此授权的摘要更新 / Publish summary update（已更新": {
+    "zh": "发布此授权的摘要更新（已更新",
+    "en": "Publish summary update for this grant (updates:"
+  },
+  "次）": {
+    "zh": "次）",
+    "en": ")"
+  },
+  "只发布给此授权绑定的接收账号。沿用原用途与材料类别，不含精确数值。不同主体、场所或期间须另建授权。": {
+    "zh": "只发布给此授权绑定的接收账号。沿用原用途与材料类别，不含精确数值。不同主体、场所或期间须另建授权。",
+    "en": "Publish only to the account bound to this grant, using the original purpose and material categories, without exact values. A different company, facility or period requires a new grant."
+  },
+  "选择更新卡片": {
+    "zh": "选择更新卡片",
+    "en": "Select update card"
+  },
+  "预览实际披露内容 / Preview": {
+    "zh": "预览实际披露内容",
+    "en": "Preview actual disclosure"
+  },
+  "发布预览 · v": {
+    "zh": "发布预览 · v",
+    "en": "Publication preview · v"
+  },
+  "% · 未解决事项": {
+    "zh": "% · 未解决事项",
+    "en": "% · Unresolved issues"
+  },
+  "全部将交付的摘要字段 / Full disclosure": {
+    "zh": "全部将交付的摘要字段",
+    "en": "All summary fields to be disclosed"
+  },
+  "点击后成为已发布历史记录；撤销授权可停止后续访问，但不能收回已有副本。": {
+    "zh": "点击后成为已发布历史记录；撤销授权可停止后续访问，但不能收回已有副本。",
+    "en": "Publishing creates a historical record. Revocation stops future access but cannot recall existing copies."
+  },
+  "确认发布给该授权买方 / Publish": {
+    "zh": "确认发布给该授权买方",
+    "en": "Confirm publication to this buyer"
+  },
+  "如预览已过时，请重新预览。": {
+    "zh": "如预览已过时，请重新预览。",
+    "en": "If the preview is stale, generate a new preview."
+  },
+  "收到的证据请求 · 工作台待办": {
+    "zh": "收到的证据请求 · 工作台待办",
+    "en": "Received evidence requests · Workspace queue"
+  },
+  "请求自动出现在这里。授权会话沿用原任务；联系人请求需手动关联同月份任务。关联是我的内部安排，不共享任务或授予材料权限。": {
+    "zh": "请求自动出现在这里。授权会话沿用原任务；联系人请求需手动关联同月份任务。关联是我的内部安排，不共享任务或授予材料权限。",
+    "en": "Requests appear here automatically. Grant conversations use the original task; contact requests must be explicitly linked to a same-month task. Linking is internal organisation, not task sharing or permission."
+  },
+  "全部": {
+    "zh": "全部",
+    "en": "All"
+  },
+  "· 待回应": {
+    "zh": "· 待回应",
+    "en": "· Awaiting response"
+  },
+  "· 准备中": {
+    "zh": "· 准备中",
+    "en": "· Preparing"
+  },
+  "· 暂无法提供": {
+    "zh": "· 暂无法提供",
+    "en": "· Unable to provide"
+  },
+  "· 已回应卡片": {
+    "zh": "· 已回应卡片",
+    "en": "· Card sent"
+  },
+  "全部请求的最新状态；不随筛选改变，不是当前页计数，也不是合规通过数量。刷新时更新。": {
+    "zh": "全部请求的最新状态；不随筛选改变，不是当前页计数，也不是合规通过数量。刷新时更新。",
+    "en": "Latest status of all requests, independent of filters. These are not current-page counts or compliance approvals. Counts update on refresh."
+  },
+  "按处理状态筛选": {
+    "zh": "按处理状态筛选",
+    "en": "Filter by handling status"
+  },
+  "全部请求": {
+    "zh": "全部请求",
+    "en": "All requests"
+  },
+  "待回应": {
+    "zh": "待回应",
+    "en": "Awaiting response"
+  },
+  "已回应卡片（非核验结论）": {
+    "zh": "已回应卡片（非核验结论）",
+    "en": "Card sent (not a verification finding)"
+  },
+  "按证据类型筛选": {
+    "zh": "按证据类型筛选",
+    "en": "Filter by evidence type"
+  },
+  "全部证据类型": {
+    "zh": "全部证据类型",
+    "en": "All evidence types"
+  },
+  "按材料月份筛选": {
+    "zh": "按材料月份筛选",
+    "en": "Filter by evidence month"
+  },
+  "全部月份": {
+    "zh": "全部月份",
+    "en": "All months"
+  },
+  "刷新请求待办": {
+    "zh": "刷新请求待办",
+    "en": "Refresh request queue"
+  },
+  "正在读取…": {
+    "zh": "正在读取…",
+    "en": "Loading…"
+  },
+  "当前筛选条件下没有证据请求。": {
+    "zh": "当前筛选条件下没有证据请求。",
+    "en": "No evidence requests match these filters."
+  },
+  "请求 #": {
+    "zh": "请求 #",
+    "en": "Request #"
+  },
+  "打开关联材料任务": {
+    "zh": "打开关联材料任务",
+    "en": "Open linked evidence task"
+  },
+  "为此请求准备新任务": {
+    "zh": "为此请求准备新任务",
+    "en": "Prepare a new task for this request"
+  },
+  "确认关联此任务": {
+    "zh": "确认关联此任务",
+    "en": "Confirm link to this task"
+  },
+  "按月份查找全部任务，可加载更多。如无适合任务，请在下方新建。关联后保留记录，本阶段不支持改绑。": {
+    "zh": "按月份查找全部任务，可加载更多。如无适合任务，请在下方新建。关联后保留记录，本阶段不支持改绑。",
+    "en": "Find tasks by month and load more as needed. Create a task below if none fits. The link is recorded and cannot be changed in this phase."
+  },
+  "打开原请求会话并回应": {
+    "zh": "打开原请求会话并回应",
+    "en": "Open original request conversation and respond"
+  },
+  "处理请求 #": {
+    "zh": "处理请求 #",
+    "en": "Handling request #"
+  },
+  "关闭会话": {
+    "zh": "关闭会话",
+    "en": "Close conversation"
+  },
+  "“已回应卡片”只记录发送动作，不表示请求已解决或材料已核验。卡片须沿原授权流程明确发布和发送。": {
+    "zh": "“已回应卡片”只记录发送动作，不表示请求已解决或材料已核验。卡片须沿原授权流程明确发布和发送。",
+    "en": "Card sent records delivery only, not resolution or verification. Cards must be explicitly published and sent through the existing authorisation flow."
+  },
+  "Dossivo · Card v1": {
+    "zh": "Dossivo · 卡片版本 1",
+    "en": "Dossivo · Card v1"
+  },
+  "Card v": {
+    "zh": "卡片版本",
+    "en": "Card v"
+  },
+  "为何选": {
+    "zh": "为何选",
+    "en": "Why choose"
+  },
+  "多希沃": {
+    "zh": "多希沃",
+    "en": "DOSSIVO"
+  },
+  "订阅": {
+    "zh": "订阅",
+    "en": "Subscription"
+  },
+  "价格": {
+    "zh": "价格",
+    "en": "Pricing"
+  },
+  "成为": {
+    "zh": "成为",
+    "en": "Become a"
+  },
+  "合作伙伴": {
+    "zh": "合作伙伴",
+    "en": "Partner"
+  },
+  "Privacy / 隐私说明": {
+    "zh": "隐私说明",
+    "en": "Privacy notice"
+  },
+  "Language": {
+    "zh": "语言",
+    "en": "Language"
+  },
+  "请重新登录": {
+    "zh": "请重新登录",
+    "en": "Please sign in again"
+  },
+  "登录已失效，已清除本页加载的会话。登录后可重新查看历史记录。": {
+    "zh": "登录已失效，已清除本页加载的会话。登录后可重新查看历史记录。",
+    "en": "Your session expired. Loaded conversations were cleared from this page. Sign in to view history again."
+  },
+  "注册／登录": {
+    "zh": "注册／登录",
+    "en": "Sign up / Sign in"
+  },
+  "重新检查登录状态": {
+    "zh": "重新检查登录状态",
+    "en": "Recheck sign-in status"
+  },
+  "暂时无法检查登录状态，请稍后重试。": {
+    "zh": "暂时无法检查登录状态，请稍后重试。",
+    "en": "Unable to check sign-in status. Please try again later."
+  },
+  "我的会话": {
+    "zh": "我的会话",
+    "en": "My conversations"
+  },
+  "未读": {
+    "zh": "未读",
+    "en": "unread"
+  },
+  "刷新会话与未读数": {
+    "zh": "刷新会话与未读数",
+    "en": "Refresh conversations and unread counts"
+  },
+  "登录后自动打开最近会话。站内未读数随刷新更新。打开会话不会自动标为已读，可在阅读后明确标记。": {
+    "zh": "登录后自动打开最近会话。站内未读数随刷新更新。打开会话不会自动标为已读，可在阅读后明确标记。",
+    "en": "The latest conversation opens after sign-in. Unread counts update on refresh. Opening a conversation does not mark messages as read; mark them explicitly after reading."
+  },
+  "· 会话": {
+    "zh": "· 会话",
+    "en": "· Conversation"
+  },
+  "未读 ·": {
+    "zh": "未读 ·",
+    "en": "unread ·"
+  },
+  "正在加载会话…": {
+    "zh": "正在加载会话…",
+    "en": "Loading conversations…"
+  },
+  "还没有消息。添加联系人并等待对方接受后，即可开始通信；已有材料授权的会话也会显示在这里。": {
+    "zh": "还没有消息。添加联系人并等待对方接受后，即可开始通信；已有材料授权的会话也会显示在这里。",
+    "en": "No messages yet. Add a contact and wait for acceptance to start. Conversations with existing evidence grants also appear here."
+  },
+  "← 返回联系人对话": {
+    "zh": "← 返回联系人对话",
+    "en": "← Back to contact conversation"
+  },
+  "对话窗口": {
+    "zh": "对话窗口",
+    "en": "Conversation window"
+  },
+  "联系人与联系申请": {
+    "zh": "联系人与联系申请",
+    "en": "Contacts and contact requests"
+  },
+  "直接通信": {
+    "zh": "直接通信",
+    "en": "Direct messaging"
+  },
+  "与买方或供应方直接沟通，查看往来消息和未读提醒。": {
+    "zh": "与买方或供应方直接沟通，查看往来消息和未读提醒。",
+    "en": "Communicate directly with buyers or suppliers and view messages and unread reminders."
+  },
+  "先注册或登录": {
+    "zh": "先注册或登录",
+    "en": "Sign up or sign in first"
+  },
+  "如何添加对方？": {
+    "zh": "如何添加对方？",
+    "en": "How do I add someone?"
+  },
+  "通过邮件、微信或 WhatsApp 交换联系链接或 DOSSIVO ID → 发送联系申请 → 对方接受后开始通信。": {
+    "zh": "通过邮件、微信或 WhatsApp 交换联系链接或 DOSSIVO ID → 发送联系申请 → 对方接受后开始通信。",
+    "en": "Exchange contact links or DOSSIVO IDs by email, WeChat or WhatsApp → Send a contact request → Start messaging after acceptance."
+  },
+  "登录后可创建自己的联系ID、复制联系链接与二维码，也可输入对方ID申请联系。买卖双方共用此页；建立联系与材料授权分别处理。": {
+    "zh": "登录后可创建自己的联系ID、复制联系链接与二维码，也可输入对方ID申请联系。买卖双方共用此页；建立联系与材料授权分别处理。",
+    "en": "After sign-in, create your contact ID, copy your link and QR code, or enter the other person's ID to request contact. Buyers and suppliers share this page. Contact consent and evidence permission are separate."
+  },
+  "当前仅支持合成测试资料。材料访问仍需单独授权。": {
+    "zh": "当前仅支持合成测试资料。材料访问仍需单独授权。",
+    "en": "Synthetic test data only. Evidence access requires separate permission."
+  },
+  "直接通信 · 未读消息": {
+    "zh": "直接通信 · 未读消息",
+    "en": "Direct messaging · Unread messages"
+  },
+  "EU BUYER · 欧盟用户入口 · ACCESS CODE": {
+    "zh": "欧盟用户入口",
+    "en": "EU buyer portal"
+  },
+  "查看出口企业授权的基本证据": {
+    "zh": "查看出口企业授权的基本证据",
+    "en": "View basic evidence authorised by the exporter"
+  },
+  "View basic evidence authorised by the exporter. 需要注册／登录；授权码兑换后仅绑定当前账号，按企业选择持续查看至撤销，或在临时授权期限内重复查看。": {
+    "zh": "需要注册或登录；授权码兑换后仅绑定当前账号，按企业选择持续查看至撤销，或在临时授权期限内重复查看。",
+    "en": "Sign in to view authorised basic evidence. Redeeming a code binds it to your account. Depending on the company's choice, you can return until revocation or until the temporary grant expires."
+  },
+  "先注册或登录 / Register or sign in": {
+    "zh": "先注册或登录",
+    "en": "Sign up or sign in first"
+  },
+  "输入企业提供的授权码后，才能查看获准的基本参数。这里不是公开企业材料目录。": {
+    "zh": "输入企业提供的授权码后，才能查看获准的基本参数。这里不是公开企业材料目录。",
+    "en": "Enter the company's code to view authorised parameters. This is not a public document directory."
+  },
+  "注册／登录 · Continue with ChatGPT": {
+    "zh": "通过 ChatGPT 注册或登录",
+    "en": "Sign up / Sign in with ChatGPT"
+  },
+  "材料覆盖度与企业确认不是欧盟认证或独立核验。当前仅支持合成资料流程；不开放原件或真实劳工敏感资料。用户入口不验证国籍、欧盟所在地或公司代表资格。": {
+    "zh": "材料覆盖度与企业确认不是欧盟认证或独立核验。当前仅支持合成资料流程；不开放原件或真实劳工敏感资料。用户入口不验证国籍、欧盟所在地或公司代表资格。",
+    "en": "Coverage and company confirmation are not EU certification or independent verification. This is a synthetic-data workflow; originals and real sensitive labour data are excluded. The portal does not verify nationality, EU location or company authority."
+  },
+  "兑换企业授权码 / Redeem access code": {
+    "zh": "兑换企业授权码",
+    "en": "Redeem company access code"
+  },
+  "一次性授权码 / One-time code": {
+    "zh": "一次性授权码",
+    "en": "One-time code"
+  },
+  "绑定到当前账号 / Redeem": {
+    "zh": "绑定到当前账号",
+    "en": "Bind to this account"
+  },
+  "代码首次成功兑换后失效；不能转给另一账号使用。兑换窗口为生成后48或72小时；持续摘要兑换后可反复查看至企业撤销，临时授权仍按原截止时间到期。仅用于合规评估，固定版本授权不随更新；若企业明确授予跟随权限，则可查看其后续发布的同范围摘要与历史记录。": {
+    "zh": "代码首次成功兑换后失效；不能转给另一账号使用。兑换窗口为生成后48或72小时；持续摘要兑换后可反复查看至企业撤销，临时授权仍按原截止时间到期。仅用于合规评估，固定版本授权不随更新；若企业明确授予跟随权限，则可查看其后续发布的同范围摘要与历史记录。",
+    "en": "A code becomes unusable after the first successful redemption and cannot transfer to another account. Redeem within 48 or 72 hours of creation. Continuous summaries remain accessible until revocation; temporary access retains its original expiry. Compliance assessment only. Fixed-version access does not follow updates. Explicit follow-up permission allows later published same-scope summaries and history."
+  },
+  "授权：跟随后续已发布摘要。当前查看第": {
+    "zh": "授权：跟随后续已发布摘要。当前查看第",
+    "en": "Access follows published summaries. Viewing publication"
+  },
+  "次发布；最新为第": {
+    "zh": "次发布；最新为第",
+    "en": "; latest publication"
+  },
+  "次（0为初始卡）。": {
+    "zh": "次（0为初始卡）。",
+    "en": "(0 is the initial card)."
+  },
+  "已发布历史与事项轨迹 / Published history": {
+    "zh": "已发布历史与事项轨迹",
+    "en": "Published history and issue trail"
+  },
+  "查看第": {
+    "zh": "查看第",
+    "en": "View publication"
+  },
+  "次发布 · v": {
+    "zh": "次发布 · v",
+    "en": "· v"
+  },
+  "· 未解决": {
+    "zh": "· 未解决",
+    "en": "· Unresolved"
+  },
+  "· 红色": {
+    "zh": "· 红色",
+    "en": "· Red"
+  },
+  "事项": {
+    "zh": "事项",
+    "en": "Issue"
+  },
+  "· 基本证据卡": {
+    "zh": "· 基本证据卡",
+    "en": "· Basic evidence card"
+  },
+  "固定卡标识 / Source card ID:": {
+    "zh": "固定卡标识",
+    "en": "Source card ID:"
+  },
+  "。用于对应固定版本，不是认证或链上证明。": {
+    "zh": "。用于对应固定版本，不是认证或链上证明。",
+    "en": ". Identifies a fixed version; not certification or on-chain proof."
+  },
+  "材料覆盖度 / Coverage:": {
+    "zh": "材料覆盖度",
+    "en": "Material coverage:"
+  },
+  "企业确认": {
+    "zh": "企业确认",
+    "en": "Company-confirmed"
+  },
+  "%为材料完整度，不是真实性评分。": {
+    "zh": "%为材料完整度，不是真实性评分。",
+    "en": "% indicates completeness, not truth."
+  },
+  "获准参数 / Authorised parameters": {
+    "zh": "获准参数",
+    "en": "Authorised parameters"
+  },
+  "参数": {
+    "zh": "参数",
+    "en": "Parameter"
+  },
+  "值": {
+    "zh": "值",
+    "en": "Value"
+  },
+  "口径": {
+    "zh": "口径",
+    "en": "Measurement basis"
+  },
+  "获准材料状态": {
+    "zh": "获准材料状态",
+    "en": "Authorised material status"
+  },
+  "/ 未独立检查": {
+    "zh": "/ 未独立检查",
+    "en": "/ Not independently checked"
+  },
+  "固定卡未解决事项：": {
+    "zh": "固定卡未解决事项：",
+    "en": "Unresolved issues in fixed card:"
+  },
+  "同行比较：无可比基准，未评估 / No comparable benchmark.": {
+    "zh": "同行比较：无可比基准，未评估。",
+    "en": "Peer comparison: no comparable benchmark; not assessed."
+  },
+  "定版时间 / Snapshot:": {
+    "zh": "定版时间",
+    "en": "Snapshot time:"
+  },
+  "在线授权到期 / Expires:": {
+    "zh": "在线授权到期",
+    "en": "Online access expires:"
+  },
+  "重新核对权限与状态 / Recheck": {
+    "zh": "重新核对权限与状态",
+    "en": "Recheck permission and status"
+  },
+  "下载可读卡片 HTML / Download card": {
+    "zh": "下载可读卡片 HTML",
+    "en": "Download readable card"
+  },
+  "在线授权到期后，已下载卡片仍可留存、阅读、打印和用于后续沟通。下载时重新鉴权。历史合法下载件可保留阅读，但不能离线查询后续撤销或新状态；企业撤销不能远程收回已下载副本。": {
+    "zh": "在线授权到期后，已下载卡片仍可留存、阅读、打印和用于后续沟通。下载时重新鉴权。历史合法下载件可保留阅读，但不能离线查询后续撤销或新状态；企业撤销不能远程收回已下载副本。",
+    "en": "Downloaded cards remain readable, printable and usable in later discussions after online access expires. Downloading checks permission again. Lawful historical copies can be retained but cannot check later revocation or new status offline. Company revocation cannot recall downloaded copies remotely."
+  },
+  "处理中 / Working…": {
+    "zh": "处理中",
+    "en": "Working…"
+  },
+  "草案 · 未生效 ·": {
+    "zh": "草案 · 未生效 ·",
+    "en": "Draft · Not effective ·"
+  },
+  "隐私说明 · Privacy notice · Informativa privacy": {
+    "zh": "隐私说明",
+    "en": "Privacy notice"
+  },
+  "当前版本仅为合成数据演示，不接收真实原件。界面语言偏好保存在当前设备；案件演示状态保存在受租户隔离的数据库中。授权证据链接会记录接收人、访问时间和所查看的卡片版本，用于企业自己的访问审计。": {
+    "zh": "当前版本仅为合成数据演示，不接收真实原件。界面语言偏好保存在当前设备；案件演示状态保存在受租户隔离的数据库中。授权证据链接会记录接收人、访问时间和所查看的卡片版本，用于企业自己的访问审计。",
+    "en": "This synthetic-data demonstration does not accept real originals. Interface preferences stay on this device. Demo case state is stored with tenant isolation. Authorised evidence links record recipient, access time and card version for the company's access audit."
+  },
+  "注册不等于订阅简报。只有用户在简报中心主动勾选同意时，系统才保存当前登录账户邮箱、首选简报语言、同意文本版本、来源、时间和撤回状态。当前尚未发送简报邮件，也不进行打开或点击追踪；用户可在简报中心撤回偏好，且不影响账户或产品功能。": {
+    "zh": "注册不等于订阅简报。只有用户在简报中心主动勾选同意时，系统才保存当前登录账户邮箱、首选简报语言、同意文本版本、来源、时间和撤回状态。当前尚未发送简报邮件，也不进行打开或点击追踪；用户可在简报中心撤回偏好，且不影响账户或产品功能。",
+    "en": "Registration is not newsletter subscription. Only explicit consent stores the account email, preferred briefing language, consent-text version, source, time and withdrawal status. No newsletter email is currently sent and no open or click tracking is used. Withdrawal does not affect account or product access."
+  },
+  "账号联系方式 / Account contacts / Recapiti account": {
+    "zh": "账号联系方式",
+    "en": "Account contact details"
+  },
+  "登录用户可以自愿登记邮箱和国际手机号，按账号隔离保存，同时记录保存确认的文本版本和时间，直到修改或清除当前值。清除不会删除账号；备份生命周期另行管理。联系方式未验证，不向买方公开，不用于营销订阅、短信发送、身份认证或企业代表资格认定。此表单不接收密码或证件。": {
+    "zh": "登录用户可以自愿登记邮箱和国际手机号，按账号隔离保存，同时记录保存确认的文本版本和时间，直到修改或清除当前值。清除不会删除账号；备份生命周期另行管理。联系方式未验证，不向买方公开，不用于营销订阅、短信发送、身份认证或企业代表资格认定。此表单不接收密码或证件。",
+    "en": "Signed-in users may optionally save email and international phone details per account, with the storage-consent version and time, until changed or cleared. Clearing removes current contacts, not the account. Backups have a separate lifecycle. Contacts are unverified, not disclosed to buyers and not used for marketing, SMS, authentication or company-authority verification. Do not submit passwords or identity documents."
+  },
+  "正式处理真实企业资料或启用简报邮件前，仍需由产品负责人确认 GDPR 角色、数据保留与删除、邮件服务商及分包商、跨境传输、双重确认和一键退订机制，并发布完整隐私政策。": {
+    "zh": "正式处理真实企业资料或启用简报邮件前，仍需由产品负责人确认 GDPR 角色、数据保留与删除、邮件服务商及分包商、跨境传输、双重确认和一键退订机制，并发布完整隐私政策。",
+    "en": "Before accepting real company data or sending briefing emails, the product owner must confirm data-protection roles, retention and deletion, email providers and processors, international transfers, double opt-in and unsubscribe mechanisms, and publish a complete privacy policy."
+  },
+  "← 返回 / Back": {
+    "zh": "← 返回",
+    "en": "← Back"
+  },
+  "DOSSIVO · PROTOCOL": {
+    "zh": "DOSSIVO · 协议",
+    "en": "DOSSIVO · PROTOCOL"
+  },
+  "PROTOCOL · draft-0.1 · 2026-11-05": {
+    "zh": "协议 · 草案 0.1 · 2026-11-05",
+    "en": "PROTOCOL · Draft 0.1 · 2026-11-05"
+  },
+  "DOSSIVO 证据呈现 Protocol": {
+    "zh": "DOSSIVO 证据呈现协议",
+    "en": "DOSSIVO evidence presentation protocol"
+  },
+  "文字、代码、版本与实际执行应逐项对应。更正和升级追加新版本，保留旧版核验路径。": {
+    "zh": "文字、代码、版本与实际执行应逐项对应。更正和升级追加新版本，保留旧版核验路径。",
+    "en": "Text, code, versions and actual execution must correspond. Corrections and upgrades add new versions while preserving historical verification paths."
+  },
+  "链上协议入口：": {
+    "zh": "链上协议入口：",
+    "en": "On-chain protocol:"
+  },
+  "待 Protocol 窗口交付并验证": {
+    "zh": "待协议工作窗口交付并验证",
+    "en": "Awaiting delivery and verification from the Protocol workstream"
+  },
+  "网络 / 合约地址 / 部署交易：未核实，尚无可展示链接。": {
+    "zh": "网络 / 合约地址 / 部署交易：未核实，尚无可展示链接。",
+    "en": "Network / Contract address / Deployment transaction: unverified. No link is available yet."
+  },
+  "普通钱包地址不能代替协议合约。地址存在也不能证明本张卡执行过协议。": {
+    "zh": "普通钱包地址不能代替协议合约。地址存在也不能证明本张卡执行过协议。",
+    "en": "A wallet address is not a protocol contract. An address alone does not prove this card executed the protocol."
+  },
+  "当前为应用层映射草案，尚不能声称与一个已发布、已部署的 PACI Protocol 完全对应。正式链上卡发布保持关闭。": {
+    "zh": "当前为应用层映射草案，尚不能声称与一个已发布、已部署的 PACI 协议 完全对应。正式链上卡发布保持关闭。",
+    "en": "This is an application mapping draft. Full correspondence with a published and deployed PACI Protocol is not established. Formal on-chain card publication remains disabled."
+  },
+  "能力": {
+    "zh": "能力",
+    "en": "Capability"
+  },
+  "已读取的接口契约": {
+    "zh": "已读取的接口契约",
+    "en": "Reviewed API contract"
+  },
+  "本轮边界": {
+    "zh": "本轮边界",
+    "en": "Current boundary"
+  },
+  "依据：2026-11-05 开发主指令、三窗口基线、DOSSIVO 宪章 v3.0、规则 v0.1 与最新用户要求。本草案不修订 PACI 通用规范或正式采纳领域阈值。": {
+    "zh": "依据：2026-11-05 开发主指令、三窗口基线、DOSSIVO 宪章 v3.0、规则 v0.1 与最新用户要求。本草案不修订 PACI 通用规范或正式采纳领域阈值。",
+    "en": "Based on the development instructions of 2026-11-05, three-workstream baseline, DOSSIVO charter v3.0, rules v0.1 and current user requirements. This draft does not amend the general PACI specification or formally adopt domain thresholds."
+  },
+  "← 返回 Dossivo": {
+    "zh": "← 返回 Dossivo",
+    "en": "← Back to Dossivo"
+  },
+  "中文参考 · 非法律文本": {
+    "zh": "中文参考 · 非法律文本",
+    "en": "Reference guide · Not a legal text"
+  },
+  "欧盟强制劳动法规与单一门户参考说明": {
+    "zh": "欧盟强制劳动法规与单一门户参考说明",
+    "en": "EU Forced Labour Regulation and single portal reference"
+  },
+  "本页帮助中文用户理解关键事实，不替代欧盟官方文本或专业法律意见。发生差异时，以欧盟官方文本及主管机关解释为准。": {
+    "zh": "本页帮助中文用户理解关键事实，不替代欧盟官方文本或专业法律意见。发生差异时，以欧盟官方文本及主管机关解释为准。",
+    "en": "This page explains key facts and does not replace official EU texts or professional legal advice. Official texts and competent-authority interpretations prevail."
+  },
+  "Regulation (EU) 2024/3015 关键内容参考": {
+    "zh": "欧盟第 2024/3015 号法规关键内容",
+    "en": "Regulation (EU) 2024/3015 · Key provisions"
+  },
+  "• 适用于所有产品、行业与原产国；产品任何部分涉及强制劳动均在范围内。": {
+    "zh": "• 适用于所有产品、行业与原产国；产品任何部分涉及强制劳动均在范围内。",
+    "en": "• Covers all products, industries and origins, including forced labour in any part of a product."
+  },
+  "• 2024-12-13 法规生效；2027-12-14 产品禁令开始适用。": {
+    "zh": "• 2024-12-13 法规生效；2027-12-14 产品禁令开始适用。",
+    "en": "• Entered into force on 13 December 2024. The product prohibition applies from 14 December 2027."
+  },
+  "• 库存不享受豁免；已到达最终用户的产品不受撤回要求影响。": {
+    "zh": "• 库存不享受豁免；已到达最终用户的产品不受撤回要求影响。",
+    "en": "• Inventory is not exempt. Products already with end users are not subject to withdrawal requirements."
+  },
+  "• 缺少证据本身不是违法，但会提高被问询与调查风险。": {
+    "zh": "• 缺少证据本身不是违法，但会提高被问询与调查风险。",
+    "en": "• Missing evidence is not itself an infringement, but can increase inquiry and investigation risks."
+  },
+  "• 欧盟不颁发“强制劳动合规证书”；最终判断由欧委会或成员国主管机关依法作出。": {
+    "zh": "• 欧盟不颁发“强制劳动合规证书”；最终判断由欧委会或成员国主管机关依法作出。",
+    "en": "• The EU does not issue forced-labour compliance certificates. Final decisions are made by the Commission or competent national authorities under the law."
+  },
+  "打开欧盟官方法规原文": {
+    "zh": "打开欧盟官方法规原文",
+    "en": "Open official EU regulation"
+  },
+  "强制劳动单一门户参考": {
+    "zh": "强制劳动单一门户参考",
+    "en": "Forced Labour Single Portal reference"
+  },
+  "该门户是公开信息网站，可用于查阅实施信息、风险资料与已公布决定；其中的单一信息提交点将自 2027-12-14 起用于免费举报线索。它不是企业注册、申报、认证或上传合规材料的渠道。企业通常通过欧洲买方问卷、海关补充信息要求或主管机关直接问询提供材料。": {
+    "zh": "该门户是公开信息网站，可用于查阅实施信息、风险资料与已公布决定；其中的单一信息提交点将自 2027-12-14 起用于免费举报线索。它不是企业注册、申报、认证或上传合规材料的渠道。企业通常通过欧洲买方问卷、海关补充信息要求或主管机关直接问询提供材料。",
+    "en": "The portal provides public implementation information, risk resources and published decisions. Its single information submission point is intended for free submission of reports from 14 December 2027. It is not a company registration, certification or document-submission channel. Companies generally respond through buyer questionnaires, customs requests or direct authority inquiries."
+  },
+  "打开欧盟官方门户": {
+    "zh": "打开欧盟官方门户",
+    "en": "Open official EU portal"
+  },
+  "← 直接通信": {
+    "zh": "← 直接通信",
+    "en": "← Direct messaging"
+  },
+  "联系": {
+    "zh": "联系",
+    "en": "Contact"
+  },
+  "对方接受申请后即可通信。材料访问需另行授权。": {
+    "zh": "对方接受申请后即可通信。材料访问需另行授权。",
+    "en": "Start messaging after the recipient accepts. Evidence requires separate permission."
+  },
+  "登录后发送联系申请": {
+    "zh": "登录后发送联系申请",
+    "en": "Sign in to send a contact request"
+  },
+  "登录或注册后会返回此联系人，无需重新输入ID。": {
+    "zh": "登录或注册后会返回此联系人，无需重新输入ID。",
+    "en": "After sign-in or registration you return to this contact without re-entering the ID."
+  },
+  "注册／登录并继续": {
+    "zh": "注册／登录并继续",
+    "en": "Sign up / Sign in and continue"
+  },
+  "联系链接暂不可用": {
+    "zh": "联系链接暂不可用",
+    "en": "Contact link unavailable"
+  },
+  "请向对方确认完整ID，或请对方开放联系链接。": {
+    "zh": "请向对方确认完整ID，或请对方开放联系链接。",
+    "en": "Confirm the complete ID with the other person or ask them to enable their contact link."
+  },
+  "返回直接通信": {
+    "zh": "返回直接通信",
+    "en": "Back to Direct messaging"
+  },
+  "显示名称由用户设置，不代表企业身份认证。当前为合成资料测试环境。": {
+    "zh": "显示名称由用户设置，不代表企业身份认证。当前为合成资料测试环境。",
+    "en": "The display name is user-provided and does not verify company identity. This is a synthetic-data test environment."
+  },
+  "Link 1 · Card v": {
+    "zh": "摘要链接 · 卡片版本",
+    "en": "Link 1 · Card v"
+  },
+  "14d": {
+    "en": "14d",
+    "zh": "14天"
+  },
+  "Dossivo · Link 1": {
+    "en": "Dossivo · Link 1",
+    "zh": "Dossivo · 摘要链接"
+  },
+  "原授权已保存，代码不重复展示。若未取得代码，请撤销原授权后重新生成。": {
+    "zh": "原授权已保存，代码不重复展示。若未取得代码，请撤销原授权后重新生成。",
+    "en": "The grant was saved. The code is not shown again. If you did not receive it, revoke this grant and create a new one."
+  },
+  "首次兑换窗口（从生成时起）": {
+    "zh": "首次兑换窗口（从生成时起）",
+    "en": "First redemption window (from creation)"
+  },
+  "兑换与查看有效期（从生成时起）": {
+    "zh": "兑换与查看有效期（从生成时起）",
+    "en": "Redemption and access window (from creation)"
+  },
+  "已绑定账号": {
+    "zh": "已绑定账号",
+    "en": "Bound to account"
+  },
+  "待兑换": {
+    "zh": "待兑换",
+    "en": "Awaiting redemption"
+  },
+  "已撤销": {
+    "zh": "已撤销",
+    "en": "Revoked"
+  },
+  "持续有效 · 可撤销": {
+    "zh": "持续有效 · 可撤销",
+    "en": "Continuous access · Revocable"
+  },
+  "待兑换，截止": {
+    "zh": "待兑换，截止",
+    "en": "Redeem by"
+  },
+  "临时授权截止": {
+    "zh": "临时授权截止",
+    "en": "Temporary access until"
+  },
+  "允许跟随已发布摘要 · 历史保留": {
+    "zh": "允许跟随已发布摘要 · 历史保留",
+    "en": "Follow published summaries · History retained"
+  },
+  "仅固定版本": {
+    "zh": "仅固定版本",
+    "en": "Fixed version only"
+  },
+  "全部 / All": {
+    "zh": "全部",
+    "en": "All"
+  },
+  "有效 / Active": {
+    "zh": "有效",
+    "en": "Active"
+  },
+  "已到期 / Expired": {
+    "zh": "已到期",
+    "en": "Expired"
+  },
+  "已撤销 / Revoked": {
+    "zh": "已撤销",
+    "en": "Revoked"
+  },
+  "授权列表暂不可用，请刷新重试。 / Access list unavailable; refresh to retry.": {
+    "zh": "授权列表暂不可用，请刷新重试。",
+    "en": "Access list unavailable. Refresh to try again."
+  },
+  "授权总览 / Access overview": {
+    "zh": "授权总览",
+    "en": "Access overview"
+  },
+  "历史授权 / Historical access": {
+    "zh": "历史授权",
+    "en": "Historical access"
+  },
+  "持续摘要 / Continuous summary": {
+    "zh": "持续摘要",
+    "en": "Continuous summary"
+  },
+  "临时授权 / Temporary access": {
+    "zh": "临时授权",
+    "en": "Temporary access"
+  },
+  "跟随已发布版本 / Follow published versions": {
+    "zh": "跟随已发布版本",
+    "en": "Follow published versions"
+  },
+  "固定版本 / Fixed version": {
+    "zh": "固定版本",
+    "en": "Fixed version"
+  },
+  "截止 / Until:": {
+    "zh": "截止",
+    "en": "Until:"
+  },
+  "无固定到期日，可撤销 / Until revoked": {
+    "zh": "无固定到期日，可撤销",
+    "en": "Until revoked"
+  },
+  "请先登录后继续。": {
+    "zh": "请先登录后继续。",
+    "en": "Sign in to continue."
+  },
+  "暂时无法读取通信服务状态。": {
+    "zh": "暂时无法读取通信服务状态。",
+    "en": "Unable to load messaging availability."
+  },
+  "保存中…": {
+    "zh": "保存中…",
+    "en": "Saving…"
+  },
+  "保存并继续": {
+    "zh": "保存并继续",
+    "en": "Save and continue"
+  },
+  "中国大陆通信服务暂未开通": {
+    "zh": "中国大陆通信服务暂未开通",
+    "en": "Messaging in mainland China is not yet available"
+  },
+  "先选择通信服务地区": {
+    "zh": "先选择通信服务地区",
+    "en": "Select messaging service region first"
+  },
+  "读取失败": {
+    "zh": "读取失败",
+    "en": "Unable to load"
+  },
+  "等待接受": {
+    "zh": "等待接受",
+    "en": "Awaiting acceptance"
+  },
+  "已接受": {
+    "zh": "已接受",
+    "en": "Accepted"
+  },
+  "已拒绝": {
+    "zh": "已拒绝",
+    "en": "Declined"
+  },
+  "已屏蔽": {
+    "zh": "已屏蔽",
+    "en": "Blocked"
+  },
+  "已复制，可粘贴到邮件、微信或 WhatsApp。": {
+    "zh": "已复制，可粘贴到邮件、微信或 WhatsApp。",
+    "en": "Copied. Paste into email, WeChat or WhatsApp."
+  },
+  "请手动复制下方内容。": {
+    "zh": "请手动复制下方内容。",
+    "en": "Copy the content below manually."
+  },
+  "二维码暂时无法生成，请使用联系链接。": {
+    "zh": "二维码暂时无法生成，请使用联系链接。",
+    "en": "Unable to generate QR code. Use the contact link."
+  },
+  "链接将显示你是分享此联系人的人。": {
+    "zh": "链接将显示你是分享此联系人的人。",
+    "en": "The link identifies you as the person sharing this contact."
+  },
+  "联系状态已更新，请查看收到或发出的申请；重复操作不会新增申请。": {
+    "zh": "联系状态已更新，请查看收到或发出的申请；重复操作不会新增申请。",
+    "en": "Contact status updated. Check received or sent requests. Repeating this action does not create another request."
+  },
+  "申请处理已保存。": {
+    "zh": "申请处理已保存。",
+    "en": "Request decision saved."
+  },
+  "屏蔽状态已更新。": {
+    "zh": "屏蔽状态已更新。",
+    "en": "Block status updated."
+  },
+  "ID设置已保存。": {
+    "zh": "ID设置已保存。",
+    "en": "Contact ID settings saved."
+  },
+  "例如：供应方测试账号": {
+    "zh": "例如：供应方测试账号",
+    "en": "Example: Test supplier account"
+  },
+  "保存ID设置": {
+    "zh": "保存ID设置",
+    "en": "Save ID settings"
+  },
+  "创建我的ID": {
+    "zh": "创建我的ID",
+    "en": "Create my ID"
+  },
+  "此名称和ID可通过联系链接展示。": {
+    "zh": "此名称和ID可通过联系链接展示。",
+    "en": "This name and ID can appear through the contact link."
+  },
+  "ID查询和链接预览已关闭；已有联系人与申请保留。": {
+    "zh": "ID查询和链接预览已关闭；已有联系人与申请保留。",
+    "en": "ID lookup and link preview are disabled. Existing contacts and requests remain."
+  },
+  "此联系链接的二维码": {
+    "zh": "此联系链接的二维码",
+    "en": "QR code for this contact link"
+  },
+  "解除我的屏蔽": {
+    "zh": "解除我的屏蔽",
+    "en": "Remove my block"
+  },
+  "屏蔽此联系人": {
+    "zh": "屏蔽此联系人",
+    "en": "Block this contact"
+  },
+  "已提交": {
+    "zh": "已提交",
+    "en": "Submitted"
+  },
+  "未提交": {
+    "zh": "未提交",
+    "en": "Not submitted"
+  },
+  "企业已确认": {
+    "zh": "企业已确认",
+    "en": "Company-confirmed"
+  },
+  "待确认": {
+    "zh": "待确认",
+    "en": "Awaiting confirmation"
+  },
+  "企业任务有变更，本卡需要复核更新。": {
+    "zh": "企业任务有变更，本卡需要复核更新。",
+    "en": "The company task changed. This card needs review and updating."
+  },
+  "持续至撤销": {
+    "zh": "持续至撤销",
+    "en": "Until revoked"
+  },
+  "请求或回应已保存。材料访问仍按原授权核对。": {
+    "zh": "请求或回应已保存。材料访问仍按原授权核对。",
+    "en": "Request or response saved. Evidence access is still checked against the original grant."
+  },
+  "已将第": {
+    "zh": "已将第",
+    "en": "Marked message"
+  },
+  "条及之前消息标为已读；之后到达的消息继续保留未读。": {
+    "zh": "条及之前消息标为已读；之后到达的消息继续保留未读。",
+    "en": "and earlier messages as read. Later messages remain unread."
+  },
+  "快捷证据请求": {
+    "zh": "快捷证据请求",
+    "en": "Quick evidence request"
+  },
+  "我": {
+    "zh": "我",
+    "en": "Me"
+  },
+  "对方": {
+    "zh": "对方",
+    "en": "Other party"
+  },
+  "买方": {
+    "zh": "买方",
+    "en": "Buyer"
+  },
+  "供应方": {
+    "zh": "供应方",
+    "en": "Supplier"
+  },
+  "回应证据请求": {
+    "zh": "回应证据请求",
+    "en": "Respond to evidence request"
+  },
+  "初始卡": {
+    "zh": "初始卡",
+    "en": "Initial card"
+  },
+  "第": {
+    "zh": "第",
+    "en": "Update"
+  },
+  "次更新": {
+    "zh": "次更新",
+    "en": "publication"
+  },
+  "目前仅接收≤10KB的合成UTF-8文字；真实PDF/OCR尚未开放。": {
+    "zh": "目前仅接收≤10KB的合成UTF-8文字；真实PDF/OCR尚未开放。",
+    "en": "Only synthetic UTF-8 text up to 10 KB is accepted. Real PDFs and text extraction are not available yet."
+  },
+  "文字编码无法读取；请使用UTF-8。": {
+    "zh": "文字编码无法读取；请使用UTF-8。",
+    "en": "Unable to read the encoding. Use UTF-8."
+  },
+  "完整参考清单材料覆盖度": {
+    "zh": "完整参考清单材料覆盖度",
+    "en": "Full reference checklist coverage"
+  },
+  "准备": {
+    "zh": "准备",
+    "en": "Prepare"
+  },
+  "仅目录": {
+    "zh": "仅目录",
+    "en": "Directory entry only"
+  },
+  "未提供": {
+    "zh": "未提供",
+    "en": "Not provided"
+  },
+  "用电量：2000kWh 参保人数：10人": {
+    "zh": "用电量：2000kWh 参保人数：10人",
+    "en": "Electricity: 2000 kWh; insured headcount: 10"
+  },
+  "我发出的": {
+    "zh": "我发出的",
+    "en": "Sent by me"
+  },
+  "对方发来的": {
+    "zh": "对方发来的",
+    "en": "Received"
+  },
+  "尚无记录 / No requests": {
+    "zh": "尚无记录",
+    "en": "No requests"
+  },
+  "买家劳工材料问询 · 合成测试": {
+    "zh": "买家劳工材料问询 · 合成测试",
+    "en": "Buyer labour evidence request · Synthetic test"
+  },
+  "合成供应商": {
+    "zh": "合成供应商",
+    "en": "Synthetic supplier"
+  },
+  "合成工厂A": {
+    "zh": "合成工厂A",
+    "en": "Synthetic facility A"
+  },
+  "· 请求资料准备": {
+    "zh": "· 请求资料准备",
+    "en": "· Request preparation"
+  },
+  "关闭原会话": {
+    "zh": "关闭原会话",
+    "en": "Close original conversation"
+  },
+  "返回原请求会话": {
+    "zh": "返回原请求会话",
+    "en": "Back to original request conversation"
+  },
+  "企业核对当前合成材料": {
+    "zh": "企业核对当前合成材料",
+    "en": "Company reviewed the current synthetic materials"
+  },
+  "固定卡材料覆盖度": {
+    "zh": "固定卡材料覆盖度",
+    "en": "Fixed-card material coverage"
+  },
+  "我接收的授权": {
+    "zh": "我接收的授权",
+    "en": "Access received"
+  },
+  "我提供的授权": {
+    "zh": "我提供的授权",
+    "en": "Access granted by me"
+  },
+  "持续授权，直至撤销": {
+    "zh": "持续授权，直至撤销",
+    "en": "Continuous access until revoked"
+  },
+  "临时授权有效": {
+    "zh": "临时授权有效",
+    "en": "Temporary access active"
+  },
+  "材料授权已停止，历史通信仍保留": {
+    "zh": "材料授权已停止，历史通信仍保留",
+    "en": "Evidence access ended; message history retained"
+  },
+  "登录已失效，请重新登录后下载。": {
+    "zh": "登录已失效，请重新登录后下载。",
+    "en": "Your session expired. Sign in again before downloading."
+  },
+  "此请求当前不可访问，请刷新会话核对。": {
+    "zh": "此请求当前不可访问，请刷新会话核对。",
+    "en": "This request is not currently accessible. Refresh the conversation to check."
+  },
+  "回应历史超过单次导出上限，未生成不完整文件。": {
+    "zh": "回应历史超过单次导出上限，未生成不完整文件。",
+    "en": "Response history exceeds the export limit. No incomplete file was generated."
+  },
+  "未收到有效记录文件，请重试。": {
+    "zh": "未收到有效记录文件，请重试。",
+    "en": "No valid record file received. Try again."
+  },
+  "下载失败，请稍后重试。": {
+    "zh": "下载失败，请稍后重试。",
+    "en": "Download failed. Try again later."
+  },
+  "摘要已发布，买方可在原授权范围内查看；旧卡仍保留。": {
+    "zh": "摘要已发布，买方可在原授权范围内查看；旧卡仍保留。",
+    "en": "Summary published within the buyer's existing scope. Historical cards are retained."
+  },
+  "全部请求状态统计": {
+    "zh": "全部请求状态统计",
+    "en": "All request status counts"
+  },
+  "暂时无法刷新会话，请重试。": {
+    "zh": "暂时无法刷新会话，请重试。",
+    "en": "Unable to refresh conversations. Try again."
+  },
+  "刷新失败；当前显示的是此前加载的记录，未读数可能已变化。请重试。": {
+    "zh": "刷新失败；当前显示的是此前加载的记录，未读数可能已变化。请重试。",
+    "en": "Refresh failed. Previously loaded records remain; unread counts may have changed. Try again."
+  },
+  "未读消息": {
+    "zh": "未读消息",
+    "en": "Unread messages:"
+  },
+  "条": {
+    "zh": "条",
+    "en": "messages"
+  },
+  "联系人": {
+    "zh": "联系人",
+    "en": "Contact"
+  },
+  "作为买方": {
+    "zh": "作为买方",
+    "en": "As buyer"
+  },
+  "作为供应方": {
+    "zh": "作为供应方",
+    "en": "As supplier"
+  },
+  "材料需单独授权": {
+    "zh": "材料需单独授权",
+    "en": "Evidence requires separate permission"
+  },
+  "材料授权有效": {
+    "zh": "材料授权有效",
+    "en": "Evidence access active"
+  },
+  "材料授权已停止，消息仍保留": {
+    "zh": "材料授权已停止，消息仍保留",
+    "en": "Evidence access ended; messages retained"
+  },
+  "正在打开你的会话…": {
+    "zh": "正在打开你的会话…",
+    "en": "Opening your conversation…"
+  },
+  "尚未选择联系人。请在下方添加联系人，或打开已有联系人的通信窗口。": {
+    "zh": "尚未选择联系人。请在下方添加联系人，或打开已有联系人的通信窗口。",
+    "en": "No contact selected. Add a contact below or open an existing conversation."
+  },
+  "DOSSIVO · 直接通信": {
+    "zh": "DOSSIVO · 直接通信",
+    "en": "DOSSIVO · Direct messaging"
+  },
+  "登录后选择通信服务地区，开始国际测试版通信。": {
+    "zh": "登录后选择通信服务地区，开始国际测试版通信。",
+    "en": "After sign-in, select your messaging service region to start the international test version."
+  },
+  "登录后即可使用开发测试版通信，无需先选择地区。": {
+    "zh": "登录后即可使用开发测试版通信，无需先选择地区。",
+    "en": "After sign-in, use the development test messaging without selecting a region first."
+  },
+  "在线授权已到期；已下载历史卡片仍可阅读。": {
+    "zh": "在线授权已到期；已下载历史卡片仍可阅读。",
+    "en": "Online access expired. Previously downloaded cards remain readable."
+  },
+  "历史版本未提供 / Not recorded": {
+    "zh": "历史版本未提供",
+    "en": "Not recorded in this historical version"
+  },
+  "事项数量来自当前查看的已发布卡": {
+    "zh": "事项数量来自当前查看的已发布卡",
+    "en": "Issue counts come from the published card currently displayed"
+  },
+  "最新授权范围内状态：": {
+    "zh": "最新授权范围内状态：",
+    "en": "Latest authorised status:"
+  },
+  "项未解决": {
+    "zh": "项未解决",
+    "en": "unresolved issues"
+  },
+  "企业任务有变更，需要复核更新；当前卡不代表最新结论，新内容并未自动授权。": {
+    "zh": "企业任务有变更，需要复核更新；当前卡不代表最新结论，新内容并未自动授权。",
+    "en": "The company task changed and requires review. This card is not a current finding; new content has not been automatically authorised."
+  },
+  "当前没有另行授权的新版本。": {
+    "zh": "当前没有另行授权的新版本。",
+    "en": "No separately authorised new version is available."
+  },
+  "无固定到期日，企业可撤销 / Until revoked": {
+    "zh": "无固定到期日，企业可撤销",
+    "en": "No fixed expiry; the company may revoke access"
+  },
+  "Protocol 导航": {
+    "zh": "协议 导航",
+    "en": "Protocol navigation"
+  },
+  "关闭 Protocol 并返回 / Close Protocol": {
+    "zh": "关闭 协议 并返回",
+    "en": "Close protocol and return"
+  },
+  "关闭并返回 / Close and return": {
+    "zh": "关闭并返回",
+    "en": "Close and return"
+  },
+  "DOSSIVO · 联系邀请": {
+    "zh": "DOSSIVO · 联系邀请",
+    "en": "DOSSIVO · Contact invitation"
+  },
+  "1. 范围与六式框架": {
+    "zh": "1. 范围与六式框架",
+    "en": "1. Scope and six-entry framework"
+  },
+  "DOSSIVO 是业务应用，通过 PACIscan 使用 PACI 通用协议；不分叉通用内核。六式框架承接业务借贷记录、链上时间与共识、AI Ledger 和 Jurisdiction Ledger。框架叙事不代表这些链上能力已部署。PACIscan 保留 Record / Explore / Verify / Challenge。": {
+    "zh": "DOSSIVO 是业务应用，通过 PACIscan 使用 PACI 通用协议；不分叉通用内核。六式框架承接业务借贷记录、链上时间与共识、人工智能执行账本 和 司法辖区账本。框架叙事不代表这些链上能力已部署。PACIscan 保留 记录、查询、核验、质疑。",
+    "en": "DOSSIVO is a business application using the general PACI protocol through PACIscan, without forking its core. The six-entry framework covers business debit/credit records, on-chain time and consensus, AI Ledger and Jurisdiction Ledger. This framework does not imply that these on-chain capabilities are deployed. PACIscan retains Record, Explore, Verify and Challenge."
+  },
+  "2. 固定来源与企业确认": {
+    "zh": "2. 固定来源与企业确认",
+    "en": "2. Fixed sources and company confirmation"
+  },
+  "任务明确主体、工厂、期间、请求与目的。字段绑定材料版本、原文位置、原值与单位、转换方法和确认历史。更正追加新版本及理由，不能覆盖原提取值；企业确认不升级来源独立性。只有目录的资料不标为已阅读原件。": {
+    "zh": "任务明确主体、工厂、期间、请求与目的。字段绑定材料版本、原文位置、原值与单位、转换方法和确认历史。更正追加新版本及理由，不能覆盖原提取值；企业确认不升级来源独立性。只有目录的资料不标为已阅读原件。",
+    "en": "Tasks specify company, facility, period, request and purpose. Fields link to material versions, source locations, original values and units, conversion methods and confirmation history. Corrections append versions and reasons without replacing extracted values. Company confirmation does not increase source independence. Directory entries are not treated as reviewed originals."
+  },
+  "3. 检查、领域规则与结果": {
+    "zh": "3. 检查、领域规则与结果",
+    "en": "3. Checks, domain rules and results"
+  },
+  "PACI-FLR 独立版本管理领域公式与规则。本次用户要求的 PACI-DOSSIVO-FL 名称作为证据呈现层标题保留，是否等同于 PACI-FLR 或引用它，待 Protocol 窗口冻结对应关系。H/P 初始阈值、示例价格和测试数量不视为正式政策。材料忠实性、来源认证、独立性、现实佐证和法律分析分别陈述。": {
+    "zh": "PACI-FLR 独立版本管理领域公式与规则。本次用户要求的 PACI-DOSSIVO-FL 名称作为证据呈现层标题保留，是否等同于 PACI-FLR 或引用它，待 协议 窗口冻结对应关系。H/P 初始阈值、示例价格和测试数量不视为正式政策。材料忠实性、来源认证、独立性、现实佐证和法律分析分别陈述。",
+    "en": "PACI-FLR versions domain formulae and rules independently. PACI-DOSSIVO-FL remains the evidence-presentation title requested by the user. Whether it equals or references PACI-FLR awaits a frozen mapping from the Protocol workstream. Initial H/P thresholds, example prices and test counts are not formal policy. Fidelity, source authentication, independence, real-world corroboration and legal analysis remain separate."
+  },
+  "4. 未解决事项与挑战": {
+    "zh": "4. 未解决事项与挑战",
+    "en": "4. Unresolved matters and challenges"
+  },
+  "open、explained、remediating、resolved 保留各自含义。待审解释及整改中不是已解决。资料不足和已知问题同时显示。企业拒签不能阻止有权限的挑战、回应或更正；无合格独立复核人时不输出独立裁决。": {
+    "zh": "待处理、说明待审、整改中、已解决 保留各自含义。待审解释及整改中不是已解决。资料不足和已知问题同时显示。企业拒签不能阻止有权限的挑战、回应或更正；无合格独立复核人时不输出独立裁决。",
+    "en": "Open, explained, remediating and resolved retain distinct meanings. Explanations awaiting review and remediation in progress are not resolution. Insufficient evidence and known issues are shown together. Refusal to sign cannot block authorised challenges, responses or corrections. No independent decision is issued without a qualified independent reviewer."
+  },
+  "5. 私密、交付与版本": {
+    "zh": "5. 私密、交付与版本",
+    "en": "5. Privacy, delivery and versions"
+  },
+  "默认 PRIVATE。Link1 摘要和 Link2 原件分别按接收人、版本、用途、页范围及期限授权，每次查询和导出重新鉴权。签核快照不被最新内容覆盖，新版本不自动扩大旧授权。敏感原件不上公开链。当前新任务模块仅支持合成材料与目录，不接受真实劳工原件。": {
+    "zh": "默认私密。摘要链接 摘要和 原件链接 原件分别按接收人、版本、用途、页范围及期限授权，每次查询和导出重新鉴权。签核快照不被最新内容覆盖，新版本不自动扩大旧授权。敏感原件不上公开链。当前新任务模块仅支持合成材料与目录，不接受真实劳工原件。",
+    "en": "Private by default. Summary and original-document access are separately granted by recipient, version, purpose, page range and duration. Every read and export checks permission. Signed snapshots are not overwritten by current content; new versions do not expand previous grants. Sensitive originals never go on a public chain. The new task module currently accepts synthetic materials and directory entries only, not real labour originals."
+  },
+  "6. 签核与链上执行": {
+    "zh": "6. 签核与链上执行",
+    "en": "6. Sign-off and on-chain execution"
+  },
+  "正式卡必须绑定有权人签核、原件与卡片承诺、精确版本、PACI 回执、对应 Protocol 合约执行事件及最终性验证。仅哈希一致、登记回执、代码开源、普通地址或 CA 结果哈希均不能代替这一链条。升级追加新版本；代理合约必须披露实现和管理权限。": {
+    "zh": "正式卡必须绑定有权人签核、原件与卡片承诺、精确版本、PACI 回执、对应 协议 合约执行事件及最终性验证。仅哈希一致、登记回执、代码开源、普通地址或 CA 结果哈希均不能代替这一链条。升级追加新版本；代理合约必须披露实现和管理权限。",
+    "en": "Formal cards must bind authorised sign-off, original and card commitments, exact versions, PACI receipts, corresponding protocol-contract execution events and finality checks. Matching hashes, registration receipts, open-source code, ordinary addresses or an assessment-result hash do not replace this chain. Upgrades append versions. Proxy contracts must disclose implementation and administrative powers."
+  },
+  "7. 与 PACIscan 的对应表": {
+    "zh": "7. 与 PACIscan 的对应表",
+    "en": "7. Correspondence with PACIscan"
+  },
+  "上表引用已读取的 paci-http/0.4 应用接口；该版本号不是通用链上 Protocol 版本。0.4.2-alpha.1 与历史 Standalone 1.2 是不同实现分支，不能按数值大小推定新旧或兼容。": {
+    "zh": "上表引用已读取的 paci-http/0.4 应用接口；该版本号不是通用链上 协议 版本。0.4.2-alpha.1 与历史 Standalone 1.2 是不同实现分支，不能按数值大小推定新旧或兼容。",
+    "en": "The table references the reviewed paci-http/0.4 application API, not a general on-chain protocol version. 0.4.2-alpha.1 and historical Standalone 1.2 are different implementation branches. Their numbering does not establish relative age or compatibility."
+  },
+  "8. 发布与可查询要求": {
+    "zh": "8. 发布与可查询要求",
+    "en": "8. Publication and query requirements"
+  },
+  "Protocol 窗口交付权威文字、条款—代码—测试映射、源码提交、ABI、编译配置、链 ID、合约地址、部署交易、源码验证和升级策略后，DOSSIVO 才能固定引用并完成实际验证。核验应区分历史离线包与最新撤销、挑战及版本状态。现在不展示假地址、不宣称不可篡改的链上记录已经形成。": {
+    "zh": "协议 窗口交付权威文字、条款—代码—测试映射、源码提交、ABI、编译配置、链 ID、合约地址、部署交易、源码验证和升级策略后，DOSSIVO 才能固定引用并完成实际验证。核验应区分历史离线包与最新撤销、挑战及版本状态。现在不展示假地址、不宣称不可篡改的链上记录已经形成。",
+    "en": "DOSSIVO can pin and verify a protocol only after authoritative text, clause/code/test mappings, source commit, ABI, compiler configuration, chain ID, contract address, deployment transaction, source verification and upgrade policy are delivered. Verification must distinguish historical offline packages from current revocation, challenges and version status. No fabricated addresses are shown and no existing immutable on-chain record is claimed."
+  },
+  "劳动合同样本": {
+    "zh": "劳动合同样本",
+    "en": "Contract sample",
+    "it": "Campione di contratto"
+  },
+  "员工名册人数汇总": {
+    "zh": "员工名册人数汇总",
+    "en": "Roster headcount",
+    "it": "Numero di addetti"
+  },
+  "工时与加班制度": {
+    "zh": "工时与加班制度",
+    "en": "Working-hours policy",
+    "it": "Politica orari"
+  },
+  "员工手册与招聘政策": {
+    "zh": "员工手册与招聘政策",
+    "en": "Handbook and recruitment policy",
+    "it": "Manuale e reclutamento"
+  },
+  "社保缴纳凭证与人数": {
+    "zh": "社保缴纳凭证与人数",
+    "en": "Social-insurance payment evidence",
+    "it": "Prove contributive"
+  },
+  "工资代发凭证与汇总": {
+    "zh": "工资代发凭证与汇总",
+    "en": "Payroll payment evidence",
+    "it": "Prove di pagamento salari"
+  },
+  "营收与财务汇总": {
+    "zh": "营收与财务汇总",
+    "en": "Revenue summary",
+    "it": "Riepilogo ricavi"
+  },
+  "考勤与加班汇总": {
+    "zh": "考勤与加班汇总",
+    "en": "Attendance and overtime summary",
+    "it": "Presenze e straordinari"
+  },
+  "用电账单与月度用电量": {
+    "zh": "用电账单与月度用电量",
+    "en": "Electricity bills and monthly kWh",
+    "it": "Bollette e consumi elettrici"
+  },
+  "产量、出货或生产记录": {
+    "zh": "产量、出货或生产记录",
+    "en": "Production or shipment records",
+    "it": "Produzione e spedizioni"
+  },
+  "已有第三方审核报告": {
+    "zh": "已有第三方审核报告",
+    "en": "Existing external audit report",
+    "it": "Rapporto di audit esistente"
+  },
+  "用电凭证": {
+    "zh": "用电凭证",
+    "en": "Electricity evidence"
+  },
+  "社保缴纳凭证": {
+    "zh": "社保缴纳凭证",
+    "en": "Social-insurance payment evidence"
+  },
+  "人员汇总": {
+    "zh": "人员汇总",
+    "en": "Workforce summary"
+  },
+  "审核报告": {
+    "zh": "审核报告",
+    "en": "Audit report"
+  },
+  "证据卡片摘要": {
+    "zh": "证据卡片摘要",
+    "en": "Evidence card summary"
+  },
+  "已回应授权卡片": {
+    "zh": "已回应授权卡片",
+    "en": "Authorised card sent"
+  },
+  "名册人数": {
+    "zh": "名册人数",
+    "en": "Roster headcount"
+  },
+  "参保人数": {
+    "zh": "参保人数",
+    "en": "Insured headcount"
+  },
+  "代发人数": {
+    "zh": "代发人数",
+    "en": "Payroll headcount"
+  },
+  "代发工资总额": {
+    "zh": "代发工资总额",
+    "en": "Total payroll"
+  },
+  "营收": {
+    "zh": "营收",
+    "en": "Revenue"
+  },
+  "月度用电量": {
+    "zh": "月度用电量",
+    "en": "Monthly electricity use"
+  },
+  "产量": {
+    "zh": "产量",
+    "en": "Production output"
+  },
+  "登记 / 更正": {
+    "zh": "登记 / 更正",
+    "en": "Registration / Corrections"
+  },
+  "适配器登记往返测试，更正需进一步业务接入": {
+    "zh": "适配器登记往返测试，更正需进一步业务接入",
+    "en": "Adapter registration round-trip tested. Corrections require further business integration."
+  },
+  "保留原名；当前未运行模型，不制造 AI 记录": {
+    "zh": "保留原名；当前未运行模型，不制造 AI 记录",
+    "en": "Original ledger names retained. No model has run and no AI records are fabricated."
+  },
+  "检查 / 声明评估": {
+    "zh": "检查 / 声明评估",
+    "en": "Checks / Claim evaluation"
+  },
+  "不把登记或算出比率标为事实核实": {
+    "zh": "不把登记或算出比率标为事实核实",
+    "en": "Registration and calculated ratios are not factual verification."
+  },
+  "查询 / 授权 / 历史": {
+    "zh": "查询 / 授权 / 历史",
+    "en": "Queries / Grants / History"
+  },
+  "旧版 Link1 是合成演示；新任务保持私密": {
+    "zh": "旧版 摘要链接 是合成演示；新任务保持私密",
+    "en": "Legacy Link1 is a synthetic demo. New tasks remain private."
+  },
+  "Challenge / 回应": {
+    "zh": "质疑 / 回应",
+    "en": "Challenges / Responses"
+  },
+  "本地业务事项不冒称 PACI 独立裁决": {
+    "zh": "本地业务事项不冒称 PACI 独立裁决",
+    "en": "Local business issues are not represented as independent PACI decisions."
+  },
+  "导出 / 核验": {
+    "zh": "导出 / 核验",
+    "en": "Export / Verification"
+  },
+  "准备件可导出；无正式链上证明": {
+    "zh": "准备件可导出；无正式链上证明",
+    "en": "Preparation records can be exported. No formal on-chain proof is available."
+  },
+  "响应失败": {
+    "zh": "响应失败",
+    "en": "Request failed"
+  },
+  "请稍后重试": {
+    "zh": "请稍后重试",
+    "en": "Please try again later"
+  },
+  "协议": {
+    "zh": "协议",
+    "en": "Protocol"
+  },
+  "PRIVATE": {
+    "zh": "私密",
+    "en": "Private"
+  },
+  "NOT_REGISTERED": {
+    "zh": "未登记",
+    "en": "Not registered"
+  },
+  "NOT_CONNECTED": {
+    "zh": "未连接",
+    "en": "Not connected"
+  },
+  "UNASSESSED": {
+    "zh": "未评估",
+    "en": "Unassessed"
+  },
+  "open": {
+    "zh": "待处理",
+    "en": "Open"
+  },
+  "explained": {
+    "zh": "说明待审",
+    "en": "Explanation pending review"
+  },
+  "remediating": {
+    "zh": "整改中",
+    "en": "Remediating"
+  },
+  "resolved": {
+    "zh": "已解决",
+    "en": "Resolved"
+  },
+  "red": {
+    "zh": "红色",
+    "en": "Red"
+  },
+  "yellow": {
+    "zh": "黄色",
+    "en": "Yellow"
+  },
+  "green": {
+    "zh": "绿色",
+    "en": "Green"
+  },
+  "REQUEST": {
+    "zh": "请求",
+    "en": "Request"
+  },
+  "NOTE": {
+    "zh": "普通消息",
+    "en": "Note"
+  },
+  "REPLY": {
+    "zh": "回应",
+    "en": "Reply"
+  },
+  "RECEIVED": {
+    "zh": "确认收到",
+    "en": "Acknowledged"
+  },
+  "CONTINUOUS_SUMMARY": {
+    "zh": "持续摘要",
+    "en": "Continuous summary"
+  },
+  "TEMPORARY": {
+    "zh": "临时授权",
+    "en": "Temporary access"
+  },
+  "合成汇总 · 正常口径": {
+    "zh": "合成汇总 · 正常口径",
+    "en": "Synthetic summary · Standard scope"
+  },
+  "合成汇总 · 缺项与零分母": {
+    "zh": "合成汇总 · 缺项与零分母",
+    "en": "Synthetic summary · Missing data and zero denominator"
+  },
+  "合成汇总 · 待解释差异": {
+    "zh": "合成汇总 · 待解释差异",
+    "en": "Synthetic summary · Differences requiring explanation"
+  },
+  "MISSING_INPUT": {
+    "zh": "输入缺失",
+    "en": "Missing input"
+  },
+  "ZERO_DENOMINATOR": {
+    "zh": "分母为零",
+    "en": "Zero denominator"
+  },
+  "SCOPE_MISMATCH": {
+    "zh": "范围不匹配",
+    "en": "Scope mismatch"
+  },
+  "CALCULATED": {
+    "zh": "已计算",
+    "en": "Calculated"
+  },
+  "INSUFFICIENT": {
+    "zh": "资料不足",
+    "en": "Insufficient evidence"
+  },
+  "NOT_ASSESSED": {
+    "zh": "未评估",
+    "en": "Not assessed"
+  },
+  "SELF_REPORTED": {
+    "zh": "企业自述",
+    "en": "Self-reported"
+  },
+  "COMPANY_CONFIRMED": {
+    "zh": "企业确认",
+    "en": "Company-confirmed"
+  },
+  "roster_headcount": {
+    "zh": "名册人数",
+    "en": "Roster headcount"
+  },
+  "si_headcount": {
+    "zh": "参保人数",
+    "en": "Insured headcount"
+  },
+  "payroll_headcount": {
+    "zh": "代发人数",
+    "en": "Payroll headcount"
+  },
+  "payroll_total": {
+    "zh": "代发工资总额",
+    "en": "Total payroll"
+  },
+  "revenue": {
+    "zh": "营收",
+    "en": "Revenue"
+  },
+  "kwh_monthly": {
+    "zh": "月度用电量",
+    "en": "Monthly electricity use"
+  },
+  "output_qty": {
+    "zh": "产量",
+    "en": "Production output"
+  },
+  "contract_sample": {
+    "zh": "劳动合同样本",
+    "en": "Contract sample",
+    "it": "Campione di contratto"
+  },
+  "work_hours_policy": {
+    "zh": "工时与加班制度",
+    "en": "Working-hours policy",
+    "it": "Politica orari"
+  },
+  "handbook": {
+    "zh": "员工手册与招聘政策",
+    "en": "Handbook and recruitment policy",
+    "it": "Manuale e reclutamento"
+  },
+  "social_insurance": {
+    "zh": "社保缴纳凭证与人数",
+    "en": "Social-insurance payment evidence",
+    "it": "Prove contributive"
+  },
+  "payroll": {
+    "zh": "工资代发凭证与汇总",
+    "en": "Payroll payment evidence",
+    "it": "Prove di pagamento salari"
+  },
+  "attendance": {
+    "zh": "考勤与加班汇总",
+    "en": "Attendance and overtime summary",
+    "it": "Presenze e straordinari"
+  },
+  "electricity": {
+    "zh": "用电账单与月度用电量",
+    "en": "Electricity bills and monthly kWh",
+    "it": "Bollette e consumi elettrici"
+  },
+  "production": {
+    "zh": "产量、出货或生产记录",
+    "en": "Production or shipment records",
+    "it": "Produzione e spedizioni"
+  },
+  "audit_report": {
+    "zh": "已有第三方审核报告",
+    "en": "Existing external audit report",
+    "it": "Rapporto di audit esistente"
+  },
+  "DOSSIVO 证据呈现 协议": {
+    "zh": "DOSSIVO 证据呈现协议",
+    "en": "DOSSIVO evidence presentation protocol"
+  },
+  "待 协议 窗口交付并验证": {
+    "zh": "待协议工作窗口交付并验证",
+    "en": "Awaiting delivery and verification from the Protocol workstream"
+  },
+  "当前为应用层映射草案，尚不能声称与一个已发布、已部署的 PACI 协议 完全对应。正式链上卡发布保持关闭。": {
+    "zh": "当前为应用层映射草案，尚不能声称与一个已发布、已部署的 PACI 协议 完全对应。正式链上卡发布保持关闭。",
+    "en": "This is an application mapping draft. Full correspondence with a published and deployed PACI Protocol is not established. Formal on-chain card publication remains disabled."
+  },
+  "协议 导航": {
+    "zh": "协议 导航",
+    "en": "Protocol navigation"
+  },
+  "关闭 协议 并返回 / Close 协议": {
+    "zh": "关闭 协议 并返回",
+    "en": "Close protocol and return"
+  },
+  "PACI-FLR 独立版本管理领域公式与规则。本次用户要求的 PACI-DOSSIVO-FL 名称作为证据呈现层标题保留，是否等同于 PACI-FLR 或引用它，待 协议 窗口冻结对应关系。H/P 初始阈值、示例价格和测试数量不视为正式政策。材料忠实性、来源认证、独立性、现实佐证和法律分析分别陈述。": {
+    "zh": "PACI-FLR 独立版本管理领域公式与规则。本次用户要求的 PACI-DOSSIVO-FL 名称作为证据呈现层标题保留，是否等同于 PACI-FLR 或引用它，待 协议 窗口冻结对应关系。H/P 初始阈值、示例价格和测试数量不视为正式政策。材料忠实性、来源认证、独立性、现实佐证和法律分析分别陈述。",
+    "en": "PACI-FLR versions domain formulae and rules independently. PACI-DOSSIVO-FL remains the evidence-presentation title requested by the user. Whether it equals or references PACI-FLR awaits a frozen mapping from the Protocol workstream. Initial H/P thresholds, example prices and test counts are not formal policy. Fidelity, source authentication, independence, real-world corroboration and legal analysis remain separate."
+  },
+  "默认 PRIVATE。摘要链接 摘要和 原件链接 原件分别按接收人、版本、用途、页范围及期限授权，每次查询和导出重新鉴权。签核快照不被最新内容覆盖，新版本不自动扩大旧授权。敏感原件不上公开链。当前新任务模块仅支持合成材料与目录，不接受真实劳工原件。": {
+    "zh": "默认私密。摘要链接 摘要和 原件链接 原件分别按接收人、版本、用途、页范围及期限授权，每次查询和导出重新鉴权。签核快照不被最新内容覆盖，新版本不自动扩大旧授权。敏感原件不上公开链。当前新任务模块仅支持合成材料与目录，不接受真实劳工原件。",
+    "en": "Private by default. Summary and original-document access are separately granted by recipient, version, purpose, page range and duration. Every read and export checks permission. Signed snapshots are not overwritten by current content; new versions do not expand previous grants. Sensitive originals never go on a public chain. The new task module currently accepts synthetic materials and directory entries only, not real labour originals."
+  },
+  "正式卡必须绑定有权人签核、原件与卡片承诺、精确版本、PACI 回执、对应 协议 合约执行事件及最终性验证。仅哈希一致、登记回执、代码开源、普通地址或 CA 结果哈希均不能代替这一链条。升级追加新版本；代理合约必须披露实现和管理权限。": {
+    "zh": "正式卡必须绑定有权人签核、原件与卡片承诺、精确版本、PACI 回执、对应 协议 合约执行事件及最终性验证。仅哈希一致、登记回执、代码开源、普通地址或 CA 结果哈希均不能代替这一链条。升级追加新版本；代理合约必须披露实现和管理权限。",
+    "en": "Formal cards must bind authorised sign-off, original and card commitments, exact versions, PACI receipts, corresponding protocol-contract execution events and finality checks. Matching hashes, registration receipts, open-source code, ordinary addresses or an assessment-result hash do not replace this chain. Upgrades append versions. Proxy contracts must disclose implementation and administrative powers."
+  },
+  "上表引用已读取的 paci-http/0.4 应用接口；该版本号不是通用链上 协议 版本。0.4.2-alpha.1 与历史 Standalone 1.2 是不同实现分支，不能按数值大小推定新旧或兼容。": {
+    "zh": "上表引用已读取的 paci-http/0.4 应用接口；该版本号不是通用链上 协议 版本。0.4.2-alpha.1 与历史 Standalone 1.2 是不同实现分支，不能按数值大小推定新旧或兼容。",
+    "en": "The table references the reviewed paci-http/0.4 application API, not a general on-chain protocol version. 0.4.2-alpha.1 and historical Standalone 1.2 are different implementation branches. Their numbering does not establish relative age or compatibility."
+  },
+  "协议 窗口交付权威文字、条款—代码—测试映射、源码提交、ABI、编译配置、链 ID、合约地址、部署交易、源码验证和升级策略后，DOSSIVO 才能固定引用并完成实际验证。核验应区分历史离线包与最新撤销、挑战及版本状态。现在不展示假地址、不宣称不可篡改的链上记录已经形成。": {
+    "zh": "协议 窗口交付权威文字、条款—代码—测试映射、源码提交、ABI、编译配置、链 ID、合约地址、部署交易、源码验证和升级策略后，DOSSIVO 才能固定引用并完成实际验证。核验应区分历史离线包与最新撤销、挑战及版本状态。现在不展示假地址、不宣称不可篡改的链上记录已经形成。",
+    "en": "DOSSIVO can pin and verify a protocol only after authoritative text, clause/code/test mappings, source commit, ABI, compiler configuration, chain ID, contract address, deployment transaction, source verification and upgrade policy are delivered. Verification must distinguish historical offline packages from current revocation, challenges and version status. No fabricated addresses are shown and no existing immutable on-chain record is claimed."
+  },
+  "旧版 摘要链接 是合成演示；新任务保持私密": {
+    "zh": "旧版 摘要链接 是合成演示；新任务保持私密",
+    "en": "Legacy Link1 is a synthetic demo. New tasks remain private."
+  },
+  "PACI Protocol": {
+    "zh": "PACI 协议",
+    "en": "PACI Protocol"
+  },
+  "AI Ledger / Jurisdiction Ledger": {
+    "zh": "人工智能执行账本 / 司法辖区账本",
+    "en": "AI Ledger / Jurisdiction Ledger"
+  },
+  "合作申请功能在审核人员配置后开放，申请资料仅供申请人和指定管理员查看，不公开展示。撤回申请会停止对应合同访问，但不等于删除申请及审核记录。申请资料不用于自动发邮件或营销；审核不代表签约、执业资质认证或合同生效。": {
+    "zh": "合作申请功能在审核人员配置后开放，申请资料仅供申请人和指定管理员查看，不公开展示。撤回申请会停止对应合同访问，但不等于删除申请及审核记录。申请资料不用于自动发邮件或营销；审核不代表签约、执业资质认证或合同生效。",
+    "en": "Partnership applications open after reviewers are configured. Only the applicant and designated administrators can view the information; it is not public. Withdrawal stops associated contract access but does not delete application or review records. Information is not used for automatic emails or marketing. Review does not constitute signing, professional credential certification or an effective contract.",
+    "it": "Le candidature aprono dopo la configurazione dei revisori. Solo il candidato e gli amministratori designati possono vedere i dati, che non sono pubblici. Il ritiro interrompe l’accesso ai contratti ma non elimina candidatura e verifiche. I dati non sono usati per email automatiche o marketing. La verifica non equivale a firma, certificazione professionale o contratto efficace."
+  },
+  "Select a source material and a recognised relationship": {
+    "en": "Select a source material and a recognised relationship",
+    "zh": "请选择原文材料和有效的关联类型。"
+  },
+  "Choose a readable source material in this task": {
+    "en": "Choose a readable source material in this task",
+    "zh": "请选择当前任务中的可读原文；材料目录或其他任务不能作为此处的原文。"
+  },
+  "Related materials must use the same facility and period": {
+    "en": "Related materials must use the same facility and period",
+    "zh": "关联材料必须属于相同场所和月份，请核对材料范围。"
+  },
+  "Explain the declared source relationship": {
+    "en": "Explain the declared source relationship",
+    "zh": "请填写关联依据，说明如何对应原文。"
+  },
+  "An exact copy must preserve the original text": {
+    "en": "An exact copy must preserve the original text",
+    "zh": "副本必须与原文文字完全相同；译文或摘要请选择相应关系。"
+  },
+  "每处匹配均保留原文位置。同一指标出现多个候选时，不能只确认其中一个来消除歧义；系统不会自动选择较有利的数字。": {
+    "zh": "每处匹配均保留原文位置。同一指标出现多个候选时，不能只确认其中一个来消除歧义；系统不会自动选择较有利的数字。",
+    "en": "Every match retains its source position. Multiple candidates for one metric remain ambiguous even if only one is confirmed; the system does not select the most favourable value.",
+    "it": "Ogni corrispondenza conserva la posizione nella fonte. Più candidati per lo stesso indicatore restano ambigui anche confermandone uno solo; il sistema non sceglie il valore più favorevole."
+  },
+  "Every match retains its source position. Multiple candidates for one metric remain ambiguous even if only one is confirmed; the system does not select the most favourable value.": {
+    "zh": "每处匹配均保留原文位置。同一指标出现多个候选时，不能只确认其中一个来消除歧义；系统不会自动选择较有利的数字。",
+    "en": "Every match retains its source position. Multiple candidates for one metric remain ambiguous even if only one is confirmed; the system does not select the most favourable value.",
+    "it": "Ogni corrispondenza conserva la posizione nella fonte. Più candidati per lo stesso indicatore restano ambigui anche confermandone uno solo; il sistema non sceglie il valore più favorevole."
+  },
+  "Too many field candidates; split the synthetic material into smaller tasks": {
+    "zh": "候选字段过多，请将合成材料拆分到较小的任务中。",
+    "en": "Too many field candidates; split the synthetic material into smaller tasks",
+    "it": "Troppi campi candidati; suddividi il materiale sintetico in attività più piccole."
+  }
+}

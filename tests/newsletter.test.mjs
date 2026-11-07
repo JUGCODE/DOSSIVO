@@ -68,7 +68,7 @@ test("home and sidebar expose a working trilingual briefing entry", () => {
   for (const text of ["本周，全球企业应该完成什么", "What companies worldwide should complete this week", "Che cosa dovrebbero completare questa settimana le imprese di tutto il mondo"]) assert.ok(home.includes(text));
   for (const text of ["企业行动简报", "Action briefings", "Brief operativo"]) assert.ok(workbench.includes(text));
   assert.match(home, /href="\/briefings"/);
-  assert.match(workbench, /router\.push\("\/briefings"\)/);
+  assert.match(workbench, /router\.push\("\/briefings\?lang="\+language\)/);
   const chineseCopy = workbench.slice(workbench.indexOf("zh: {"), workbench.indexOf("it: {"));
   assert.doesNotMatch(chineseCopy, /AI 原生/);
 });

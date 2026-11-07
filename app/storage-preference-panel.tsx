@@ -1,4 +1,6 @@
 'use client';
+import {UIError} from '@/app/ui-language';
+import {UIText,LocaleLink} from '@/app/ui-language';
 import {useRef,useState} from 'react';
 import {Database,Shield} from 'lucide-react';
 const copy={
@@ -19,17 +21,17 @@ export function StoragePreferencePanel({language}:{language:'zh'|'en'|'it'}){
   const d=await r.json() as Preference;setNeedsLogin(false);setState(d);setChoice(d.preference);if(save)setMessage(c.saved);
  }catch(e){setError(e instanceof TypeError?(save?f.retry:c.error):(e as Error).message);}finally{lock.current=false;setBusy(false);}}
  return <details className="contact-help storage-preference" onToggle={e=>{if(e.currentTarget.open&&!state&&!lock.current)void request();}}>
-  <summary><Database size={19} aria-hidden="true"/> {c.title} <span>{c.planned}</span></summary>
-  <p>{c.intro}</p><p>{c.boundary}</p>
+  <summary><Database size={19} aria-hidden="true"/> <UIText>{c.title}</UIText> <span><UIText>{c.planned}</UIText></span></summary>
+  <p><UIText>{c.intro}</UIText></p><p><UIText>{c.boundary}</UIText></p>
   <form onSubmit={e=>{e.preventDefault();if(state)void request(true);}}>
-   <label>{c.label}<select value={choice} disabled={busy||!state} onChange={e=>{setChoice(e.target.value);setMessage('');}}>{c.options.map((label,i)=><option key={values[i]} value={values[i]}>{label}</option>)}</select></label>
-   <button type="submit" disabled={busy||!state||choice===state.preference}>{busy?c.busy:c.save}</button> <button type="button" disabled={busy} onClick={()=>void request()}>{c.load}</button>
+   <label><UIText>{c.label}</UIText><select value={choice} disabled={busy||!state} onChange={e=>{setChoice(e.target.value);setMessage('');}}>{c.options.map((label,i)=><option key={values[i]} value={values[i]}><UIText>{label}</UIText></option>)}</select></label>
+   <button type="submit" disabled={busy||!state||choice===state.preference}><UIText>{busy?c.busy:c.save}</UIText></button> <button type="button" disabled={busy} onClick={()=>void request()}><UIText>{c.load}</UIText></button>
   </form>
-  {needsLogin&&<a className="task-link" href={'/signin-with-chatgpt?return_to='+encodeURIComponent('/'+language+'/#private-tasks')}>{f.login}</a>}
-  {state&&<p>{state.updated_at?f.updated+': '+new Date(state.updated_at).toLocaleString(language==='zh'?'zh-CN':language==='it'?'it-IT':'en-GB'):f.unsaved}</p>}
-  {message&&<p role="status">{message}</p>}{error&&<p role="alert">{error}</p>}
-  <p className="storage-capability"><Shield size={18} aria-hidden="true"/> {c.status}</p>
-  <h3>{c.flow}</h3><ol>{c.steps.map(s=><li key={s}>{s}</li>)}</ol>
-  <details><summary>{c.rules}</summary><p>{c.details}</p><p>{c.gate}</p></details>
+  {needsLogin&&<LocaleLink className="task-link" href={'/signin-with-chatgpt?return_to='+encodeURIComponent('/'+language+'/#private-tasks')}><UIText>{f.login}</UIText></LocaleLink>}
+  {state&&<p><UIText>{state.updated_at?f.updated+': '+new Date(state.updated_at).toLocaleString(language==='zh'?'zh-CN':language==='it'?'it-IT':'en-GB'):f.unsaved}</UIText></p>}
+  {message&&<p role="status"><UIText>{message}</UIText></p>}{error&&<p role="alert"><UIError>{error}</UIError></p>}
+  <p className="storage-capability"><Shield size={18} aria-hidden="true"/> <UIText>{c.status}</UIText></p>
+  <h3><UIText>{c.flow}</UIText></h3><ol>{c.steps.map(s=><li key={s}><UIText>{s}</UIText></li>)}</ol>
+  <details><summary><UIText>{c.rules}</UIText></summary><p><UIText>{c.details}</UIText></p><p><UIText>{c.gate}</UIText></p></details>
  </details>;
 }

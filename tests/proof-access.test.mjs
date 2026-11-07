@@ -117,7 +117,7 @@ test("concurrent reads cannot both consume the same remaining-view value", async
 
 test("a superseded viewer request cannot replace the new token's result or surface an old error", async (t) => {
   const { __requestProof: requestProof } = loadTs("../app/proof/[token]/viewer.tsx", {
-    "@/components/country-flag": {}, "@/components/ui/tabs": {},
+    "@/components/country-flag": {}, "@/components/ui/tabs": {}, "@/app/ui-language": {}, "next/navigation": {},
   }, "\nexports.__requestProof = requestProof;\n");
   const pending = [];
   t.mock.method(globalThis, "fetch", (url, options) => new Promise((resolve, reject) => pending.push({ url, options, resolve, reject })));
