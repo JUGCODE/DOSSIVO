@@ -22,11 +22,14 @@ function frozenObject(value: string): Record<string, unknown> | null {
 export async function GET(_request: Request, context: { params: Promise<{ token: string }> }) {
   const { token: suppliedToken } = await context.params;
   let token=suppliedToken;
+  let verification: Awaited<ReturnType<ProofVerificationStore["signedPresentation"]>> = null;
   if(suppliedToken.includes('.')){
     const c=verificationConfig(env);
     if(!c||new URL(_request.url).hostname!==c.domain)return privateJson({error:'Proof unavailable.'},{status:404});
     const resolved=await new ProofVerificationStore(env.DB).resolveSignedProof(suppliedToken,c);
     if(!resolved)return privateJson({error:'Proof unavailable.'},{status:404});
+    verification=await new ProofVerificationStore(env.DB).signedPresentation(suppliedToken,c);
+    if(!verification)return privateJson({error:'Proof unavailable.'},{status:404});
     token=resolved;
   }
   const db = getDb();
@@ -71,5 +74,6 @@ export async function GET(_request: Request, context: { params: Promise<{ token:
     cardVersion: link.cardVersion,
     viewedAt,
     syntheticDemo: true,
+    verification,
   });
 }

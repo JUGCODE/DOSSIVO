@@ -36,3 +36,5 @@ Founder deferred official domain and abuse email; keep pending without prompting
 
 
 Round 49 update: P1/P12/P13 internal issuance recovery now preserves the same registry, code and token across concurrent retries/restarts, retaining the original key ID. Missing original keys/configuration or inactive sources deny recovery. Migration 0043 stores immutable non-secret derivation metadata; no plaintext code storage. 564 unit/integration and 13 local workerd/D1 checks passed. Share UI/export rollout, official-domain activation and browser acceptance remain pending.
+
+Round 50 update: P1/P6/P8 signed proof responses and the viewer now carry genuine registered verification metadata; legacy links do not acquire a signed label. Metadata-only JSON download includes no bearer, evidence body or buyer identity and asserts no current ACTIVE status. P1 full card export/share-modal integration remains pending. 568 unit/integration and 15 local workerd/D1 checks passed. No production configuration or browser acceptance claimed.
